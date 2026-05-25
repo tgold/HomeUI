@@ -53,7 +53,11 @@ OpenHabClient::~OpenHabClient()
 
 QString OpenHabClient::baseUrl() const
 {
-    return m_baseUrl.toString(QUrl::RemoveTrailingSlash);
+    QString url = m_baseUrl.toString();
+    while (url.endsWith(QLatin1Char('/'))) {
+        url.chop(1);
+    }
+    return url;
 }
 
 void OpenHabClient::setBaseUrl(const QString &baseUrl)
