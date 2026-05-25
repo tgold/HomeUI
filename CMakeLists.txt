@@ -31,6 +31,8 @@ endif()
 qt_standard_project_setup(REQUIRES 6.4)
 
 qt_add_executable(homeui
+    src/DashboardConfig.cpp
+    src/DashboardConfig.h
     src/OpenHabClient.cpp
     src/OpenHabClient.h
     src/main.cpp
@@ -41,7 +43,10 @@ qt_add_qml_module(homeui
     VERSION 1.0
     QML_FILES
         qml/Main.qml
+        qml/components/ConfiguredPage.qml
+        qml/components/ConfiguredPanel.qml
         qml/components/CameraTile.qml
+        qml/components/ControlsPanel.qml
         qml/components/ControlTile.qml
         qml/components/EnergyPanel.qml
         qml/components/MetricRow.qml
@@ -67,4 +72,8 @@ install(TARGETS homeui
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(FILES config/dashboard.json
+    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/homeui
 )

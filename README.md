@@ -4,7 +4,7 @@ Native OpenHAB touchscreen dashboard prototype for Raspberry Pi wall panels.
 
 ## Current prototype
 
-This repository currently contains the Milestone 2 shell:
+This repository currently contains the Milestone 3 shell:
 
 - Qt 6/QML native application scaffold.
 - Fullscreen 1280x800 touchscreen-oriented dashboard.
@@ -16,14 +16,20 @@ This repository currently contains the Milestone 2 shell:
 - Static mock panels for rooms, lights, rollers, energy, operating modes, and camera placeholders.
 - OpenHAB REST integration for initial item states and commands.
 - OpenHAB event stream integration for live item state updates.
+- JSON-based dashboard configuration.
+- Dynamically generated pages and panels.
 
-MQTT integration and fully configurable dashboard panels are planned for later milestones.
+MQTT integration and additional widget types are planned for later milestones.
 
 ## Project structure
 
 ```text
 CMakeLists.txt
+config/
+  dashboard.json
 src/
+  DashboardConfig.cpp
+  DashboardConfig.h
   OpenHabClient.cpp
   OpenHabClient.h
   main.cpp
@@ -41,6 +47,7 @@ qml/
 scripts/
   install-pi-deps.sh
 docs/
+  dashboard-config.md
   openhab-touch-ui-plan.md
 ```
 
@@ -69,6 +76,25 @@ HOMEUI_OPENHAB_URL=http://openhabian:8080 ./build-gcc/homeui
 
 The app opens fullscreen by default for kiosk-style touchscreen use.
 
+## Dashboard configuration
+
+The dashboard layout is loaded from JSON. By default the app looks for:
+
+```text
+./config/dashboard.json
+../config/dashboard.json
+/etc/homeui/dashboard.json
+```
+
+You can set a specific file with either:
+
+```sh
+HOMEUI_CONFIG=/path/to/dashboard.json ./build-gcc/homeui
+./build-gcc/homeui --config /path/to/dashboard.json
+```
+
+See `docs/dashboard-config.md` for the schema and examples.
+
 ## OpenHAB connection
 
 The app connects to OpenHAB through:
@@ -85,23 +111,26 @@ HOMEUI_OPENHAB_URL=http://openhabian:8080 HOMEUI_OPENHAB_TOKEN=... ./build-gcc/h
 ./build-gcc/homeui --openhab-url http://openhabian:8080
 ./build-gcc/homeui --openhab-url http://openhabian:8080 --openhab-token ...
 ./build-gcc/homeui --no-openhab
+./build-gcc/homeui --config ./config/dashboard.json
 ```
 
 If no URL is provided, the app tries `http://openhab:8080`.
 
-The current milestone still uses static item mappings in `qml/Main.qml`, for example:
+OpenHAB item mappings now live in the dashboard config, for example:
 
-```qml
-RoomPanel {
-    openhab: openhabClient
-    title: "Wohnzimmer"
-    temperatureItem: "Wohnzimmer_Temperatur"
-    lightItem: "Wohnzimmer_Licht"
-    shutterItem: "Wohnzimmer_Rollo"
+```json
+{
+  "type": "room",
+  "title": "Wohnzimmer",
+  "items": {
+    "temperature": "Wohnzimmer_Temperatur",
+    "light": "Wohnzimmer_Licht",
+    "shutter": "Wohnzimmer_Rollo"
+  }
 }
 ```
 
-Rename those item properties to match your OpenHAB item names until the configurable dashboard milestone moves this into external config.
+Rename those item values to match your OpenHAB item names.
 
 ## Troubleshooting Qt detection
 
