@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(Qt6 6.4 QUIET COMPONENTS Quick QuickControls2)
+find_package(Qt6 6.4 QUIET COMPONENTS Network Quick QuickControls2)
 if(NOT Qt6_FOUND)
     message(FATAL_ERROR
         "Qt 6.4 development files were not found.\n"
@@ -31,6 +31,8 @@ endif()
 qt_standard_project_setup(REQUIRES 6.4)
 
 qt_add_executable(homeui
+    src/OpenHabClient.cpp
+    src/OpenHabClient.h
     src/main.cpp
 )
 
@@ -53,6 +55,7 @@ target_link_libraries(homeui
     PRIVATE
         Qt6::Quick
         Qt6::QuickControls2
+        Qt6::Network
 )
 
 set_target_properties(homeui PROPERTIES
