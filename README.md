@@ -41,10 +41,20 @@ docs/
 ## Build requirements
 
 - CMake 3.21 or newer.
-- Qt 6.5 or newer with the Quick module.
+- Qt 6.4 or newer with the Quick module.
+- Qt QML runtime modules for QtQuick, QtQuick.Controls, QtQuick.Templates, QtQuick.Layouts, QtQuick.Window, and QtQml.WorkerScript.
 - A C++17 compiler.
 
 On Raspberry Pi OS or another Debian-based system, install Qt 6 development packages through the distribution packages or the Qt online installer.
+
+Example Debian/Ubuntu packages:
+
+```sh
+sudo apt install g++ cmake qt6-base-dev qt6-declarative-dev \
+  qml6-module-qtquick qml6-module-qtquick-controls \
+  qml6-module-qtquick-templates qml6-module-qtquick-layouts \
+  qml6-module-qtquick-window qml6-module-qtqml-workerscript
+```
 
 ## Build and run
 

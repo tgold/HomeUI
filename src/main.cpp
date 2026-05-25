@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QUrl>
 
 int main(int argc, char *argv[])
 {
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
 
-    engine.loadFromModule(QStringLiteral("HomeUI"), QStringLiteral("Main"));
+    engine.load(QUrl(QStringLiteral("qrc:/HomeUI/qml/Main.qml")));
 
     return app.exec();
 }
