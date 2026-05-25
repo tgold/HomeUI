@@ -5,6 +5,21 @@ Rectangle {
     id: root
 
     property string title: "Energie"
+    property var openhab: null
+    property string pvItem: ""
+    property string gridItem: ""
+    property string consumptionItem: ""
+    property string batteryItem: ""
+    property string waterItem: ""
+    property int stateRevision: openhab ? openhab.stateRevision : 0
+
+    function itemState(itemName, fallback) {
+        stateRevision
+        if (openhab && itemName.length > 0) {
+            return openhab.itemState(itemName, fallback)
+        }
+        return fallback
+    }
 
     implicitWidth: 292
     implicitHeight: 250
@@ -48,35 +63,35 @@ Rectangle {
 
         MetricRow {
             label: "PV Erzeugung"
-            value: "2313.5 W"
+            value: root.itemState(root.pvItem, "2313.5 W")
             detail: "solar"
             Layout.fillWidth: true
         }
 
         MetricRow {
             label: "Netz"
-            value: "-1833.2 W"
+            value: root.itemState(root.gridItem, "-1833.2 W")
             detail: "export"
             Layout.fillWidth: true
         }
 
         MetricRow {
             label: "Verbrauch"
-            value: "469.9 W"
+            value: root.itemState(root.consumptionItem, "469.9 W")
             detail: "house"
             Layout.fillWidth: true
         }
 
         MetricRow {
             label: "Batterie"
-            value: "100.0 %"
+            value: root.itemState(root.batteryItem, "100.0 %")
             detail: "+0.0 kW"
             Layout.fillWidth: true
         }
 
         MetricRow {
             label: "Wasser heute"
-            value: "137 kWh"
+            value: root.itemState(root.waterItem, "137 kWh")
             detail: "thermal"
             warning: true
             Layout.fillWidth: true

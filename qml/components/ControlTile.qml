@@ -9,7 +9,9 @@ Rectangle {
     property string secondary: ""
     property string iconText: ""
     property bool active: false
+    property bool interactive: false
     property color accentColor: "#f59e0b"
+    signal clicked()
 
     implicitWidth: 132
     implicitHeight: 76
@@ -17,6 +19,12 @@ Rectangle {
     color: active ? "#26364d" : "#172235"
     border.color: active ? accentColor : "#304158"
     border.width: 1
+
+    MouseArea {
+        anchors.fill: parent
+        enabled: root.interactive
+        onClicked: root.clicked()
+    }
 
     ColumnLayout {
         anchors.fill: parent

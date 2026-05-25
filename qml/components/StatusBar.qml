@@ -7,6 +7,10 @@ Rectangle {
     property string title: "OPENHAB"
     property string section: "RAUME EG"
     property string nowText: Qt.formatTime(new Date(), "hh:mm")
+    property bool openhabConnected: false
+    property bool eventStreamConnected: false
+    property int itemCount: 0
+    property string statusText: "OpenHAB not connected"
 
     height: 72
     color: "#0b1220"
@@ -53,12 +57,20 @@ Rectangle {
                 font.pixelSize: 12
                 font.bold: true
             }
+
+            Text {
+                text: root.statusText + (root.itemCount > 0 ? " · " + root.itemCount + " items" : "")
+                color: root.openhabConnected ? "#86efac" : "#fbbf24"
+                font.pixelSize: 10
+                elide: Text.ElideRight
+                Layout.fillWidth: true
+            }
         }
 
         Repeater {
             model: [
-                { "label": "OH", "ok": true },
-                { "label": "MQ", "ok": true },
+                { "label": "OH", "ok": root.openhabConnected },
+                { "label": "EV", "ok": root.eventStreamConnected },
                 { "label": "LAN", "ok": true },
                 { "label": "PV", "ok": true },
                 { "label": "BAT", "ok": true },

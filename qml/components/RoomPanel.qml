@@ -11,6 +11,60 @@ Rectangle {
     property bool lightOn: false
     property bool shutterClosed: false
     property string shutterPosition: "-- %"
+    property var openhab: null
+    property string temperatureItem: ""
+    property string humidityItem: ""
+    property string lightItem: ""
+    property string hueItem: ""
+    property string shutterItem: ""
+    property int stateRevision: openhab ? openhab.stateRevision : 0
+    readonly property string effectiveTemperature: itemState(temperatureItem, temperature)
+    readonly property string effectiveHumidity: itemState(humidityItem, humidity)
+    readonly property string effectiveLightState: itemState(lightItem, lightOn ? "ON" : "OFF")
+    readonly property bool effectiveLightOn: isOnState(effectiveLightState)
+    readonly property string effectiveHueState: itemState(hueItem, effectiveLightOn ? "100%" : "0%")
+    readonly property string effectiveShutterState: itemState(shutterItem, shutterClosed ? "DOWN" : "UP")
+    readonly property bool effectiveShutterClosed: isClosedState(effectiveShutterState)
+
+    function itemState(itemName, fallback) {
+        stateRevision
+        if (openhab && itemName.length > 0) {
+            return openhab.itemState(itemName, fallback)
+        }
+        return fallback
+    }
+
+    function isOnState(state) {
+        var normalized = String(state).trim().toUpperCase()
+        if (normalized === "ON" || normalized === "OPEN" || normalized === "DOWN") {
+            return true
+        }
+        var number = Number(normalized.split(" ")[0])
+        return !isNaN(number) && number > 0
+    }
+
+    function isClosedState(state) {
+        var normalized = String(state).trim().toUpperCase()
+        if (normalized === "DOWN" || normalized === "CLOSED") {
+            return true
+        }
+        var number = Number(normalized.split(" ")[0])
+        return !isNaN(number) && number > 50
+    }
+
+    function sendToggle(itemName, onCommand, offCommand, currentState) {
+        if (!openhab || itemName.length === 0) {
+            return
+        }
+        openhab.sendCommand(itemName, isOnState(currentState) ? offCommand : onCommand)
+    }
+
+    function sendShutterToggle() {
+        if (!openhab || shutterItem.length === 0) {
+            return
+        }
+        openhab.sendCommand(shutterItem, effectiveShutterClosed ? "UP" : "DOWN")
+    }
 
     implicitWidth: 292
     implicitHeight: 250
@@ -59,7 +113,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: root.temperature
+                    text: root.effectiveTemperature
                     color: "#f97316"
                     font.pixelSize: 14
                     font.bold: true
@@ -76,36 +130,42 @@ Rectangle {
 
             ControlTile {
                 label: "Licht"
-                value: root.lightOn ? "ON" : "OFF"
+                value: root.effectiveLightOn ? "ON" : "OFF"
                 secondary: "main"
                 iconText: "L"
-                active: root.lightOn
+                active: root.effectiveLightOn
+                interactive: root.lightItem.length > 0
+                onClicked: root.sendToggle(root.lightItem, "ON", "OFF", root.effectiveLightState)
                 Layout.fillWidth: true
             }
 
             ControlTile {
                 label: "Hue"
-                value: root.lightOn ? "100%" : "0%"
+                value: root.effectiveHueState
                 secondary: "scene"
                 iconText: "H"
-                active: root.lightOn
+                active: root.isOnState(root.effectiveHueState)
+                interactive: root.hueItem.length > 0
+                onClicked: root.sendToggle(root.hueItem, "100", "0", root.effectiveHueState)
                 accentColor: "#fbbf24"
                 Layout.fillWidth: true
             }
 
             ControlTile {
                 label: "Rollo"
-                value: root.shutterClosed ? "DOWN" : "UP"
-                secondary: root.shutterPosition
+                value: root.effectiveShutterClosed ? "DOWN" : "UP"
+                secondary: root.itemState(root.shutterItem, root.shutterPosition)
                 iconText: "R"
-                active: root.shutterClosed
+                active: root.effectiveShutterClosed
+                interactive: root.shutterItem.length > 0
+                onClicked: root.sendShutterToggle()
                 accentColor: "#38bdf8"
                 Layout.fillWidth: true
             }
 
             ControlTile {
                 label: "Klima"
-                value: root.humidity
+                value: root.effectiveHumidity
                 secondary: "humidity"
                 iconText: "C"
                 active: false
