@@ -34,6 +34,8 @@ qml/
     PageDots.qml
     RoomPanel.qml
     StatusBar.qml
+scripts/
+  install-pi-deps.sh
 docs/
   openhab-touch-ui-plan.md
 ```
@@ -47,21 +49,42 @@ docs/
 
 On Raspberry Pi OS or another Debian-based system, install Qt 6 development packages through the distribution packages or the Qt online installer.
 
-Example Debian/Ubuntu packages:
+For Raspberry Pi OS / Debian / Ubuntu, the easiest setup is:
 
 ```sh
-sudo apt install g++ cmake qt6-base-dev qt6-declarative-dev \
-  qml6-module-qtquick qml6-module-qtquick-controls \
-  qml6-module-qtquick-templates qml6-module-qtquick-layouts \
-  qml6-module-qtquick-window qml6-module-qtqml-workerscript
+./scripts/install-pi-deps.sh
 ```
 
 ## Build and run
 
 ```sh
-cmake -S . -B build
-cmake --build build
-./build/homeui
+cmake -S . -B build-gcc -DCMAKE_CXX_COMPILER=g++
+cmake --build build-gcc
+./build-gcc/homeui
 ```
 
 The app opens fullscreen by default for kiosk-style touchscreen use.
+
+## Troubleshooting Qt detection
+
+If CMake reports that it cannot find `Qt6Config.cmake` or `qt6-config.cmake`, the Qt development package is missing or CMake cannot see it.
+
+First run:
+
+```sh
+./scripts/install-pi-deps.sh
+```
+
+Then clean the failed configure directory and rerun CMake:
+
+```sh
+rm -rf build-gcc
+cmake -S . -B build-gcc -DCMAKE_CXX_COMPILER=g++
+```
+
+If Qt was installed with the Qt online installer instead of apt packages, pass the Qt install prefix explicitly:
+
+```sh
+cmake -S . -B build-gcc -DCMAKE_CXX_COMPILER=g++ \
+  -DCMAKE_PREFIX_PATH=/path/to/Qt/6.x/gcc_arm64
+```

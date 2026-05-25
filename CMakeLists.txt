@@ -8,7 +8,25 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Quick QuickControls2)
+find_package(Qt6 6.4 QUIET COMPONENTS Quick QuickControls2)
+if(NOT Qt6_FOUND)
+    message(FATAL_ERROR
+        "Qt 6.4 development files were not found.\n"
+        "\n"
+        "On Raspberry Pi OS / Debian / Ubuntu, install the required Qt packages first:\n"
+        "  sudo apt update\n"
+        "  sudo apt install g++ cmake qt6-base-dev qt6-declarative-dev \\\n"
+        "    qml6-module-qtquick qml6-module-qtquick-controls \\\n"
+        "    qml6-module-qtquick-templates qml6-module-qtquick-layouts \\\n"
+        "    qml6-module-qtquick-window qml6-module-qtqml-workerscript\n"
+        "\n"
+        "Then re-run:\n"
+        "  cmake -S . -B build-gcc -DCMAKE_CXX_COMPILER=g++\n"
+        "\n"
+        "If Qt was installed from the Qt online installer instead of apt, pass its prefix:\n"
+        "  cmake -S . -B build-gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_PREFIX_PATH=/path/to/Qt/6.x/gcc_arm64\n"
+    )
+endif()
 
 qt_standard_project_setup(REQUIRES 6.4)
 
