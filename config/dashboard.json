@@ -1171,6 +1171,63 @@
           ]
         }
       ]
+    },
+
+    {
+      "id": "diagramme",
+      "title": "DIAGRAMME",
+      "layout": "grid",
+      "columns": 2,
+      "panels": [
+        {
+          "type": "grafana",
+          "title": "Temperaturen",
+          "baseUrl": "http://192.168.0.95:3000",
+          "dashboardUid": "cdnrwiq71tc74c",
+          "slug": "home",
+          "panelId": 1,
+          "from": "now-2d",
+          "to": "now",
+          "refreshInterval": 60,
+          "fillHeight": true
+        },
+        {
+          "type": "grafana",
+          "title": "Wasser",
+          "baseUrl": "http://192.168.0.95:3000",
+          "dashboardUid": "cdnrwiq71tc74c",
+          "slug": "home",
+          "panelId": 3,
+          "from": "now-2d",
+          "to": "now",
+          "refreshInterval": 60,
+          "fillHeight": true
+        },
+        {
+          "type": "grafana",
+          "title": "Energie",
+          "baseUrl": "http://192.168.0.95:3000",
+          "dashboardUid": "cdnrwiq71tc74c",
+          "slug": "home",
+          "panelId": 2,
+          "from": "now-2d",
+          "to": "now",
+          "refreshInterval": 60,
+          "fillHeight": true
+        },
+        {
+          "type": "grafana",
+          "title": "E-Auto",
+          "baseUrl": "http://192.168.0.95:3000",
+          "dashboardUid": "cdnrwiq71tc74c",
+          "slug": "home",
+          "panelId": 9,
+          "from": "now-2d",
+          "to": "now",
+          "refreshInterval": 60,
+          "fillHeight": true
+        }
+      ]
     }
   ]
 }

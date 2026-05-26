@@ -25,6 +25,7 @@ const QStringList ValidPanelTypes = {
     QStringLiteral("controls"),
     QStringLiteral("mqtt"),
     QStringLiteral("sonos"),
+    QStringLiteral("grafana"),
 };
 
 const QStringList ValidControlKinds = {
@@ -358,6 +359,35 @@ bool DashboardConfig::validatePanel(const QVariantMap &panel, const QString &pat
                                  .arg(path, ValidCameraFormats.join(QStringLiteral(", ")));
                 return false;
             }
+        }
+    }
+
+    if (type == QStringLiteral("grafana")) {
+        const QString baseUrl = panel.value(QStringLiteral("baseUrl")).toString().trimmed();
+        if (baseUrl.isEmpty()) {
+            *errorText = QStringLiteral("%1.baseUrl must be a non-empty Grafana base URL "
+                                        "(e.g. http://grafana.local:3000)").arg(path);
+            return false;
+        }
+        const QString dashboardUid = panel.value(QStringLiteral("dashboardUid")).toString().trimmed();
+        if (dashboardUid.isEmpty()) {
+            *errorText = QStringLiteral("%1.dashboardUid must be a non-empty Grafana dashboard UID")
+                             .arg(path);
+            return false;
+        }
+        const QVariant panelIdValue = panel.value(QStringLiteral("panelId"));
+        bool panelIdOk = false;
+        const int panelId = panelIdValue.toInt(&panelIdOk);
+        if (!panelIdOk || panelId <= 0) {
+            *errorText = QStringLiteral("%1.panelId must be a positive integer Grafana panel id")
+                             .arg(path);
+            return false;
+        }
+        const QVariant extraValue = panel.value(QStringLiteral("extraParams"));
+        if (extraValue.isValid() && !extraValue.canConvert<QVariantMap>()) {
+            *errorText = QStringLiteral("%1.extraParams must be an object of key/value query parameters")
+                             .arg(path);
+            return false;
         }
     }
 

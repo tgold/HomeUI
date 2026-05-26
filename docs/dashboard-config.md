@@ -474,6 +474,67 @@ All `items.*` keys are optional - the panel hides unbound controls automatically
 
 `favorites` is a list of `{ label, command, accentColor? }` entries. Pressing one publishes `command` to the `favorite` item.
 
+### Grafana panel
+
+Embeds a single Grafana panel as a self-refreshing PNG served by Grafana's `/render/d-solo/...` endpoint. No `QtWebEngine` / Chromium is pulled into HomeUI - rendering happens entirely on the Grafana server side and HomeUI just displays the resulting image, which makes this very light for a Pi kiosk.
+
+```json
+{
+  "type": "grafana",
+  "title": "Temperaturen",
+  "baseUrl": "http://192.168.0.95:3000",
+  "dashboardUid": "cdnrwiq71tc74c",
+  "slug": "home",
+  "panelId": 1,
+  "orgId": 1,
+  "theme": "dark",
+  "from": "now-2d",
+  "to": "now",
+  "timezone": "Europe/Berlin",
+  "refreshInterval": 60,
+  "renderScale": 1,
+  "extraParams": {
+    "var-room": "Wohnzimmer"
+  }
+}
+```
+
+- `baseUrl` (required) - the Grafana root URL, e.g. `http://grafana.local:3000`. Trailing slashes are stripped.
+- `dashboardUid` (required) - the UID portion of the dashboard URL (`/d/<uid>/<slug>`).
+- `slug` - the dashboard slug portion. Cosmetic for Grafana, defaults to `"dashboard"`.
+- `panelId` (required, > 0) - the panel id to render. Find it in Grafana via _Share - Link_ -> the `viewPanel=N` query parameter, or _Inspect - Panel JSON - id_.
+- `orgId` (default `1`) - Grafana organisation id.
+- `theme` - `"dark"` (default) or `"light"`.
+- `from` / `to` - Grafana relative or absolute time range (`now-2d`, `now`, `now-7d/d`, etc.). Defaults to `now-2d` / `now`.
+- `timezone` - optional IANA timezone forwarded as Grafana's `tz` query parameter.
+- `refreshInterval` - seconds between PNG refreshes. Minimum effective interval is 5 s, default is 60 s.
+- `renderScale` - upscale factor forwarded as Grafana's `scale` parameter for Hi-DPI panels. Set to `2` on a 4K monitor.
+- `extraParams` - free-form object of additional query parameters (`var-room`, `kiosk`, custom variables, etc.). Values can be strings, numbers, or arrays (arrays repeat the key).
+
+The panel automatically queries Grafana for the actual pixel dimensions of the tile (multiplied by `Screen.devicePixelRatio`), so the image always arrives at native resolution. Resizing the window debounces re-renders by 500 ms to avoid hammering Grafana.
+
+**One-time Grafana setup:**
+
+1. Install the renderer plugin on the Grafana server and restart it:
+
+   ```bash
+   grafana-cli plugins install grafana-image-renderer
+   sudo systemctl restart grafana-server
+   ```
+
+2. For a kiosk that doesn't authenticate, enable anonymous Viewer access in `/etc/grafana/grafana.ini`:
+
+   ```ini
+   [auth.anonymous]
+   enabled = true
+   org_name = Main Org.
+   org_role = Viewer
+   ```
+
+   Restart Grafana again afterwards. If your Grafana instance does require authentication, see the **Auth note** below.
+
+**Auth note:** `QtQuick.Image` cannot attach custom HTTP headers, so bearer-token / API-key authentication is not supported out of the box. If your Grafana mandates auth, the current options are anonymous access (above) or running Grafana behind a reverse proxy that injects the API key. Native API-key support would require a small `QQuickImageProvider` similar to `src/MjpegView.cpp` - file an issue if you need it.
+
 ### MQTT-backed controls
 
 A control can also be backed by an MQTT topic instead of an OpenHAB item:

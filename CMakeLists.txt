@@ -80,6 +80,7 @@ qt_add_qml_module(homeui
         qml/components/DropdownTile.qml
         qml/components/EnergyPanel.qml
         qml/components/Format.js
+        qml/components/GrafanaPanel.qml
         qml/components/MetricRow.qml
         qml/components/ModePanel.qml
         qml/components/MqttPanel.qml

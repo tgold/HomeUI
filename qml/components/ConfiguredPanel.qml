@@ -46,6 +46,8 @@ Item {
                 return mqttPanelComponent
             case "sonos":
                 return sonosPanelComponent
+            case "grafana":
+                return grafanaPanelComponent
             default:
                 return unsupportedPanelComponent
             }
@@ -137,6 +139,26 @@ Item {
             items: root.value(["items"], ({}))
             favorites: root.value(["favorites"], [])
             accentColor: root.value(["accentColor"], "#f59e0b")
+        }
+    }
+
+    Component {
+        id: grafanaPanelComponent
+
+        GrafanaPanel {
+            title: root.value(["title"], "Grafana")
+            baseUrl: root.value(["baseUrl"], "")
+            dashboardUid: root.value(["dashboardUid"], "")
+            slug: root.value(["slug"], "dashboard")
+            panelId: root.value(["panelId"], 0)
+            orgId: root.value(["orgId"], 1)
+            theme: root.value(["theme"], "dark")
+            from: root.value(["from"], "now-2d")
+            to: root.value(["to"], "now")
+            timezone: root.value(["timezone"], "")
+            refreshInterval: root.value(["refreshInterval"], 60)
+            renderScale: root.value(["renderScale"], 1.0)
+            extraParams: root.value(["extraParams"], ({}))
         }
     }
 
