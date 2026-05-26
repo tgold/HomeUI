@@ -51,7 +51,7 @@ Use this for HABPanel-style dashboards with vertical stacks of panels.
 
 ### Grid layout
 
-Use this for evenly distributed room pages.
+Use this for evenly distributed room pages. All cells in a grid row are stretched to match the tallest cell.
 
 ```json
 {
@@ -62,6 +62,25 @@ Use this for evenly distributed room pages.
   "panels": []
 }
 ```
+
+### Masonry layout
+
+Pinterest-style packing: each panel keeps its natural height, and new panels drop into the column with the smallest current height. This is the right pick when panels have very different sizes (e.g. an overview page mixing a tall Wohnzimmer card with a short Robi tile) so short tiles do not get stretched to match tall neighbours.
+
+```json
+{
+  "id": "overview",
+  "title": "UEBERSICHT",
+  "layout": "masonry",
+  "columns": 3,
+  "columnWidth": 320,
+  "panels": []
+}
+```
+
+- `columns` (optional) - explicit column count. When omitted the layout derives a count from the available width and `columnWidth`.
+- `columnWidth` (optional, default `320`) - target column width used by the auto column count.
+- Panels accept `columnSpan` so a full-width footer (e.g. a Sonos player) can stretch across all columns. A spanning panel is placed below the tallest column at the time of placement, then all columns advance to its bottom edge.
 
 ## Panel types
 

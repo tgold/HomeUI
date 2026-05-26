@@ -3,7 +3,7 @@
     {
       "id": "uebersicht",
       "title": "UEBERSICHT",
-      "layout": "grid",
+      "layout": "masonry",
       "columns": 3,
       "panels": [
         {
@@ -269,7 +269,7 @@
     {
       "id": "erdgeschoss",
       "title": "RAEUME EG",
-      "layout": "grid",
+      "layout": "masonry",
       "columns": 3,
       "panels": [
         {
@@ -458,7 +458,7 @@
     {
       "id": "obergeschoss",
       "title": "RAEUME OG",
-      "layout": "grid",
+      "layout": "masonry",
       "columns": 3,
       "panels": [
         {
@@ -1068,7 +1068,7 @@
     {
       "id": "medien",
       "title": "MEDIEN",
-      "layout": "grid",
+      "layout": "masonry",
       "columns": 2,
       "panels": [
         {

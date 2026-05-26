@@ -242,8 +242,10 @@ bool DashboardConfig::validateConfig(const QVariantMap &config, QString *errorTe
         }
 
         const QString layout = page.value(QStringLiteral("layout"), QStringLiteral("columns")).toString();
-        if (layout != QStringLiteral("columns") && layout != QStringLiteral("grid")) {
-            *errorText = QStringLiteral("%1.layout must be 'columns' or 'grid'").arg(pagePath);
+        if (layout != QStringLiteral("columns")
+            && layout != QStringLiteral("grid")
+            && layout != QStringLiteral("masonry")) {
+            *errorText = QStringLiteral("%1.layout must be 'columns', 'grid' or 'masonry'").arg(pagePath);
             return false;
         }
 
