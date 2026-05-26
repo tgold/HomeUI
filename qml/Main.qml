@@ -88,6 +88,16 @@ ApplicationWindow {
         return false
     }
 
+    function _thzHeating() {
+        var _ = openhabClient.stateRevision
+        return openhabClient.itemIsOn("thz_heizen", false)
+    }
+
+    function _thzHotWater() {
+        var _ = openhabClient.stateRevision
+        return openhabClient.itemIsOn("thz_warmwasserbereitung", false)
+    }
+
     Shortcut {
         sequences: ["Ctrl+Q", "Esc"]
         context: Qt.ApplicationShortcut
@@ -126,7 +136,9 @@ ApplicationWindow {
             { "label": "LIVE", "state": openhabClient.eventStreamConnected ? "ok" : "warn" },
             { "label": "CAR",  "state": root._evccCharging() ? "active" : "idle" },
             { "label": "ROBI", "state": root._robotRunning() ? "active" : "idle" },
-            { "label": "BEW",  "state": root._irrigationRunning() ? "active" : "idle" }
+            { "label": "BEW",  "state": root._irrigationRunning() ? "active" : "idle" },
+            { "label": "HEIZ", "state": root._thzHeating() ? "active" : "idle" },
+            { "label": "WW",   "state": root._thzHotWater() ? "active" : "idle" }
         ]
     }
 
