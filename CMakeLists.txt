@@ -88,6 +88,11 @@ qt_add_qml_module(homeui
         qml/components/ThermostatTile.qml
 )
 
+target_include_directories(homeui
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 target_link_libraries(homeui
     PRIVATE
         Qt6::Quick
