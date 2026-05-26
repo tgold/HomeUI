@@ -4,22 +4,19 @@ Native OpenHAB touchscreen dashboard prototype for Raspberry Pi wall panels.
 
 ## Current prototype
 
-This repository currently contains the Milestone 3 shell:
+This repository currently contains the Milestone 4 shell:
 
 - Qt 6/QML native application scaffold.
 - Fullscreen 1280x800 touchscreen-oriented dashboard.
 - Dark HABPanel-inspired visual style.
-- Three horizontally swipeable pages:
-  - Ground-floor overview.
-  - Climate overview.
-  - Energy and security overview.
-- Static mock panels for rooms, lights, rollers, energy, operating modes, and camera placeholders.
+- Horizontally swipeable, JSON-driven pages and panels.
 - OpenHAB REST integration for initial item states and commands.
 - OpenHAB event stream integration for live item state updates.
-- JSON-based dashboard configuration.
-- Dynamically generated pages and panels.
+- MQTT integration with broker auto-reconnect, Last Will, and retained heartbeat status.
+- MQTT-backed control tiles and a dedicated `mqtt` panel type for read-only topics.
+- MQTT control plane on `home/panel/<panel-id>/{page,brightness,reload}` topics.
 
-MQTT integration and additional widget types are planned for later milestones.
+Custom home-automation widget catalogues and Raspberry Pi production deployment polish are planned for later milestones.
 
 ## Project structure
 
@@ -30,6 +27,8 @@ config/
 src/
   DashboardConfig.cpp
   DashboardConfig.h
+  MqttClient.cpp
+  MqttClient.h
   OpenHabClient.cpp
   OpenHabClient.h
   main.cpp
@@ -37,10 +36,15 @@ qml/
   Main.qml
   components/
     CameraTile.qml
+    ConfiguredPage.qml
+    ConfiguredPanel.qml
+    ControlsPanel.qml
     ControlTile.qml
     EnergyPanel.qml
+    Format.js
     MetricRow.qml
     ModePanel.qml
+    MqttPanel.qml
     PageDots.qml
     RoomPanel.qml
     StatusBar.qml
@@ -131,6 +135,31 @@ OpenHAB item mappings now live in the dashboard config, for example:
 ```
 
 Rename those item values to match your OpenHAB item names.
+
+## MQTT connection
+
+The app talks to an MQTT broker for two purposes:
+
+- Publishing its own heartbeat / status (`home/panel/<id>/status`, retained, with a Last-Will marking the panel offline on disconnect).
+- Subscribing to remote control topics (`home/panel/<id>/page/set`, `brightness/set`, `reload`) and any topics bound to dashboard widgets.
+
+Configuration options:
+
+```sh
+HOMEUI_MQTT_BROKER=mqtt://openhabian:1883 ./build-gcc/homeui
+HOMEUI_MQTT_BROKER=mqtt://openhabian:1883 \
+  HOMEUI_MQTT_USERNAME=panel HOMEUI_MQTT_PASSWORD=secret \
+  HOMEUI_MQTT_PANEL_ID=wallpanel-eg ./build-gcc/homeui
+
+./build-gcc/homeui --mqtt-broker mqtt://openhabian:1883 \
+  --mqtt-username panel --mqtt-password secret \
+  --mqtt-panel-id wallpanel-eg --mqtt-client-id wallpanel-eg-1
+./build-gcc/homeui --no-mqtt
+```
+
+`HOMEUI_BRIGHTNESS_PATH=/sys/class/backlight/10-0045/brightness` can pin the backlight device written to by `brightness/set`. Otherwise the app picks the first device under `/sys/class/backlight/`.
+
+If the Qt MQTT module is not available at build time the MQTT integration is silently dropped (the `--mqtt-*` flags become no-ops).
 
 ## Troubleshooting Qt detection
 

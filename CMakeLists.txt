@@ -28,6 +28,19 @@ if(NOT Qt6_FOUND)
     )
 endif()
 
+find_package(Qt6 6.4 QUIET COMPONENTS Mqtt)
+set(HOMEUI_HAS_MQTT FALSE)
+if(Qt6Mqtt_FOUND)
+    set(HOMEUI_HAS_MQTT TRUE)
+    message(STATUS "Qt6::Mqtt found - MQTT integration enabled")
+else()
+    message(WARNING
+        "Qt6::Mqtt was not found - MQTT integration will be disabled.\n"
+        "On Raspberry Pi OS / Debian / Ubuntu install it with:\n"
+        "  sudo apt install qt6-mqtt-dev qml6-module-qtmqtt"
+    )
+endif()
+
 qt_standard_project_setup(REQUIRES 6.4)
 
 qt_add_executable(homeui
@@ -37,6 +50,14 @@ qt_add_executable(homeui
     src/OpenHabClient.h
     src/main.cpp
 )
+
+if(HOMEUI_HAS_MQTT)
+    target_sources(homeui PRIVATE
+        src/MqttClient.cpp
+        src/MqttClient.h
+    )
+    target_compile_definitions(homeui PRIVATE HOMEUI_HAS_MQTT)
+endif()
 
 qt_add_qml_module(homeui
     URI HomeUI
@@ -49,8 +70,10 @@ qt_add_qml_module(homeui
         qml/components/ControlsPanel.qml
         qml/components/ControlTile.qml
         qml/components/EnergyPanel.qml
+        qml/components/Format.js
         qml/components/MetricRow.qml
         qml/components/ModePanel.qml
+        qml/components/MqttPanel.qml
         qml/components/PageDots.qml
         qml/components/RoomPanel.qml
         qml/components/StatusBar.qml
@@ -62,6 +85,10 @@ target_link_libraries(homeui
         Qt6::QuickControls2
         Qt6::Network
 )
+
+if(HOMEUI_HAS_MQTT)
+    target_link_libraries(homeui PRIVATE Qt6::Mqtt)
+endif()
 
 set_target_properties(homeui PROPERTIES
     WIN32_EXECUTABLE TRUE

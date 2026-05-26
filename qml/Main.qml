@@ -22,6 +22,55 @@ ApplicationWindow {
         return dashboardConfig.pages[Math.min(swipeView.currentIndex, dashboardConfig.pages.length - 1)].title
     }
 
+    function currentPageId() {
+        if (!dashboardConfig.valid || dashboardConfig.pages.length === 0) {
+            return ""
+        }
+        var page = dashboardConfig.pages[Math.min(swipeView.currentIndex, dashboardConfig.pages.length - 1)]
+        return page.id || page.title || String(swipeView.currentIndex)
+    }
+
+    function setPageById(identifier) {
+        if (!identifier || !dashboardConfig.valid) {
+            return
+        }
+        var idx = parseInt(identifier)
+        if (!isNaN(idx) && idx >= 0 && idx < dashboardConfig.pages.length) {
+            swipeView.currentIndex = idx
+            return
+        }
+        for (var i = 0; i < dashboardConfig.pages.length; ++i) {
+            var page = dashboardConfig.pages[i]
+            if (page.id === identifier || page.title === identifier) {
+                swipeView.currentIndex = i
+                return
+            }
+        }
+    }
+
+    function publishCurrentPageStatus() {
+        if (mqttClient && mqttClient.setStatusField) {
+            mqttClient.setStatusField("page", currentPageId())
+        }
+    }
+
+    Shortcut {
+        sequences: ["Ctrl+Q", "Esc"]
+        context: Qt.ApplicationShortcut
+        onActivated: Qt.quit()
+    }
+
+    Connections {
+        target: mqttClient
+        ignoreUnknownSignals: true
+        function onPageSetRequested(page) { root.setPageById(page) }
+        function onConnectedChanged() {
+            if (mqttClient.connected) {
+                root.publishCurrentPageStatus()
+            }
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
         color: "#070d18"
@@ -56,8 +105,11 @@ ApplicationWindow {
             ConfiguredPage {
                 page: modelData
                 openhab: openhabClient
+                mqtt: mqttClient
             }
         }
+
+        onCurrentIndexChanged: root.publishCurrentPageStatus()
     }
 
     Rectangle {

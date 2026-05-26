@@ -6,6 +6,7 @@ Item {
 
     property var page: ({})
     property var openhab: null
+    property var mqtt: null
 
     function layoutValue(object, key, fallback) {
         if (!object || object[key] === undefined || object[key] === null) {
@@ -49,6 +50,7 @@ Item {
                         ConfiguredPanel {
                             panel: modelData
                             openhab: root.openhab
+                            mqtt: root.mqtt
                             Layout.fillWidth: true
                             Layout.fillHeight: root.layoutValue(modelData, "fillHeight", false)
                             Layout.preferredHeight: root.panelHeight(modelData)
@@ -75,6 +77,7 @@ Item {
                 ConfiguredPanel {
                     panel: modelData
                     openhab: root.openhab
+                    mqtt: root.mqtt
                     Layout.fillWidth: true
                     Layout.fillHeight: root.layoutValue(modelData, "fillHeight", false)
                     Layout.preferredHeight: root.panelHeight(modelData)

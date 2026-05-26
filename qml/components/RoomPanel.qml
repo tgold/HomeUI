@@ -1,12 +1,13 @@
 import QtQuick
 import QtQuick.Layouts
+import "Format.js" as Fmt
 
 Rectangle {
     id: root
 
     property string title: "Room"
     property string subtitle: ""
-    property string temperature: "--.- C"
+    property string temperature: "--.- \u00B0C"
     property string humidity: "-- %"
     property bool lightOn: false
     property bool shutterClosed: false
@@ -18,8 +19,8 @@ Rectangle {
     property string hueItem: ""
     property string shutterItem: ""
     property int stateRevision: openhab ? openhab.stateRevision : 0
-    readonly property string effectiveTemperature: itemState(temperatureItem, temperature)
-    readonly property string effectiveHumidity: itemState(humidityItem, humidity)
+    readonly property string effectiveTemperature: Fmt.temperature(itemState(temperatureItem, temperature))
+    readonly property string effectiveHumidity: Fmt.humidity(itemState(humidityItem, humidity))
     readonly property string effectiveLightState: itemState(lightItem, lightOn ? "ON" : "OFF")
     readonly property bool effectiveLightOn: isOnState(effectiveLightState)
     readonly property string effectiveHueState: itemState(hueItem, effectiveLightOn ? "100%" : "0%")

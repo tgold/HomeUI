@@ -17,6 +17,7 @@ const QStringList ValidPanelTypes = {
     QStringLiteral("camera"),
     QStringLiteral("mode"),
     QStringLiteral("controls"),
+    QStringLiteral("mqtt"),
 };
 
 bool hasObjectList(const QVariantMap &object, const QString &key)
@@ -211,6 +212,11 @@ bool DashboardConfig::validatePanel(const QVariantMap &panel, const QString &pat
 
     if (type == QStringLiteral("controls") && !hasObjectList(panel, QStringLiteral("controls"))) {
         *errorText = QStringLiteral("%1.controls must be an array of control objects").arg(path);
+        return false;
+    }
+
+    if (type == QStringLiteral("mqtt") && !hasObjectList(panel, QStringLiteral("items"))) {
+        *errorText = QStringLiteral("%1.items must be an array of mqtt entries").arg(path);
         return false;
     }
 

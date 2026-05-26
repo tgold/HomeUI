@@ -14,4 +14,9 @@ sudo apt install -y \
   qml6-module-qtquick-window \
   qml6-module-qtqml-workerscript
 
+# MQTT integration (Milestone 4). Optional - the build will skip MQTT support
+# automatically if these packages are not available.
+sudo apt install -y qt6-mqtt-dev || \
+  echo "qt6-mqtt-dev not available - MQTT integration will be disabled at build time."
+
 echo "HomeUI Raspberry Pi build dependencies are installed."

@@ -1,0 +1,1104 @@
+{
+  "pages": [
+    {
+      "id": "uebersicht",
+      "title": "UEBERSICHT",
+      "layout": "columns",
+      "columns": [
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "room",
+              "title": "Wohnzimmer",
+              "subtitle": "Licht und Rollo",
+              "fallback": {
+                "temperature": "23.7 C",
+                "lightOn": true,
+                "shutterClosed": false,
+                "shutterPosition": "offen"
+              },
+              "items": {
+                "temperature": "GF_LivingRoom_Temperature",
+                "light": "GF_LivingRoom_Light",
+                "hue": "GF_LivingRoom_Light_Dimmer",
+                "shutter": "GF_LivingRoom_Shutter"
+              }
+            },
+            {
+              "type": "mode"
+            }
+          ]
+        },
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "room",
+              "title": "Schlafzimmer",
+              "subtitle": "Nachtprofil",
+              "fallback": {
+                "temperature": "21.3 C",
+                "lightOn": false,
+                "shutterClosed": true,
+                "shutterPosition": "zu"
+              },
+              "items": {
+                "temperature": "FF_Bedroom_Temperature",
+                "light": "FF_Bedroom_Light",
+                "shutter": "FF_Bedroom_Shutter"
+              }
+            },
+            {
+              "type": "energy",
+              "title": "Energie",
+              "items": {
+                "pv": "evcc_pvPower",
+                "grid": "evcc_gridPower",
+                "consumption": "evcc_homePower",
+                "battery": "evcc_batterySoC",
+                "water": "ForecastSolarHome_Actual"
+              }
+            }
+          ]
+        },
+        {
+          "fillWidth": true,
+          "panels": [
+            {
+              "type": "camera",
+              "title": "Tuerklingel",
+              "location": "Einfahrt",
+              "height": 292
+            },
+            {
+              "type": "controls",
+              "title": "Klingel",
+              "controls": [
+                {
+                  "label": "Tuer 1",
+                  "iconText": "T",
+                  "accentColor": "#22c55e",
+                  "item": "Doorbell_OpenDoor1",
+                  "command": "ON"
+                },
+                {
+                  "label": "Licht",
+                  "iconText": "L",
+                  "accentColor": "#fbbf24",
+                  "item": "Doorbell_Light"
+                },
+                {
+                  "label": "Klingel",
+                  "iconText": "K",
+                  "accentColor": "#ef4444",
+                  "item": "Doorbell_Pressed"
+                },
+                {
+                  "label": "Bewegung",
+                  "iconText": "M",
+                  "accentColor": "#38bdf8",
+                  "item": "Doorbell_Motion"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "erdgeschoss",
+      "title": "ERDGESCHOSS",
+      "layout": "grid",
+      "columns": 3,
+      "panels": [
+        {
+          "type": "room",
+          "title": "Wohnzimmer",
+          "subtitle": "Licht, Stehlampe, Rollo",
+          "items": {
+            "temperature": "GF_LivingRoom_Temperature",
+            "light": "GF_LivingRoom_Light",
+            "hue": "GF_LivingRoom_Light_Dimmer",
+            "shutter": "GF_LivingRoom_Shutter"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Esszimmer",
+          "subtitle": "Esstisch",
+          "items": {
+            "light": "GF_Dining_Light",
+            "hue": "GF_DiningRoom_Light_Dimmer",
+            "shutter": "GF_Dining_Shutter"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Kueche",
+          "subtitle": "Arbeitslicht",
+          "items": {
+            "light": "GF_Kitchen_Light",
+            "hue": "GF_Kitchen_Light_all"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Terrasse",
+          "subtitle": "Aussenbereich",
+          "items": {
+            "light": "GF_Terrace_Light",
+            "shutter": "GF_Terrace_Shutter"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Gang",
+          "subtitle": "Flur und Treppe",
+          "items": {
+            "temperature": "GF_Corridor_Temperature",
+            "light": "GF_Corridor_Light",
+            "hue": "GF_Stairs_Light"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Toilette",
+          "subtitle": "WC",
+          "items": {
+            "temperature": "GF_Toilet_Temperature",
+            "light": "GF_Toilet_Light"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Technik",
+          "subtitle": "Heizungsraum",
+          "items": {
+            "temperature": "GF_Tech_Temperature",
+            "humidity": "GF_Tech_Humidity",
+            "light": "GF_Tech_Light"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Lagerraum",
+          "subtitle": "Vorrat",
+          "items": {
+            "light": "GF_StorageRoom_Light"
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "obergeschoss",
+      "title": "OBERGESCHOSS",
+      "layout": "grid",
+      "columns": 3,
+      "panels": [
+        {
+          "type": "room",
+          "title": "Schlafzimmer",
+          "subtitle": "Nachtprofil",
+          "items": {
+            "temperature": "FF_Bedroom_Temperature",
+            "light": "FF_Bedroom_Light",
+            "hue": "FF_Bedroom_Bed_Light_Switch",
+            "shutter": "FF_Bedroom_Shutter"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Badezimmer",
+          "subtitle": "Bad",
+          "items": {
+            "temperature": "FF_Bathroom_Temperature",
+            "light": "FF_Bathroom_Light",
+            "shutter": "FF_Bathroom_Shutter1"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Buero",
+          "subtitle": "Arbeitszimmer",
+          "items": {
+            "temperature": "FF_Office_Temperature",
+            "light": "FF_Office_Light",
+            "shutter": "FF_Office_Shutter"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Gaestezimmer",
+          "subtitle": "Gaeste/Kinder",
+          "items": {
+            "temperature": "FF_GuestRoom_Temperature",
+            "light": "FF_GuestRoom_Light"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Gallerie",
+          "subtitle": "Flur OG",
+          "items": {
+            "temperature": "FF_Gallery_Temperature",
+            "light": "FF_Gallery_Light"
+          }
+        },
+        {
+          "type": "controls",
+          "title": "Extra Rollaeden",
+          "controls": [
+            {
+              "label": "Bad 2",
+              "iconText": "R",
+              "accentColor": "#38bdf8",
+              "item": "FF_Bathroom_Shutter2"
+            },
+            {
+              "label": "Schreibtisch",
+              "iconText": "R",
+              "accentColor": "#38bdf8",
+              "item": "FF_Office_Desk_Shutter"
+            },
+            {
+              "label": "Schlaf Szene",
+              "iconText": "S",
+              "accentColor": "#a855f7",
+              "item": "FF_Bedroom_Shutter_Scene_Switch"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "klima",
+      "title": "KLIMA",
+      "layout": "grid",
+      "columns": 3,
+      "panels": [
+        {
+          "type": "room",
+          "title": "Wohnzimmer",
+          "subtitle": "EG",
+          "items": {
+            "temperature": "GF_LivingRoom_Temperature"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Gang",
+          "subtitle": "EG",
+          "items": {
+            "temperature": "GF_Corridor_Temperature"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Toilette",
+          "subtitle": "EG",
+          "items": {
+            "temperature": "GF_Toilet_Temperature"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Technik",
+          "subtitle": "EG",
+          "items": {
+            "temperature": "GF_Tech_Temperature",
+            "humidity": "GF_Tech_Humidity"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Schlafzimmer",
+          "subtitle": "OG",
+          "items": {
+            "temperature": "FF_Bedroom_Temperature"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Badezimmer",
+          "subtitle": "OG",
+          "items": {
+            "temperature": "FF_Bathroom_Temperature"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Buero",
+          "subtitle": "OG",
+          "items": {
+            "temperature": "FF_Office_Temperature"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Gaeste",
+          "subtitle": "OG",
+          "items": {
+            "temperature": "FF_GuestRoom_Temperature"
+          }
+        },
+        {
+          "type": "controls",
+          "title": "Heizung",
+          "controls": [
+            {
+              "label": "Heizen",
+              "iconText": "H",
+              "accentColor": "#ef4444",
+              "item": "thz_heizen"
+            },
+            {
+              "label": "Warmwasser",
+              "iconText": "W",
+              "accentColor": "#38bdf8",
+              "item": "thz_warmwasserbereitung"
+            },
+            {
+              "label": "Verdichter",
+              "iconText": "V",
+              "accentColor": "#a855f7",
+              "item": "thz_verdichter"
+            },
+            {
+              "label": "Filter",
+              "iconText": "F",
+              "accentColor": "#fbbf24",
+              "item": "thz_filterwechsel"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "rollaeden",
+      "title": "ROLLAEDEN",
+      "layout": "columns",
+      "columns": [
+        {
+          "fillWidth": true,
+          "panels": [
+            {
+              "type": "controls",
+              "title": "Szene Alle Rollaeden",
+              "controls": [
+                {
+                  "label": "Hoch",
+                  "iconText": "U",
+                  "accentColor": "#22c55e",
+                  "item": "GF_Shutter_Scene",
+                  "command": "FULLUP"
+                },
+                {
+                  "label": "Halb",
+                  "iconText": "M",
+                  "accentColor": "#fbbf24",
+                  "item": "GF_Shutter_Scene",
+                  "command": "HALFDOWN"
+                },
+                {
+                  "label": "Runter",
+                  "iconText": "D",
+                  "accentColor": "#38bdf8",
+                  "item": "GF_Shutter_Scene",
+                  "command": "FULLDOWN"
+                }
+              ]
+            },
+            {
+              "type": "controls",
+              "title": "Szene Esszimmer + Terrasse",
+              "controls": [
+                {
+                  "label": "Hoch",
+                  "iconText": "U",
+                  "accentColor": "#22c55e",
+                  "item": "GF_Shutter_Scene_DiningAndTerrace",
+                  "command": "FULLUP"
+                },
+                {
+                  "label": "Halb",
+                  "iconText": "M",
+                  "accentColor": "#fbbf24",
+                  "item": "GF_Shutter_Scene_DiningAndTerrace",
+                  "command": "HALFDOWN"
+                },
+                {
+                  "label": "Runter",
+                  "iconText": "D",
+                  "accentColor": "#38bdf8",
+                  "item": "GF_Shutter_Scene_DiningAndTerrace",
+                  "command": "FULLDOWN"
+                }
+              ]
+            },
+            {
+              "type": "controls",
+              "title": "Regel",
+              "controls": [
+                {
+                  "label": "Rollos runter",
+                  "iconText": "R",
+                  "accentColor": "#a855f7",
+                  "item": "rule_rollosRunter"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fillWidth": true,
+          "panels": [
+            {
+              "type": "controls",
+              "title": "Alle Rollaeden",
+              "tilesPerRow": 4,
+              "controls": [
+                {
+                  "label": "Wohnzimmer",
+                  "iconText": "R",
+                  "accentColor": "#38bdf8",
+                  "item": "GF_LivingRoom_Shutter"
+                },
+                {
+                  "label": "Esszimmer",
+                  "iconText": "R",
+                  "accentColor": "#38bdf8",
+                  "item": "GF_Dining_Shutter"
+                },
+                {
+                  "label": "Terrasse",
+                  "iconText": "R",
+                  "accentColor": "#38bdf8",
+                  "item": "GF_Terrace_Shutter"
+                },
+                {
+                  "label": "Schlafzimmer",
+                  "iconText": "R",
+                  "accentColor": "#38bdf8",
+                  "item": "FF_Bedroom_Shutter"
+                },
+                {
+                  "label": "Bad 1",
+                  "iconText": "R",
+                  "accentColor": "#38bdf8",
+                  "item": "FF_Bathroom_Shutter1"
+                },
+                {
+                  "label": "Bad 2",
+                  "iconText": "R",
+                  "accentColor": "#38bdf8",
+                  "item": "FF_Bathroom_Shutter2"
+                },
+                {
+                  "label": "Buero",
+                  "iconText": "R",
+                  "accentColor": "#38bdf8",
+                  "item": "FF_Office_Shutter"
+                },
+                {
+                  "label": "Schreibtisch",
+                  "iconText": "R",
+                  "accentColor": "#38bdf8",
+                  "item": "FF_Office_Desk_Shutter"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "energie",
+      "title": "ENERGIE",
+      "layout": "columns",
+      "columns": [
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "energy",
+              "title": "Live",
+              "items": {
+                "pv": "evcc_pvPower",
+                "grid": "evcc_gridPower",
+                "consumption": "evcc_homePower",
+                "battery": "evcc_batterySoC",
+                "water": "waermestrom_power"
+              }
+            },
+            {
+              "type": "energy",
+              "title": "PV Prognose",
+              "items": {
+                "pv": "ForecastSolarHome_Actual_Power",
+                "grid": "ForecastSolarHome_Today",
+                "consumption": "ForecastSolarHome_Remaining",
+                "battery": "ForecastSolarHome_Tomorrow",
+                "water": "SE10K_Day_Consumption"
+              }
+            }
+          ]
+        },
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "controls",
+              "title": "EVCC",
+              "tilesPerRow": 2,
+              "controls": [
+                {
+                  "label": "Off",
+                  "iconText": "O",
+                  "accentColor": "#94a3b8",
+                  "item": "evcc_loadpoint0_mode",
+                  "command": "off"
+                },
+                {
+                  "label": "PV",
+                  "iconText": "P",
+                  "accentColor": "#22c55e",
+                  "item": "evcc_loadpoint0_mode",
+                  "command": "pv"
+                },
+                {
+                  "label": "Now",
+                  "iconText": "N",
+                  "accentColor": "#ef4444",
+                  "item": "evcc_loadpoint0_mode",
+                  "command": "now"
+                },
+                {
+                  "label": "Freigabe",
+                  "iconText": "E",
+                  "accentColor": "#22c55e",
+                  "item": "evcc_loadpoint0_enabled"
+                },
+                {
+                  "label": "Fahrzeug",
+                  "iconText": "V",
+                  "accentColor": "#38bdf8",
+                  "item": "evcc_loadpoint0_vehicleConnected"
+                },
+                {
+                  "label": "Laden",
+                  "iconText": "C",
+                  "accentColor": "#fbbf24",
+                  "item": "evcc_loadpoint0_charging"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fillWidth": true,
+          "panels": [
+            {
+              "type": "controls",
+              "title": "Strom & Batterie",
+              "tilesPerRow": 4,
+              "controls": [
+                {
+                  "label": "PV",
+                  "iconText": "P",
+                  "accentColor": "#fbbf24",
+                  "item": "evcc_pvPower"
+                },
+                {
+                  "label": "Netz",
+                  "iconText": "N",
+                  "accentColor": "#38bdf8",
+                  "item": "evcc_gridPower"
+                },
+                {
+                  "label": "Haus",
+                  "iconText": "H",
+                  "accentColor": "#a855f7",
+                  "item": "evcc_homePower"
+                },
+                {
+                  "label": "Waermepumpe",
+                  "iconText": "W",
+                  "accentColor": "#ef4444",
+                  "item": "waermepumpe_power"
+                },
+                {
+                  "label": "Batterie SoC",
+                  "iconText": "B",
+                  "accentColor": "#22c55e",
+                  "item": "evcc_batterySoC"
+                },
+                {
+                  "label": "Batt. Leistung",
+                  "iconText": "L",
+                  "accentColor": "#fbbf24",
+                  "item": "evcc_batteryPower"
+                },
+                {
+                  "label": "Fahrzeug SoC",
+                  "iconText": "F",
+                  "accentColor": "#38bdf8",
+                  "item": "evcc_loadpoint0_vehicleSoC"
+                },
+                {
+                  "label": "Ladeleistung",
+                  "iconText": "C",
+                  "accentColor": "#a855f7",
+                  "item": "evcc_loadpoint0_chargePower"
+                }
+              ]
+            },
+            {
+              "type": "controls",
+              "title": "Verbrauchszaehler",
+              "tilesPerRow": 4,
+              "controls": [
+                {
+                  "label": "Waermestrom HT",
+                  "iconText": "H",
+                  "accentColor": "#ef4444",
+                  "item": "waermestrom_ht"
+                },
+                {
+                  "label": "Waermestrom NT",
+                  "iconText": "N",
+                  "accentColor": "#38bdf8",
+                  "item": "waermestrom_nt"
+                },
+                {
+                  "label": "Einspeisung",
+                  "iconText": "E",
+                  "accentColor": "#22c55e",
+                  "item": "waermestrom_einspeisung"
+                },
+                {
+                  "label": "Haus",
+                  "iconText": "S",
+                  "accentColor": "#fbbf24",
+                  "item": "energy_total"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "sicherheit",
+      "title": "SICHERHEIT",
+      "layout": "columns",
+      "columns": [
+        {
+          "fillWidth": true,
+          "panels": [
+            {
+              "type": "camera",
+              "title": "Tuerklingel",
+              "location": "Einfahrt",
+              "height": 260
+            },
+            {
+              "type": "controls",
+              "title": "Klingel",
+              "controls": [
+                {
+                  "label": "Tuer 1",
+                  "iconText": "T",
+                  "accentColor": "#22c55e",
+                  "item": "Doorbell_OpenDoor1",
+                  "command": "ON"
+                },
+                {
+                  "label": "Licht",
+                  "iconText": "L",
+                  "accentColor": "#fbbf24",
+                  "item": "Doorbell_Light"
+                },
+                {
+                  "label": "Klingel",
+                  "iconText": "K",
+                  "accentColor": "#ef4444",
+                  "item": "Doorbell_Pressed"
+                },
+                {
+                  "label": "Bewegung",
+                  "iconText": "M",
+                  "accentColor": "#38bdf8",
+                  "item": "Doorbell_Motion"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fillWidth": true,
+          "panels": [
+            {
+              "type": "camera",
+              "title": "Surveillance",
+              "location": "Carport",
+              "height": 260
+            },
+            {
+              "type": "controls",
+              "title": "Surveillance",
+              "controls": [
+                {
+                  "label": "Kamera",
+                  "iconText": "C",
+                  "accentColor": "#22c55e",
+                  "item": "Surveillance_Enabled"
+                },
+                {
+                  "label": "Aufnahme",
+                  "iconText": "R",
+                  "accentColor": "#ef4444",
+                  "item": "Surveillance_Recording"
+                },
+                {
+                  "label": "Home Mode",
+                  "iconText": "H",
+                  "accentColor": "#fbbf24",
+                  "item": "Surveillance_HomeMode"
+                },
+                {
+                  "label": "Bewegung",
+                  "iconText": "M",
+                  "accentColor": "#38bdf8",
+                  "item": "Surveillance_Event_Motion"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "controls",
+              "title": "Anwesenheit & Anrufe",
+              "tilesPerRow": 2,
+              "controls": [
+                {
+                  "label": "Home Mode",
+                  "iconText": "H",
+                  "accentColor": "#fbbf24",
+                  "item": "Surveillance_HomeMode"
+                },
+                {
+                  "label": "Thomas",
+                  "iconText": "T",
+                  "accentColor": "#38bdf8",
+                  "item": "fb_devices_thomasphone_online"
+                },
+                {
+                  "label": "Anrufe",
+                  "iconText": "C",
+                  "accentColor": "#ef4444",
+                  "item": "fb_calls_missed"
+                },
+                {
+                  "label": "Nachrichten",
+                  "iconText": "N",
+                  "accentColor": "#a855f7",
+                  "item": "fb_tam_newmessages"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "garten",
+      "title": "GARTEN",
+      "layout": "columns",
+      "columns": [
+        {
+          "fillWidth": true,
+          "panels": [
+            {
+              "type": "controls",
+              "title": "Bewaesserung",
+              "tilesPerRow": 4,
+              "controls": [
+                {
+                  "label": "Programm",
+                  "iconText": "S",
+                  "accentColor": "#22c55e",
+                  "item": "gardena_start_irrigation_switch"
+                },
+                {
+                  "label": "Zisterne nutzen",
+                  "iconText": "Z",
+                  "accentColor": "#38bdf8",
+                  "item": "gardena_use_cistern_switch"
+                },
+                {
+                  "label": "Pumpe Ein",
+                  "iconText": "E",
+                  "accentColor": "#22c55e",
+                  "item": "gardena_pumpe_cmd_openwithduration"
+                },
+                {
+                  "label": "Pumpe Aus",
+                  "iconText": "A",
+                  "accentColor": "#ef4444",
+                  "item": "gardena_pumpe_cmd_close"
+                },
+                {
+                  "label": "V1 Start",
+                  "iconText": "1",
+                  "accentColor": "#22c55e",
+                  "item": "gardena_ventil1_cmd_openwithduration"
+                },
+                {
+                  "label": "V1 Stop",
+                  "iconText": "1",
+                  "accentColor": "#ef4444",
+                  "item": "gardena_ventil1_cmd_close"
+                },
+                {
+                  "label": "V2 Start",
+                  "iconText": "2",
+                  "accentColor": "#22c55e",
+                  "item": "gardena_ventil2_cmd_openwithduration"
+                },
+                {
+                  "label": "V2 Stop",
+                  "iconText": "2",
+                  "accentColor": "#ef4444",
+                  "item": "gardena_ventil2_cmd_close"
+                },
+                {
+                  "label": "V3 Start",
+                  "iconText": "3",
+                  "accentColor": "#22c55e",
+                  "item": "gardena_ventil3_cmd_openwithduration"
+                },
+                {
+                  "label": "V3 Stop",
+                  "iconText": "3",
+                  "accentColor": "#ef4444",
+                  "item": "gardena_ventil3_cmd_close"
+                }
+              ]
+            },
+            {
+              "type": "controls",
+              "title": "Status",
+              "tilesPerRow": 4,
+              "controls": [
+                {
+                  "label": "V1",
+                  "iconText": "1",
+                  "accentColor": "#94a3b8",
+                  "item": "gardena_ventil1_activity"
+                },
+                {
+                  "label": "V2",
+                  "iconText": "2",
+                  "accentColor": "#94a3b8",
+                  "item": "gardena_ventil2_activity"
+                },
+                {
+                  "label": "V3",
+                  "iconText": "3",
+                  "accentColor": "#94a3b8",
+                  "item": "gardena_ventil3_activity"
+                },
+                {
+                  "label": "Pumpe",
+                  "iconText": "P",
+                  "accentColor": "#94a3b8",
+                  "item": "gardena_pumpe_activity"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fillWidth": true,
+          "panels": [
+            {
+              "type": "controls",
+              "title": "Boden",
+              "tilesPerRow": 2,
+              "controls": [
+                {
+                  "label": "Rasen Temp",
+                  "iconText": "R",
+                  "accentColor": "#22c55e",
+                  "item": "rasen_bodentemperatur"
+                },
+                {
+                  "label": "Rasen Feuchte",
+                  "iconText": "R",
+                  "accentColor": "#38bdf8",
+                  "item": "rasen_feuchte"
+                },
+                {
+                  "label": "Hochbeet Temp",
+                  "iconText": "H",
+                  "accentColor": "#fbbf24",
+                  "item": "hochbeet_bodentemperatur"
+                },
+                {
+                  "label": "Hochbeet Feu",
+                  "iconText": "H",
+                  "accentColor": "#a855f7",
+                  "item": "hochbeet_feuchte"
+                }
+              ]
+            },
+            {
+              "type": "controls",
+              "title": "Zisterne",
+              "tilesPerRow": 3,
+              "controls": [
+                {
+                  "label": "Fuellstand",
+                  "iconText": "F",
+                  "accentColor": "#22c55e",
+                  "item": "zisterne_fuellstand"
+                },
+                {
+                  "label": "Abstand",
+                  "iconText": "A",
+                  "accentColor": "#38bdf8",
+                  "item": "zisterne_abstand"
+                },
+                {
+                  "label": "Pumpe",
+                  "iconText": "P",
+                  "accentColor": "#38bdf8",
+                  "item": "zisterne_pumpe"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "medien",
+      "title": "MEDIEN",
+      "layout": "columns",
+      "columns": [
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "controls",
+              "title": "Sonos TV",
+              "controls": [
+                {
+                  "label": "Mute",
+                  "iconText": "M",
+                  "accentColor": "#ef4444",
+                  "item": "Sonos_TV_Mute"
+                },
+                {
+                  "label": "LED",
+                  "iconText": "L",
+                  "accentColor": "#fbbf24",
+                  "item": "Sonos_TV_LED"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "controls",
+              "title": "Sonos Kueche",
+              "controls": [
+                {
+                  "label": "Mute",
+                  "iconText": "M",
+                  "accentColor": "#ef4444",
+                  "item": "Sonos_Kitchen_Mute"
+                },
+                {
+                  "label": "LED",
+                  "iconText": "L",
+                  "accentColor": "#fbbf24",
+                  "item": "Sonos_Kitchen_LED"
+                },
+                {
+                  "label": "Save",
+                  "iconText": "S",
+                  "accentColor": "#22c55e",
+                  "item": "Sonos_Kitchen_Save"
+                },
+                {
+                  "label": "Restore",
+                  "iconText": "R",
+                  "accentColor": "#a855f7",
+                  "item": "Sonos_Kitchen_Restore"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fillWidth": true,
+          "panels": [
+            {
+              "type": "controls",
+              "title": "Philips TV",
+              "tilesPerRow": 3,
+              "controls": [
+                {
+                  "label": "Power",
+                  "iconText": "P",
+                  "accentColor": "#ef4444",
+                  "item": "PhilipsTV_POWER"
+                },
+                {
+                  "label": "Mute",
+                  "iconText": "M",
+                  "accentColor": "#fbbf24",
+                  "item": "PhilipsTV_MUTE"
+                },
+                {
+                  "label": "Ambilight",
+                  "iconText": "A",
+                  "accentColor": "#38bdf8",
+                  "item": "PhilipsTV_AMBILIGHTPOWER"
+                },
+                {
+                  "label": "Ambi+Hue",
+                  "iconText": "H",
+                  "accentColor": "#a855f7",
+                  "item": "PhilipsTV_AMBILIGHTHUEPOWER"
+                },
+                {
+                  "label": "Lounge",
+                  "iconText": "L",
+                  "accentColor": "#22c55e",
+                  "item": "PhilipsTV_AMBILIGHTLOUNGEPOWER"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

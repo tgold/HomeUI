@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "Format.js" as Fmt
 
 Rectangle {
     id: root
@@ -7,7 +8,31 @@ Rectangle {
     property string title: "Controls"
     property var controls: []
     property var openhab: null
+    property var mqtt: null
     property int stateRevision: openhab ? openhab.stateRevision : 0
+    property int messageRevision: mqtt && mqtt.messageRevision !== undefined ? mqtt.messageRevision : 0
+
+    // Number of tiles to render per row. 0 means auto: as many as fit at
+    // ~140px per tile inside the panel width.
+    property int tilesPerRow: 0
+    property int minTileWidth: 140
+
+    readonly property int effectiveColumns: {
+        var count = controls ? controls.length : 0
+        if (count === 0) {
+            return 1
+        }
+        if (tilesPerRow > 0) {
+            return Math.min(tilesPerRow, count)
+        }
+        var spacing = controlsGrid.columnSpacing
+        var available = controlsGrid.width
+        if (available <= 0) {
+            return Math.min(count, 4)
+        }
+        var fit = Math.floor((available + spacing) / (minTileWidth + spacing))
+        return Math.max(1, Math.min(fit, count))
+    }
 
     function itemState(itemName, fallback) {
         stateRevision
@@ -15,6 +40,22 @@ Rectangle {
             return openhab.itemState(itemName, fallback)
         }
         return fallback
+    }
+
+    function topicValue(topic, fallback) {
+        messageRevision
+        if (mqtt && mqtt.messageFor && topic && topic.length > 0) {
+            return mqtt.messageFor(topic, fallback)
+        }
+        return fallback
+    }
+
+    function controlValue(control) {
+        var fallback = control.value || ""
+        if (control.mqttTopic && control.mqttTopic.length > 0) {
+            return topicValue(control.mqttTopic, fallback)
+        }
+        return itemState(control.item || "", fallback)
     }
 
     function isOnState(state) {
@@ -27,6 +68,11 @@ Rectangle {
     }
 
     function sendControl(control) {
+        if (control.mqttTopic && control.mqttTopic.length > 0) {
+            sendMqtt(control)
+            return
+        }
+
         if (!openhab || !control.item || control.item.length === 0) {
             return
         }
@@ -42,14 +88,33 @@ Rectangle {
         openhab.sendCommand(control.item, isOnState(currentState) ? offCommand : onCommand)
     }
 
+    function sendMqtt(control) {
+        if (!mqtt || !mqtt.publish || !control.mqttTopic || control.mqttTopic.length === 0) {
+            return
+        }
+        var qos = control.mqttQos !== undefined ? control.mqttQos : 0
+        var retain = control.mqttRetain === true
+
+        if (control.mqttPayload !== undefined && control.mqttPayload !== null) {
+            mqtt.publish(control.mqttTopic, String(control.mqttPayload), qos, retain)
+            return
+        }
+
+        var currentState = topicValue(control.mqttTopic, control.value || "OFF")
+        var onPayload = control.mqttOnPayload || control.onCommand || "ON"
+        var offPayload = control.mqttOffPayload || control.offCommand || "OFF"
+        mqtt.publish(control.mqttTopic, isOnState(currentState) ? offPayload : onPayload, qos, retain)
+    }
+
     implicitWidth: 292
-    implicitHeight: 118
+    implicitHeight: contentColumn.implicitHeight + 2 * contentColumn.anchors.margins
     radius: 18
     color: "#0f1726"
     border.color: "#26364d"
     border.width: 1
 
     ColumnLayout {
+        id: contentColumn
         anchors.fill: parent
         anchors.margins: 14
         spacing: 10
@@ -63,23 +128,28 @@ Rectangle {
             Layout.fillWidth: true
         }
 
-        RowLayout {
+        GridLayout {
+            id: controlsGrid
             Layout.fillWidth: true
-            spacing: 10
+            columnSpacing: 10
+            rowSpacing: 10
+            columns: root.effectiveColumns
 
             Repeater {
                 model: root.controls
 
                 ControlTile {
+                    readonly property string rawValue: root.controlValue(modelData)
                     label: modelData.label || "Control"
-                    value: root.itemState(modelData.item || "", modelData.value || "")
+                    value: Fmt.smart(rawValue)
                     secondary: modelData.secondary || ""
                     iconText: modelData.iconText || ""
-                    active: root.isOnState(value)
-                    interactive: !!modelData.item
+                    active: root.isOnState(rawValue)
+                    interactive: !!(modelData.item || modelData.mqttTopic)
                     accentColor: modelData.accentColor || "#f59e0b"
                     onClicked: root.sendControl(modelData)
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                 }
             }
         }

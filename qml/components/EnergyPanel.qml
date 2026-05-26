@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "Format.js" as Fmt
 
 Rectangle {
     id: root
@@ -63,35 +64,35 @@ Rectangle {
 
         MetricRow {
             label: "PV Erzeugung"
-            value: root.itemState(root.pvItem, "2313.5 W")
+            value: Fmt.power(root.itemState(root.pvItem, "2313.5 W"))
             detail: "solar"
             Layout.fillWidth: true
         }
 
         MetricRow {
             label: "Netz"
-            value: root.itemState(root.gridItem, "-1833.2 W")
+            value: Fmt.power(root.itemState(root.gridItem, "-1833.2 W"))
             detail: "export"
             Layout.fillWidth: true
         }
 
         MetricRow {
             label: "Verbrauch"
-            value: root.itemState(root.consumptionItem, "469.9 W")
+            value: Fmt.power(root.itemState(root.consumptionItem, "469.9 W"))
             detail: "house"
             Layout.fillWidth: true
         }
 
         MetricRow {
             label: "Batterie"
-            value: root.itemState(root.batteryItem, "100.0 %")
+            value: Fmt.fraction(root.itemState(root.batteryItem, "100.0 %"))
             detail: "+0.0 kW"
             Layout.fillWidth: true
         }
 
         MetricRow {
             label: "Wasser heute"
-            value: root.itemState(root.waterItem, "137 kWh")
+            value: Fmt.energy(root.itemState(root.waterItem, "137 kWh"))
             detail: "thermal"
             warning: true
             Layout.fillWidth: true

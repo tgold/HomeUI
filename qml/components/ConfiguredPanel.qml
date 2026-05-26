@@ -6,6 +6,7 @@ Item {
 
     property var panel: ({})
     property var openhab: null
+    property var mqtt: null
 
     implicitWidth: loader.implicitWidth
     implicitHeight: loader.implicitHeight
@@ -41,6 +42,8 @@ Item {
                 return modePanelComponent
             case "controls":
                 return controlsPanelComponent
+            case "mqtt":
+                return mqttPanelComponent
             default:
                 return unsupportedPanelComponent
             }
@@ -101,8 +104,21 @@ Item {
 
         ControlsPanel {
             openhab: root.openhab
+            mqtt: root.mqtt
             title: root.value(["title"], "Controls")
             controls: root.value(["controls"], [])
+            tilesPerRow: root.value(["tilesPerRow"], 0)
+            minTileWidth: root.value(["minTileWidth"], 140)
+        }
+    }
+
+    Component {
+        id: mqttPanelComponent
+
+        MqttPanel {
+            mqtt: root.mqtt
+            title: root.value(["title"], "MQTT")
+            items: root.value(["items"], [])
         }
     }
 
