@@ -37,6 +37,7 @@ const QStringList ValidControlKinds = {
     QStringLiteral("progress"),
     QStringLiteral("gauge"),
     QStringLiteral("selector"),
+    QStringLiteral("dropdown"),
     QStringLiteral("value"),
 };
 
@@ -319,10 +320,11 @@ bool DashboardConfig::validatePanel(const QVariantMap &panel, const QString &pat
                     return false;
                 }
             }
-            if (kind == QStringLiteral("selector")) {
+            if (kind == QStringLiteral("selector") || kind == QStringLiteral("dropdown")) {
                 const QVariant optionsValue = control.value(QStringLiteral("options"));
                 if (!optionsValue.canConvert<QVariantList>() || optionsValue.toList().isEmpty()) {
-                    *errorText = QStringLiteral("%1.options must be a non-empty array for selector controls").arg(controlPath);
+                    *errorText = QStringLiteral("%1.options must be a non-empty array for %2 controls")
+                                     .arg(controlPath, kind);
                     return false;
                 }
             }

@@ -136,6 +136,7 @@ Rectangle {
         case "progress":
         case "gauge":
         case "selector":
+        case "dropdown":
         case "value":
             return kind === "gauge" ? "progress" : kind
         default:
@@ -201,6 +202,8 @@ Rectangle {
                             return progressComponent
                         case "selector":
                             return selectorComponent
+                        case "dropdown":
+                            return dropdownComponent
                         case "value":
                             return valueComponent
                         default:
@@ -294,6 +297,16 @@ Rectangle {
         id: selectorComponent
 
         SelectorTile {
+            control: parent.control
+            panel: root
+            rawValue: parent.rawValue
+        }
+    }
+
+    Component {
+        id: dropdownComponent
+
+        DropdownTile {
             control: parent.control
             panel: root
             rawValue: parent.rawValue

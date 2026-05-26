@@ -77,6 +77,7 @@ qt_add_qml_module(homeui
         qml/components/ControlsPanel.qml
         qml/components/ControlTile.qml
         qml/components/DimmerTile.qml
+        qml/components/DropdownTile.qml
         qml/components/EnergyPanel.qml
         qml/components/Format.js
         qml/components/MetricRow.qml

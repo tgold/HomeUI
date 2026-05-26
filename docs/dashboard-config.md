@@ -228,7 +228,7 @@ If `command` is provided, the control always sends that command. Otherwise it to
 
 Every entry in `controls` may declare a `kind` that selects a specialised home automation widget. Without `kind` (or with `kind: "switch"`) the existing toggle tile is rendered.
 
-Supported kinds: `switch`, `dimmer`, `color`, `shutter`, `thermostat`, `scene`, `progress` (alias `gauge`), `selector`, `value`.
+Supported kinds: `switch`, `dimmer`, `color`, `shutter`, `thermostat`, `scene`, `progress` (alias `gauge`), `selector`, `dropdown`, `value`.
 
 #### Dimmer (`kind: "dimmer"`)
 
@@ -366,6 +366,32 @@ Renders a compact row of radio-style buttons for picking one of a fixed set of s
 ```
 
 `options` is required and must contain at least one `{ label, value }` pair. The currently active value is highlighted by string-comparing it against the item state (case-insensitive). Each press dispatches `value` as the command (OpenHAB or MQTT, depending on which binding the control declares).
+
+#### Dropdown (`kind: "dropdown"`)
+
+Renders a compact ComboBox-style picker. Same shape as `selector` but with the options hidden behind a popup, which scales nicely past 4-5 entries (e.g. a heat pump mode list, Lüftungsstufe 0/1/2/3, EVCC target hours).
+
+```json
+{
+  "kind": "dropdown",
+  "label": "Waermepumpe Betriebsart",
+  "item": "thz_betriebsart_string",
+  "accentColor": "#f59e0b",
+  "options": [
+    { "label": "Automatik",   "value": 11 },
+    { "label": "Warmwasser",  "value": 5 },
+    { "label": "Handbetrieb", "value": 14 },
+    { "label": "Notbetrieb",  "value": 0 },
+    { "label": "Bereitschaft","value": 1 },
+    { "label": "Tagbetrieb",  "value": 3 },
+    { "label": "Abwesenheit", "value": 4 }
+  ]
+}
+```
+
+- `options` is required (same format as `selector`) and must contain at least one entry. Values may be strings or numbers - they are compared numerically when both sides parse as numbers, otherwise case-insensitively.
+- The currently active label is shown in the closed combobox. While the popup is open, live state updates do not yank the selection.
+- Picking an entry dispatches its `value` as the command (OpenHAB or MQTT).
 
 #### Value (`kind: "value"`)
 

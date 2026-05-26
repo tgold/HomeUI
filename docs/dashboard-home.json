@@ -642,8 +642,26 @@
           "columnSpan": 3,
           "tilesPerRow": 6,
           "controls": [
-            { "kind": "value", "label": "Lueftung Tag",   "iconText": "T", "accentColor": "#38bdf8", "item": "thz_lueftung_tag" },
-            { "kind": "value", "label": "Lueftung Nacht", "iconText": "N", "accentColor": "#38bdf8", "item": "thz_lueftung_nacht" },
+            {
+              "kind": "dropdown", "label": "Lueftung Tag",
+              "item": "thz_lueftung_tag", "accentColor": "#38bdf8",
+              "options": [
+                { "label": "Stufe 0", "value": 0 },
+                { "label": "Stufe 1", "value": 1 },
+                { "label": "Stufe 2", "value": 2 },
+                { "label": "Stufe 3", "value": 3 }
+              ]
+            },
+            {
+              "kind": "dropdown", "label": "Lueftung Nacht",
+              "item": "thz_lueftung_nacht", "accentColor": "#38bdf8",
+              "options": [
+                { "label": "Stufe 0", "value": 0 },
+                { "label": "Stufe 1", "value": 1 },
+                { "label": "Stufe 2", "value": 2 },
+                { "label": "Stufe 3", "value": 3 }
+              ]
+            },
             { "kind": "value", "label": "Zuluft",        "iconText": "Z", "accentColor": "#22c55e", "item": "zuluft_soll_volumenstrom",   "unit": "m3" },
             { "kind": "value", "label": "Abluft",        "iconText": "A", "accentColor": "#ef4444", "item": "abluft_soll_volumenstrom",   "unit": "m3" },
             { "kind": "value", "label": "Zuluft Drehzahl","iconText":"Z", "accentColor": "#22c55e", "item": "zuluft_ist_luefterdrehzahl", "unit": "Hz" },
@@ -656,6 +674,19 @@
           "columnSpan": 3,
           "tilesPerRow": 4,
           "controls": [
+            {
+              "kind": "dropdown", "label": "Betriebsart",
+              "item": "thz_betriebsart_string", "accentColor": "#f59e0b",
+              "options": [
+                { "label": "Automatik",   "value": 11 },
+                { "label": "Warmwasser",  "value": 5 },
+                { "label": "Handbetrieb", "value": 14 },
+                { "label": "Notbetrieb",  "value": 0 },
+                { "label": "Bereitschaft","value": 1 },
+                { "label": "Tagbetrieb",  "value": 3 },
+                { "label": "Abwesenheit", "value": 4 }
+              ]
+            },
             { "label": "Heizen",        "iconText": "H", "accentColor": "#ef4444", "item": "thz_heizen" },
             { "label": "Warmwasser",    "iconText": "W", "accentColor": "#38bdf8", "item": "thz_warmwasserbereitung" },
             { "label": "Verdichter",    "iconText": "V", "accentColor": "#a855f7", "item": "thz_verdichter" },
@@ -900,7 +931,7 @@
               "type": "camera",
               "title": "Tuerklingel",
               "location": "Einfahrt",
-              "height": 260,
+              "height": 360,
               "format": "mjpeg",
               "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22"
             },
