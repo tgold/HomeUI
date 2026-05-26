@@ -1,4 +1,5 @@
 #include "DashboardConfig.h"
+#include "MjpegView.h"
 #include "OpenHabClient.h"
 
 #ifdef HOMEUI_HAS_MQTT
@@ -17,6 +18,7 @@
 #include <QQmlContext>
 #include <QStringList>
 #include <QUrl>
+#include <qqml.h>
 
 namespace {
 
@@ -161,6 +163,8 @@ int main(int argc, char *argv[])
     if (parser.isSet(noOpenHabOption)) {
         openHabClient.setEnabled(false);
     }
+
+    qmlRegisterType<MjpegView>("HomeUI", 1, 0, "MjpegView");
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("dashboardConfig"), &dashboardConfig);

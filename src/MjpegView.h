@@ -9,7 +9,6 @@
 #include <QString>
 #include <QTimer>
 #include <QUrl>
-#include <qqml.h>
 
 // QQuickPaintedItem that streams a multipart/x-mixed-replace MJPEG response
 // (as served by Synology Surveillance Station, axis cameras, motion, etc.)
@@ -17,7 +16,6 @@
 class MjpegView : public QQuickPaintedItem
 {
     Q_OBJECT
-    QML_ELEMENT
     Q_PROPERTY(QUrl url READ url WRITE setUrl NOTIFY urlChanged)
     Q_PROPERTY(bool active READ active NOTIFY activeChanged)
     Q_PROPERTY(bool hasFrame READ hasFrame NOTIFY frameCountChanged)

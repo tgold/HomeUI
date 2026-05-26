@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import HomeUI 1.0
 
 Rectangle {
     id: root
