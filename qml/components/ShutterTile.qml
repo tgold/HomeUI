@@ -11,18 +11,24 @@ Rectangle {
 
     readonly property real currentPosition: {
         var raw = String(rawValue).trim().toUpperCase()
+        // For plain Switch shutters this codebase treats ON as "open / up" and
+        // OFF as "closed / down" to match the KNX rules in this installation.
+        // If your binding is wired the other way around, set `invertSwitch`
+        // on the control – or just swap upCommand/downCommand.
         switch (raw) {
         case "UP":
         case "OPEN":
-        case "OFF":
         case "FULLUP":
             return 0
+        case "ON":
+            return control && control.invertSwitch === true ? 100 : 0
+        case "OFF":
+            return control && control.invertSwitch === true ? 0 : 100
         case "HALFDOWN":
         case "HALFUP":
             return 50
         case "DOWN":
         case "CLOSED":
-        case "ON":
         case "FULLDOWN":
             return 100
         case "FULLSTOP":

@@ -503,7 +503,7 @@
               "iconText": "B", "accentColor": "#a855f7",
               "item": "FF_Bedroom_Shutter_Scene_Switch", "command": "ON"
             },
-            { "kind": "shutter","label": "Rollo Ankleide", "item": "FF_Office_Desk_Shutter", "upCommand": "OFF", "downCommand": "ON", "hideStop": true }
+            { "kind": "shutter","label": "Rollo Ankleide", "item": "FF_Office_Desk_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true }
           ]
         },
         {
@@ -513,8 +513,8 @@
           "controls": [
             { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_Office_Temperature" },
             { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "FF_Office_Light" },
-            { "kind": "shutter","label": "Rollo",      "item": "FF_Office_Shutter", "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
-            { "kind": "shutter","label": "Rollo Tisch","item": "FF_Office_Desk_Shutter", "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
+            { "kind": "shutter","label": "Rollo",      "item": "FF_Office_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
+            { "kind": "shutter","label": "Rollo Tisch","item": "FF_Office_Desk_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
             {
               "kind": "selector", "label": "Alle Rollos",
               "item": "GF_Shutter_Scene", "accentColor": "#38bdf8",
@@ -532,8 +532,8 @@
           "controls": [
             { "kind": "value",  "format": "temperature", "label": "Temperatur",     "iconText": "T", "accentColor": "#f97316", "item": "FF_Bathroom_Temperature" },
             { "label": "Licht",                "iconText": "L", "accentColor": "#fbbf24", "item": "FF_Bathroom_Light" },
-            { "kind": "shutter","label": "Rollo",          "item": "FF_Bathroom_Shutter1", "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
-            { "kind": "shutter","label": "Rollo Sauna",    "item": "FF_Bathroom_Shutter2", "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
+            { "kind": "shutter","label": "Rollo",          "item": "FF_Bathroom_Shutter1", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
+            { "kind": "shutter","label": "Rollo Sauna",    "item": "FF_Bathroom_Shutter2", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
             {
               "kind": "selector", "label": "Rollo Alle",
               "item": "gShutterScene", "accentColor": "#38bdf8",
@@ -828,10 +828,10 @@
                 { "kind": "shutter", "label": "Esszimmer",     "item": "GF_Dining_Shutter",     "commandItem": "GF_Dining_Shutter_Scene",     "upCommand": "FULLUP", "stopCommand": "FULLSTOP", "downCommand": "FULLDOWN" },
                 { "kind": "shutter", "label": "Terrasse",      "item": "GF_Terrace_Shutter",    "commandItem": "GF_Terrace_Shutter_Scene",    "upCommand": "FULLUP", "stopCommand": "FULLSTOP", "downCommand": "FULLDOWN" },
                 { "kind": "shutter", "label": "Schlafzimmer",  "item": "FF_Bedroom_Shutter",    "commandItem": "FF_Bedroom_Shutter_Scene",    "upCommand": "FULLUP", "stopCommand": "FULLSTOP", "downCommand": "FULLDOWN" },
-                { "kind": "shutter", "label": "Bad 1",         "item": "FF_Bathroom_Shutter1",  "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
-                { "kind": "shutter", "label": "Bad 2",         "item": "FF_Bathroom_Shutter2",  "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
-                { "kind": "shutter", "label": "Buero",         "item": "FF_Office_Shutter",     "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
-                { "kind": "shutter", "label": "Schreibtisch",  "item": "FF_Office_Desk_Shutter","upCommand": "OFF", "downCommand": "ON", "hideStop": true }
+                { "kind": "shutter", "label": "Bad 1",         "item": "FF_Bathroom_Shutter1",  "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
+                { "kind": "shutter", "label": "Bad 2",         "item": "FF_Bathroom_Shutter2",  "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
+                { "kind": "shutter", "label": "Buero",         "item": "FF_Office_Shutter",     "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
+                { "kind": "shutter", "label": "Schreibtisch",  "item": "FF_Office_Desk_Shutter","upCommand": "ON", "downCommand": "OFF", "hideStop": true }
               ]
             }
           ]
