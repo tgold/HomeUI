@@ -82,9 +82,12 @@ qt_add_qml_module(homeui
         qml/components/ModePanel.qml
         qml/components/MqttPanel.qml
         qml/components/PageDots.qml
+        qml/components/ProgressTile.qml
         qml/components/RoomPanel.qml
         qml/components/SceneTile.qml
+        qml/components/SelectorTile.qml
         qml/components/ShutterTile.qml
+        qml/components/SonosPanel.qml
         qml/components/StatusBar.qml
         qml/components/ThermostatTile.qml
 )

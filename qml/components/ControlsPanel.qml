@@ -132,7 +132,11 @@ Rectangle {
         case "shutter":
         case "thermostat":
         case "scene":
-            return kind
+        case "progress":
+        case "gauge":
+        case "selector":
+        case "value":
+            return kind === "gauge" ? "progress" : kind
         default:
             return "switch"
         }
@@ -190,6 +194,12 @@ Rectangle {
                             return thermostatComponent
                         case "scene":
                             return sceneComponent
+                        case "progress":
+                            return progressComponent
+                        case "selector":
+                            return selectorComponent
+                        case "value":
+                            return valueComponent
                         default:
                             return switchComponent
                         }
@@ -254,6 +264,43 @@ Rectangle {
             control: parent.control
             panel: root
             rawValue: parent.rawValue
+        }
+    }
+
+    Component {
+        id: progressComponent
+
+        ProgressTile {
+            control: parent.control
+            panel: root
+            rawValue: parent.rawValue
+        }
+    }
+
+    Component {
+        id: selectorComponent
+
+        SelectorTile {
+            control: parent.control
+            panel: root
+            rawValue: parent.rawValue
+        }
+    }
+
+    // Read-only value tile - same look as switch but never wired up.
+    Component {
+        id: valueComponent
+
+        ControlTile {
+            readonly property var control: parent.control
+            readonly property string rawValue: parent.rawValue
+            label: control.label || "Wert"
+            value: Fmt.smart(rawValue)
+            secondary: parent.currentValue
+            iconText: control.iconText || ""
+            active: false
+            interactive: false
+            accentColor: control.accentColor || "#94a3b8"
         }
     }
 }

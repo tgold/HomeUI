@@ -24,6 +24,7 @@ const QStringList ValidPanelTypes = {
     QStringLiteral("mode"),
     QStringLiteral("controls"),
     QStringLiteral("mqtt"),
+    QStringLiteral("sonos"),
 };
 
 const QStringList ValidControlKinds = {
@@ -32,6 +33,10 @@ const QStringList ValidControlKinds = {
     QStringLiteral("shutter"),
     QStringLiteral("thermostat"),
     QStringLiteral("scene"),
+    QStringLiteral("progress"),
+    QStringLiteral("gauge"),
+    QStringLiteral("selector"),
+    QStringLiteral("value"),
 };
 
 const QStringList ValidCameraFormats = {
@@ -302,14 +307,35 @@ bool DashboardConfig::validatePanel(const QVariantMap &panel, const QString &pat
             const QVariant kindValue = control.contains(QStringLiteral("kind"))
                                            ? control.value(QStringLiteral("kind"))
                                            : control.value(QStringLiteral("widget"));
+            QString kind;
             if (kindValue.isValid() && !kindValue.toString().isEmpty()) {
-                const QString kind = kindValue.toString().toLower();
+                kind = kindValue.toString().toLower();
                 if (!ValidControlKinds.contains(kind)) {
                     *errorText = QStringLiteral("%1.kind must be one of: %2")
                                      .arg(controlPath, ValidControlKinds.join(QStringLiteral(", ")));
                     return false;
                 }
             }
+            if (kind == QStringLiteral("selector")) {
+                const QVariant optionsValue = control.value(QStringLiteral("options"));
+                if (!optionsValue.canConvert<QVariantList>() || optionsValue.toList().isEmpty()) {
+                    *errorText = QStringLiteral("%1.options must be a non-empty array for selector controls").arg(controlPath);
+                    return false;
+                }
+            }
+        }
+    }
+
+    if (type == QStringLiteral("sonos")) {
+        const QVariant itemsValue = panel.value(QStringLiteral("items"));
+        if (!itemsValue.canConvert<QVariantMap>()) {
+            *errorText = QStringLiteral("%1.items must be an object of role->item mappings").arg(path);
+            return false;
+        }
+        const QVariant favoritesValue = panel.value(QStringLiteral("favorites"));
+        if (favoritesValue.isValid() && !favoritesValue.canConvert<QVariantList>()) {
+            *errorText = QStringLiteral("%1.favorites must be an array of {label, command} objects").arg(path);
+            return false;
         }
     }
 

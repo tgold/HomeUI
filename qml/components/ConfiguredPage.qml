@@ -81,6 +81,8 @@ Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: root.layoutValue(modelData, "fillHeight", false)
                     Layout.preferredHeight: root.panelHeight(modelData)
+                    Layout.columnSpan: root.layoutValue(modelData, "columnSpan", 1)
+                    Layout.rowSpan: root.layoutValue(modelData, "rowSpan", 1)
                 }
             }
         }

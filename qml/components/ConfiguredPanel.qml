@@ -44,6 +44,8 @@ Item {
                 return controlsPanelComponent
             case "mqtt":
                 return mqttPanelComponent
+            case "sonos":
+                return sonosPanelComponent
             default:
                 return unsupportedPanelComponent
             }
@@ -124,6 +126,18 @@ Item {
             mqtt: root.mqtt
             title: root.value(["title"], "MQTT")
             items: root.value(["items"], [])
+        }
+    }
+
+    Component {
+        id: sonosPanelComponent
+
+        SonosPanel {
+            openhab: root.openhab
+            title: root.value(["title"], "Sonos")
+            items: root.value(["items"], ({}))
+            favorites: root.value(["favorites"], [])
+            accentColor: root.value(["accentColor"], "#f59e0b")
         }
     }
 

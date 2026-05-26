@@ -73,6 +73,9 @@ Supported panel types:
 - `mode`
 - `controls`
 - `mqtt`
+- `sonos`
+
+Grid pages also accept `columnSpan` / `rowSpan` on any panel to make it stretch over multiple cells (e.g. a full-width Sonos footer below a 3-column overview).
 
 ### Room panel
 
@@ -203,11 +206,11 @@ Layout options:
 
 If `command` is provided, the control always sends that command. Otherwise it toggles between `onCommand` and `offCommand`.
 
-### Control widget kinds (milestone 5)
+### Control widget kinds
 
 Every entry in `controls` may declare a `kind` that selects a specialised home automation widget. Without `kind` (or with `kind: "switch"`) the existing toggle tile is rendered.
 
-Supported kinds: `switch`, `dimmer`, `shutter`, `thermostat`, `scene`.
+Supported kinds: `switch`, `dimmer`, `shutter`, `thermostat`, `scene`, `progress` (alias `gauge`), `selector`, `value`.
 
 #### Dimmer (`kind: "dimmer"`)
 
@@ -282,6 +285,103 @@ Renders a wide push button styled with the accent colour. Best for one-shot trig
 ```
 
 Falls back to `mqttPayload` (or `"ON"`) when no `command` is set.
+
+#### Progress / gauge (`kind: "progress"` or `"gauge"`)
+
+Renders a read-only horizontal progress bar with a numeric value on the right. Useful for cistern level, NAS volume usage, battery SoCs etc.
+
+```json
+{
+  "kind": "progress",
+  "label": "Zisterne",
+  "accentColor": "#22c55e",
+  "item": "zisterne_fuellstand",
+  "min": 0,
+  "max": 100,
+  "unit": "%",
+  "decimals": 0
+}
+```
+
+- `min` / `max` (default `0` / `100`) define the bar range.
+- `unit` overrides the displayed unit; when empty the unit baked into the OpenHAB state is preserved.
+- `decimals` controls the displayed precision (defaults: `0` for `%`/`W`, `1` otherwise).
+
+#### Selector (`kind: "selector"`)
+
+Renders a compact row of radio-style buttons for picking one of a fixed set of states (e.g. EVCC mode, robot vacuum command, scene shortcuts).
+
+```json
+{
+  "kind": "selector",
+  "label": "Modus",
+  "item": "evcc_loadpoint0_mode",
+  "accentColor": "#f59e0b",
+  "options": [
+    { "label": "PV",   "value": "pv" },
+    { "label": "Min",  "value": "minpv" },
+    { "label": "Fast", "value": "now" },
+    { "label": "Off",  "value": "off" }
+  ]
+}
+```
+
+`options` is required and must contain at least one `{ label, value }` pair. The currently active value is highlighted by string-comparing it against the item state (case-insensitive). Each press dispatches `value` as the command (OpenHAB or MQTT, depending on which binding the control declares).
+
+#### Value (`kind: "value"`)
+
+Read-only display tile. Renders the OpenHAB / MQTT state with the standard formatter but never sends a command on tap. Useful for status fields such as Fritzbox uptime, current weather condition, or sun azimuth.
+
+```json
+{
+  "kind": "value",
+  "label": "Temperatur",
+  "iconText": "T",
+  "accentColor": "#f97316",
+  "item": "GF_LivingRoom_Temperature"
+}
+```
+
+### Sonos panel
+
+Wraps a Sonos zone in a dedicated player tile that shows the current track, an optional album art image, transport controls (PREV / PLAY-PAUSE / NEXT), a volume slider, and an optional row of favourite preset buttons.
+
+```json
+{
+  "type": "sonos",
+  "title": "Sonos Kueche",
+  "accentColor": "#f59e0b",
+  "items": {
+    "controller": "Sonos_Kitchen_Controller",
+    "volume": "Sonos_Kitchen_Volume",
+    "mute": "Sonos_Kitchen_Mute",
+    "title": "Sonos_Kitchen_CurrentTitle",
+    "artist": "Sonos_Kitchen_CurrentArtist",
+    "album": "Sonos_Kitchen_CurrentAlbum",
+    "albumArt": "Sonos_Kitchen_AlbumArt_Url",
+    "state": "Sonos_Kitchen_State",
+    "track": "Sonos_Kitchen_CurrentTrack",
+    "favorite": "Sonos_Kitchen_Favotite"
+  },
+  "favorites": [
+    { "label": "SWR3",     "command": "SWR3" },
+    { "label": "Rockland", "command": "Rockland Radio" }
+  ]
+}
+```
+
+All `items.*` keys are optional - the panel hides unbound controls automatically:
+
+- `controller` - Player item; PLAY / PAUSE / NEXT / PREVIOUS commands are sent on transport button presses.
+- `volume` - Dimmer item (0..100). Renders as a slider.
+- `mute` - Switch item. Adds a MUTE / UNMUTE button.
+- `title`, `artist`, `album` - String items used to build the now-playing label.
+- `track` - String item used as fallback when `title`/`artist` are absent.
+- `albumArt` - String item with a URL pointing at the album art image. Hidden when empty or unreachable.
+- `state` - String item used to pick the PLAY vs. PAUSE icon and surface the current state.
+- `favorite` - String item that triggers favourite playback when any of the `favorites` buttons is pressed.
+
+`favorites` is a list of `{ label, command, accentColor? }` entries. Pressing one publishes `command` to the `favorite` item.
 
 ### MQTT-backed controls
 
