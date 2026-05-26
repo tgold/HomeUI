@@ -90,6 +90,11 @@ Item {
         CameraTile {
             title: root.value(["title"], "Kamera")
             location: root.value(["location"], "")
+            streamUrl: root.value(["streamUrl"], "")
+            snapshotUrl: root.value(["snapshotUrl"], "")
+            streamFormat: root.value(["format"], "")
+            refreshInterval: root.value(["refreshInterval"], 1000)
+            ignoreSslErrors: root.boolValue(["ignoreSslErrors"], false)
         }
     }
 

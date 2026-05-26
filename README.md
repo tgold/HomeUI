@@ -16,6 +16,7 @@ This repository currently contains the Milestone 5 shell:
 - MQTT-backed control tiles and a dedicated `mqtt` panel type for read-only topics.
 - MQTT control plane on `home/panel/<panel-id>/{page,brightness,reload}` topics.
 - Home-automation widget catalogue: switch, dimmer (slider), roller shutter (up/stop/down), thermostat (+/- setpoint), and scene push button tiles, addressable per control via `kind`.
+- Built-in live camera tile: MJPEG (Synology Surveillance Station, axis, motion, etc.) decoded directly in QML via a small `MjpegView` C++ component; JPEG snapshot polling as a low-bandwidth fallback.
 
 Raspberry Pi production deployment polish (systemd autostart, brightness/sleep behaviour beyond MQTT control, log rotation) is planned for milestone 6.
 
@@ -28,6 +29,8 @@ config/
 src/
   DashboardConfig.cpp
   DashboardConfig.h
+  MjpegView.cpp
+  MjpegView.h
   MqttClient.cpp
   MqttClient.h
   OpenHabClient.cpp

@@ -64,6 +64,9 @@ endif()
 qt_add_qml_module(homeui
     URI HomeUI
     VERSION 1.0
+    SOURCES
+        src/MjpegView.cpp
+        src/MjpegView.h
     QML_FILES
         qml/Main.qml
         qml/components/ConfiguredPage.qml

@@ -116,16 +116,55 @@ Supported panel types:
 
 ### Camera panel
 
-Milestone 3 still renders a static camera placeholder. The config already carries the display metadata needed by later camera work.
+Renders a live camera feed inside the dashboard tile. The actual rendering mode is picked automatically:
+
+- `streamUrl` set -> live **MJPEG** stream via the built-in `MjpegView` (no external video stack required).
+- `snapshotUrl` set -> periodic **JPEG snapshot** polling (refresh every `refreshInterval` ms).
+- Neither set -> the original static placeholder (useful while wiring up a new dashboard).
 
 ```json
 {
   "type": "camera",
-  "title": "Security Kamera",
-  "location": "Carport",
-  "fillHeight": true
+  "title": "Tuerklingel",
+  "location": "Einfahrt",
+  "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22",
+  "snapshotUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.SnapShot&version=1&method=TakeSnapshot&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22",
+  "format": "mjpeg",
+  "refreshInterval": 1000,
+  "ignoreSslErrors": false,
+  "height": 260
 }
 ```
+
+Fields:
+
+- `streamUrl` - HTTP URL to a `multipart/x-mixed-replace` MJPEG stream. The tile auto-reconnects on transport errors (`reconnectInterval` 3 s by default).
+- `snapshotUrl` - URL that returns a single JPEG each call. Used as the visible source when `format` is `"snapshot"`.
+- `format` (optional) - explicit override of `mjpeg`, `snapshot`, or `placeholder`. Detection from `streamUrl` / `snapshotUrl` is fine for most cases; only set this if you want to force one path.
+- `refreshInterval` (default `1000`) - milliseconds between snapshot polls. Minimum 250.
+- `ignoreSslErrors` (default `false`) - accept self-signed certificates on `https://`-based Synology hosts.
+- `location`, `height`, `title` - cosmetic.
+
+#### Synology Surveillance Station formats
+
+The URL the user provided uses Synology's `SYNO.SurveillanceStation.Stream.VideoStreaming` API. The streaming format is selected with the `format=` query parameter. Trade-offs:
+
+| Format         | URL `format=` | How HomeUI renders it       | Pros                                                                 | Cons                                                                  |
+|---             |---            |---                          |---                                                                   |---                                                                    |
+| MJPEG          | `mjpeg`       | `MjpegView` (built-in)      | No extra deps; works on any Pi; smooth ~10-25 fps; lowest latency.   | High bandwidth (~1-3 Mbit/s @ 720p); JPEG decode is per-frame.        |
+| MXPEG          | `mxpeg`       | not supported               | Only relevant for Mobotix cameras.                                   | Custom decoder not bundled.                                           |
+| Snapshot       | n/a (`SYNO.SurveillanceStation.SnapShot.TakeSnapshot`) | `Image` polling | Easiest on the broker/Pi; works behind any reverse proxy.            | Not real-time; visible refresh at the poll rate.                      |
+| H.264 / RTSP   | n/a (separate URL via camera or Surveillance Station's RTSP profile) | requires QtMultimedia + GStreamer build | Smallest bandwidth; HW decode on Pi.                                 | Adds GStreamer dependency; not yet wired by default in this repo.     |
+
+For a Pi 4/5 wall panel and the Surveillance Station MJPEG stream the user pasted, **`format=mjpeg`** is the right pick - it's what is currently implemented and gives the smoothest result without pulling in a video stack. Use a snapshot URL only when bandwidth is constrained or when the panel idles for long periods.
+
+A future milestone can add an RTSP / H.264 path through `QtMultimedia`; the panel schema is already shaped for that (just add `format: "rtsp"` plus a `streamUrl: "rtsp://..."`).
+
+#### Synology `StmKey` notes
+
+The `StmKey` value must be wrapped in double quotes when sent to Synology. In URLs the quotes are URL-encoded as `%22`, so the example above keeps them as `%22b9ff...%22`. Equivalently you can write the JSON value with escaped quotes: `"StmKey=\"b9ff...\""`. Either form works.
+
+You typically obtain the `StmKey` by logging into Surveillance Station and reading the `Stream-Key` from the camera details page, or by calling `SYNO.SurveillanceStation.Stream.AcquireStreamKey`.
 
 ### Mode panel
 

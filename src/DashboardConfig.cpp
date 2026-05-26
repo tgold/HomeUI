@@ -28,6 +28,12 @@ const QStringList ValidControlKinds = {
     QStringLiteral("scene"),
 };
 
+const QStringList ValidCameraFormats = {
+    QStringLiteral("mjpeg"),
+    QStringLiteral("snapshot"),
+    QStringLiteral("placeholder"),
+};
+
 bool hasObjectList(const QVariantMap &object, const QString &key)
 {
     const QVariant value = object.value(key);
@@ -245,6 +251,18 @@ bool DashboardConfig::validatePanel(const QVariantMap &panel, const QString &pat
     if (type == QStringLiteral("mqtt") && !hasObjectList(panel, QStringLiteral("items"))) {
         *errorText = QStringLiteral("%1.items must be an array of mqtt entries").arg(path);
         return false;
+    }
+
+    if (type == QStringLiteral("camera")) {
+        const QVariant formatValue = panel.value(QStringLiteral("format"));
+        if (formatValue.isValid() && !formatValue.toString().isEmpty()) {
+            const QString format = formatValue.toString().toLower();
+            if (!ValidCameraFormats.contains(format)) {
+                *errorText = QStringLiteral("%1.format must be one of: %2")
+                                 .arg(path, ValidCameraFormats.join(QStringLiteral(", ")));
+                return false;
+            }
+        }
     }
 
     return true;

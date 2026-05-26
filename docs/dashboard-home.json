@@ -69,7 +69,11 @@
               "type": "camera",
               "title": "Tuerklingel",
               "location": "Einfahrt",
-              "height": 292
+              "height": 292,
+              "format": "mjpeg",
+              "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22",
+              "snapshotUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.SnapShot&version=1&method=TakeSnapshot&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22",
+              "refreshInterval": 1000
             },
             {
               "type": "controls",
@@ -758,7 +762,9 @@
               "type": "camera",
               "title": "Tuerklingel",
               "location": "Einfahrt",
-              "height": 260
+              "height": 260,
+              "format": "mjpeg",
+              "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22"
             },
             {
               "type": "controls",
@@ -801,7 +807,9 @@
               "type": "camera",
               "title": "Surveillance",
               "location": "Carport",
-              "height": 260
+              "height": 260,
+              "format": "mjpeg",
+              "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=3&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22"
             },
             {
               "type": "controls",
