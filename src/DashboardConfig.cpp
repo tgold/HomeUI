@@ -30,6 +30,7 @@ const QStringList ValidPanelTypes = {
 const QStringList ValidControlKinds = {
     QStringLiteral("switch"),
     QStringLiteral("dimmer"),
+    QStringLiteral("color"),
     QStringLiteral("shutter"),
     QStringLiteral("thermostat"),
     QStringLiteral("scene"),

@@ -129,6 +129,7 @@ Rectangle {
         switch (kind) {
         case "switch":
         case "dimmer":
+        case "color":
         case "shutter":
         case "thermostat":
         case "scene":
@@ -188,6 +189,8 @@ Rectangle {
                         switch (kind) {
                         case "dimmer":
                             return dimmerComponent
+                        case "color":
+                            return colorComponent
                         case "shutter":
                             return shutterComponent
                         case "thermostat":
@@ -230,6 +233,16 @@ Rectangle {
         id: dimmerComponent
 
         DimmerTile {
+            control: parent.control
+            panel: root
+            rawValue: parent.rawValue
+        }
+    }
+
+    Component {
+        id: colorComponent
+
+        ColorTile {
             control: parent.control
             panel: root
             rawValue: parent.rawValue

@@ -19,17 +19,24 @@
               "item": "GF_LivingRoom_Temperature"
             },
             {
+              "kind": "value",
+              "label": "Temp Aussen",
+              "iconText": "A",
+              "accentColor": "#0ea5e9",
+              "item": "thz_aussentemp"
+            },
+            {
               "label": "Licht",
               "iconText": "L",
               "accentColor": "#fbbf24",
               "item": "GF_LivingRoom_Light"
             },
             {
-              "kind": "dimmer",
+              "kind": "color",
               "label": "Licht Hue",
-              "iconText": "%",
+              "iconText": "H",
               "accentColor": "#fbbf24",
-              "item": "GF_LivingRoom_Light_Dimmer"
+              "item": "GF_LivingRoom_Light_Color"
             },
             {
               "label": "Stehlampe",
@@ -38,11 +45,11 @@
               "item": "GF_LivingRoom_StandLight_Toggle"
             },
             {
-              "kind": "dimmer",
+              "kind": "color",
               "label": "Stehlampe Hue",
-              "iconText": "%",
+              "iconText": "H",
               "accentColor": "#fbbf24",
-              "item": "GF_LivingRoom_StandLight_Dimmer"
+              "item": "GF_LivingRoom_StandLight_Color"
             },
             {
               "kind": "shutter",
@@ -61,19 +68,6 @@
               ]
             },
             {
-              "kind": "value",
-              "label": "Temp Aussen",
-              "iconText": "A",
-              "accentColor": "#0ea5e9",
-              "item": "thz_aussentemp"
-            },
-            {
-              "label": "Licht Terrasse",
-              "iconText": "T",
-              "accentColor": "#fbbf24",
-              "item": "GF_Terrace_Light"
-            },
-            {
               "kind": "shutter",
               "label": "Rollo Terrasse",
               "item": "GF_Terrace_Shutter"
@@ -88,6 +82,12 @@
                 { "label": "Halb", "value": "HALFDOWN" },
                 { "label": "Runter", "value": "FULLDOWN" }
               ]
+            },
+            {
+              "label": "Licht Terrasse",
+              "iconText": "T",
+              "accentColor": "#fbbf24",
+              "item": "GF_Terrace_Light"
             }
           ]
         },
@@ -137,7 +137,7 @@
         },
         {
           "type": "controls",
-          "title": "Auto / Robi",
+          "title": "Auto",
           "tilesPerRow": 2,
           "controls": [
             {
@@ -166,7 +166,14 @@
                 { "label": "Fast", "value": "now" },
                 { "label": "Off", "value": "off" }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "type": "controls",
+          "title": "Robi",
+          "tilesPerRow": 2,
+          "controls": [
             {
               "kind": "progress",
               "label": "Robi Batterie",
@@ -272,9 +279,9 @@
           "controls": [
             { "kind": "value",  "label": "Temperatur",    "iconText": "T", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
             { "label": "Licht",         "iconText": "L", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light" },
-            { "kind": "dimmer", "label": "Licht Hue",     "iconText": "%", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light_Dimmer" },
+            { "kind": "color",  "label": "Licht Hue",     "iconText": "H", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light_Color" },
             { "label": "Stehlampe",     "iconText": "S", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Toggle" },
-            { "kind": "dimmer", "label": "Stehlampe Hue", "iconText": "%", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Dimmer" },
+            { "kind": "color",  "label": "Stehlampe Hue", "iconText": "H", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Color" },
             { "kind": "shutter","label": "Rollo",         "item": "GF_LivingRoom_Shutter" },
             {
               "kind": "selector", "label": "Rollo Szene",

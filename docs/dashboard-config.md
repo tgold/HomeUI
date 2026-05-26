@@ -210,7 +210,7 @@ If `command` is provided, the control always sends that command. Otherwise it to
 
 Every entry in `controls` may declare a `kind` that selects a specialised home automation widget. Without `kind` (or with `kind: "switch"`) the existing toggle tile is rendered.
 
-Supported kinds: `switch`, `dimmer`, `shutter`, `thermostat`, `scene`, `progress` (alias `gauge`), `selector`, `value`.
+Supported kinds: `switch`, `dimmer`, `color`, `shutter`, `thermostat`, `scene`, `progress` (alias `gauge`), `selector`, `value`.
 
 #### Dimmer (`kind: "dimmer"`)
 
@@ -231,6 +231,27 @@ Renders a slider 0..100 plus a power icon that toggles between `0` and `onLevel`
 - `min` / `max` (defaults `0` / `100`) - slider range.
 - `onLevel` (default `max`) - value sent when the icon is tapped to turn the dimmer on.
 - The slider sends the new integer value as a numeric command when released.
+
+#### Color (`kind: "color"`)
+
+Hue + brightness picker for OpenHAB `Color` items. Renders a horizontal hue gradient strip with a draggable marker, a brightness slider, and a circular power button whose fill reflects the current colour.
+
+```json
+{
+  "kind": "color",
+  "label": "Wohnzimmer Hue",
+  "iconText": "H",
+  "accentColor": "#fbbf24",
+  "item": "GF_LivingRoom_Light_Color"
+}
+```
+
+State / command encoding:
+
+- The tile expects the OpenHAB Color state in the standard `"H,S,B"` form (hue 0..360, saturation 0..100, brightness 0..100). Plain numeric / `ON` / `OFF` states are also tolerated so this kind degrades cleanly when bound to a `Dimmer` or `Switch` item.
+- Hue strip releases publish a full `"H,S,B"` command, preserving the current saturation (defaults to `100` when off) and brightness (defaults to `100` when off).
+- The brightness slider publishes the raw integer percentage on release, which OpenHAB treats as a `PercentType` command on `Color` items - hue and saturation are kept.
+- The power button publishes `ON` / `OFF`.
 
 #### Shutter (`kind: "shutter"`)
 

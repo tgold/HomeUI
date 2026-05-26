@@ -73,6 +73,7 @@ qt_add_qml_module(homeui
         qml/components/ConfiguredPage.qml
         qml/components/ConfiguredPanel.qml
         qml/components/CameraTile.qml
+        qml/components/ColorTile.qml
         qml/components/ControlsPanel.qml
         qml/components/ControlTile.qml
         qml/components/DimmerTile.qml
