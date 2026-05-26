@@ -14,6 +14,7 @@
             {
               "kind": "value",
               "label": "Temperatur",
+              "format": "temperature",
               "iconText": "T",
               "accentColor": "#f97316",
               "item": "GF_LivingRoom_Temperature"
@@ -21,6 +22,7 @@
             {
               "kind": "value",
               "label": "Temp Aussen",
+              "format": "temperature",
               "iconText": "A",
               "accentColor": "#0ea5e9",
               "item": "thz_aussentemp"
@@ -99,6 +101,7 @@
             {
               "kind": "value",
               "label": "Temperatur",
+              "format": "temperature",
               "iconText": "T",
               "accentColor": "#f97316",
               "item": "GF_LivingRoom_Temperature"
@@ -568,7 +571,7 @@
     {
       "id": "klima",
       "title": "KLIMA",
-      "layout": "grid",
+      "layout": "masonry",
       "columns": 3,
       "panels": [
         {

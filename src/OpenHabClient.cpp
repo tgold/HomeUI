@@ -3,8 +3,14 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLoggingCategory>
 #include <QNetworkRequest>
 #include <QProcessEnvironment>
+#include <QUrlQuery>
+
+namespace {
+Q_LOGGING_CATEGORY(lcOpenHab, "homeui.openhab")
+}
 
 namespace {
 constexpr int EventReconnectDelayMs = 5000;
@@ -342,8 +348,24 @@ void OpenHabClient::connectEventStream()
     }
 
     setStatusText(QStringLiteral("Connecting OpenHAB events"));
-    QNetworkRequest request = makeRequest(QStringLiteral("/rest/events?topics=openhab/items/*"), "text/event-stream");
+
+    // Build the SSE URL with a proper query string. Passing the topics filter
+    // as part of the path made QUrl::setPath percent-encode `?` and `*`, so
+    // OpenHAB returned 404 and the stream looked permanently disconnected.
+    QUrl eventUrl = makeUrl(QStringLiteral("/rest/events"));
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("topics"), QStringLiteral("openhab/items/*"));
+    eventUrl.setQuery(query);
+
+    QNetworkRequest request(eventUrl);
+    request.setRawHeader("Accept", "text/event-stream");
+    request.setRawHeader("User-Agent", "HomeUI/0.1");
     request.setRawHeader("Cache-Control", "no-cache");
+    if (!m_accessToken.isEmpty()) {
+        request.setRawHeader("Authorization", QByteArray("Bearer ") + m_accessToken.toUtf8());
+    }
+
+    qCDebug(lcOpenHab, "Subscribing to event stream %s", qUtf8Printable(eventUrl.toString()));
 
     m_eventReply = m_network.get(request);
     connect(m_eventReply, &QNetworkReply::metaDataChanged, this, [this]() {
@@ -355,7 +377,12 @@ void OpenHabClient::connectEventStream()
         if (status >= 200 && status < 300) {
             setEventStreamConnected(true);
             setConnected(true);
+            setLastError({});
             setStatusText(QStringLiteral("OpenHAB event stream connected"));
+        } else if (status > 0) {
+            qCWarning(lcOpenHab, "Event stream HTTP status %d", status);
+            setLastError(QStringLiteral("Event stream HTTP %1").arg(status));
+            setStatusText(QStringLiteral("OpenHAB event stream HTTP %1").arg(status));
         }
     });
     connect(m_eventReply, &QIODevice::readyRead, this, [this]() {
@@ -370,6 +397,7 @@ void OpenHabClient::connectEventStream()
 
         const QNetworkReply::NetworkError error = m_eventReply->error();
         const QString errorString = m_eventReply->errorString();
+        const int status = m_eventReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         m_eventReply->deleteLater();
         m_eventReply = nullptr;
         setEventStreamConnected(false);
@@ -377,7 +405,11 @@ void OpenHabClient::connectEventStream()
         if (m_enabled && error != QNetworkReply::OperationCanceledError) {
             if (error != QNetworkReply::NoError) {
                 setLastError(errorString);
-                setStatusText(QStringLiteral("OpenHAB event stream disconnected"));
+                setStatusText(status > 0
+                                  ? QStringLiteral("OpenHAB event stream disconnected (HTTP %1)").arg(status)
+                                  : QStringLiteral("OpenHAB event stream disconnected"));
+                qCWarning(lcOpenHab, "Event stream closed: %s (HTTP %d)",
+                          qUtf8Printable(errorString), status);
             }
             scheduleEventReconnect();
         }
