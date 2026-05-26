@@ -167,10 +167,21 @@ void OpenHabClient::refreshItems()
     }
 
     setStatusText(QStringLiteral("Loading OpenHAB items"));
-    QNetworkReply *reply = m_network.get(makeRequest(QStringLiteral("/rest/items")));
+    const QNetworkRequest request = makeRequest(QStringLiteral("/rest/items"));
+    qCDebug(lcOpenHab, "GET %s", qUtf8Printable(request.url().toString()));
+
+    QNetworkReply *reply = m_network.get(request);
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         reply->deleteLater();
+        const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         if (reply->error() != QNetworkReply::NoError) {
+            const QByteArray body = reply->readAll();
+            qCWarning(lcOpenHab,
+                      "GET %s failed: %s (HTTP %d) body=%s",
+                      qUtf8Printable(reply->url().toString()),
+                      qUtf8Printable(reply->errorString()),
+                      status,
+                      body.constData());
             setConnected(false);
             setLastError(reply->errorString());
             setStatusText(QStringLiteral("OpenHAB item load failed"));
@@ -196,7 +207,14 @@ void OpenHabClient::reconnectEvents()
 
 void OpenHabClient::sendCommand(const QString &itemName, const QString &command)
 {
-    if (!m_enabled || itemName.isEmpty() || command.isEmpty()) {
+    if (!m_enabled) {
+        qCDebug(lcOpenHab, "Command for %s dropped (client disabled)", qUtf8Printable(itemName));
+        return;
+    }
+    if (itemName.isEmpty() || command.isEmpty()) {
+        qCWarning(lcOpenHab,
+                  "Refusing to send command: empty %s",
+                  itemName.isEmpty() ? "itemName" : "command");
         return;
     }
 
@@ -204,14 +222,38 @@ void OpenHabClient::sendCommand(const QString &itemName, const QString &command)
     QNetworkRequest request = makeRequest(QStringLiteral("/rest/items/%1").arg(encodedItem), "text/plain");
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain"));
 
+    qCInfo(lcOpenHab,
+           "POST %s = '%s'",
+           qUtf8Printable(request.url().toString()),
+           qUtf8Printable(command));
+
     QNetworkReply *reply = m_network.post(request, command.toUtf8());
     connect(reply, &QNetworkReply::finished, this, [this, reply, itemName, command]() {
         reply->deleteLater();
+        const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QByteArray body = reply->readAll();
+
         if (reply->error() != QNetworkReply::NoError) {
-            setLastError(QStringLiteral("%1: %2").arg(itemName, reply->errorString()));
-            setStatusText(QStringLiteral("OpenHAB command failed"));
+            const QString detail = body.isEmpty() ? reply->errorString()
+                                                  : QStringLiteral("%1 – %2").arg(reply->errorString(),
+                                                                                  QString::fromUtf8(body).trimmed());
+            qCWarning(lcOpenHab,
+                      "POST %s ('%s') failed: %s (HTTP %d) body=%s",
+                      qUtf8Printable(reply->url().toString()),
+                      qUtf8Printable(command),
+                      qUtf8Printable(reply->errorString()),
+                      status,
+                      body.constData());
+            setLastError(QStringLiteral("%1: %2").arg(itemName, detail));
+            setStatusText(QStringLiteral("OpenHAB command failed: %1 (HTTP %2)").arg(itemName).arg(status));
             return;
         }
+
+        qCDebug(lcOpenHab,
+                "POST %s ('%s') succeeded (HTTP %d)",
+                qUtf8Printable(reply->url().toString()),
+                qUtf8Printable(command),
+                status);
 
         // Optimistically update the tapped tile while the event stream catches up.
         updateItemState(itemName, command);
