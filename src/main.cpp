@@ -1,6 +1,7 @@
 #include "DashboardConfig.h"
 #include "MjpegView.h"
 #include "OpenHabClient.h"
+#include "ScreenIdleController.h"
 
 #ifdef HOMEUI_HAS_MQTT
 #include "MqttClient.h"
@@ -23,10 +24,22 @@
 namespace {
 
 Q_LOGGING_CATEGORY(lcBrightness, "homeui.brightness")
+Q_LOGGING_CATEGORY(lcMain, "homeui.main")
 
 QString envValue(const QProcessEnvironment &env, const QString &name, const QString &fallback = QString())
 {
     return env.value(name, fallback);
+}
+
+int envInt(const QProcessEnvironment &env, const QString &name, int fallback)
+{
+    const QString raw = env.value(name);
+    if (raw.isEmpty()) {
+        return fallback;
+    }
+    bool ok = false;
+    const int value = raw.toInt(&ok);
+    return ok ? value : fallback;
 }
 
 QString findBacklightPath()
@@ -84,6 +97,30 @@ void applyBrightnessPercent(int percent)
     qCInfo(lcBrightness, "Set brightness to %d%% (raw=%d max=%d)", clamped, raw, maxValue);
 }
 
+void applyLogLevel(const QString &level)
+{
+    if (level.isEmpty()) {
+        return;
+    }
+    const QString lower = level.trimmed().toLower();
+    // Map a small set of friendly aliases to Qt logging filter rules. Users
+    // who need more granular control can still set QT_LOGGING_RULES
+    // directly; that wins over our default.
+    QString rules;
+    if (lower == QStringLiteral("debug")) {
+        rules = QStringLiteral("homeui.*.debug=true\nqt.*.debug=false\n");
+    } else if (lower == QStringLiteral("warning") || lower == QStringLiteral("warn")) {
+        rules = QStringLiteral("homeui.*.debug=false\nhomeui.*.info=false\n");
+    } else if (lower == QStringLiteral("error") || lower == QStringLiteral("critical")) {
+        rules = QStringLiteral("homeui.*.debug=false\nhomeui.*.info=false\nhomeui.*.warning=false\n");
+    } else {
+        // info (default) - homeui.*.info=true is implied by Qt's default.
+        rules = QStringLiteral("homeui.*.debug=false\n");
+    }
+    QLoggingCategory::setFilterRules(rules);
+    qSetMessagePattern(QStringLiteral("[%{time yyyy-MM-dd hh:mm:ss.zzz}] %{category} %{type}: %{message}"));
+}
+
 } // namespace
 
 int main(int argc, char *argv[])
@@ -112,6 +149,9 @@ int main(int argc, char *argv[])
         QStringLiteral("config"),
         QStringLiteral("Dashboard JSON config path. HOMEUI_CONFIG is preferred for regular use."),
         QStringLiteral("path"));
+    const QCommandLineOption noWatchOption(
+        QStringLiteral("no-watch-config"),
+        QStringLiteral("Disable automatic reload when dashboard.json changes on disk."));
     const QCommandLineOption mqttBrokerOption(
         QStringLiteral("mqtt-broker"),
         QStringLiteral("MQTT broker URL, for example mqtt://openhabian:1883."),
@@ -135,23 +175,51 @@ int main(int argc, char *argv[])
     const QCommandLineOption noMqttOption(
         QStringLiteral("no-mqtt"),
         QStringLiteral("Start the UI without connecting to MQTT."));
+    const QCommandLineOption idleTimeoutOption(
+        QStringLiteral("idle-timeout"),
+        QStringLiteral("Milliseconds of inactivity before the screen dims (default 600000, 0 disables)."),
+        QStringLiteral("ms"));
+    const QCommandLineOption activeBrightnessOption(
+        QStringLiteral("active-brightness"),
+        QStringLiteral("Brightness percent restored on wake (default 80)."),
+        QStringLiteral("percent"));
+    const QCommandLineOption idleBrightnessOption(
+        QStringLiteral("idle-brightness"),
+        QStringLiteral("Brightness percent applied when idle (default 0 = off)."),
+        QStringLiteral("percent"));
+    const QCommandLineOption logLevelOption(
+        QStringLiteral("log-level"),
+        QStringLiteral("Log verbosity: debug | info | warning | error. HOMEUI_LOG_LEVEL is preferred for regular use."),
+        QStringLiteral("level"));
     parser.addOption(openHabUrlOption);
     parser.addOption(openHabTokenOption);
     parser.addOption(noOpenHabOption);
     parser.addOption(configOption);
+    parser.addOption(noWatchOption);
     parser.addOption(mqttBrokerOption);
     parser.addOption(mqttUserOption);
     parser.addOption(mqttPasswordOption);
     parser.addOption(mqttClientIdOption);
     parser.addOption(mqttPanelIdOption);
     parser.addOption(noMqttOption);
+    parser.addOption(idleTimeoutOption);
+    parser.addOption(activeBrightnessOption);
+    parser.addOption(idleBrightnessOption);
+    parser.addOption(logLevelOption);
     parser.process(app);
+
+    const QString logLevel = parser.isSet(logLevelOption)
+        ? parser.value(logLevelOption)
+        : envValue(env, QStringLiteral("HOMEUI_LOG_LEVEL"), QStringLiteral("info"));
+    applyLogLevel(logLevel);
+    qCInfo(lcMain, "HomeUI starting (Qt %s, log level %s)", qVersion(), qPrintable(logLevel));
 
     DashboardConfig dashboardConfig;
     if (parser.isSet(configOption)) {
         dashboardConfig.setSourcePath(parser.value(configOption));
     }
     dashboardConfig.reload();
+    dashboardConfig.setWatching(!parser.isSet(noWatchOption));
 
     OpenHabClient openHabClient;
     if (parser.isSet(openHabUrlOption)) {
@@ -164,11 +232,34 @@ int main(int argc, char *argv[])
         openHabClient.setEnabled(false);
     }
 
+    ScreenIdleController screenIdle;
+    const int idleTimeoutMs = parser.isSet(idleTimeoutOption)
+        ? parser.value(idleTimeoutOption).toInt()
+        : envInt(env, QStringLiteral("HOMEUI_IDLE_TIMEOUT_MS"), 600000);
+    if (idleTimeoutMs <= 0) {
+        screenIdle.setEnabled(false);
+    } else {
+        screenIdle.setIdleTimeoutMs(idleTimeoutMs);
+    }
+    const int activeBrightness = parser.isSet(activeBrightnessOption)
+        ? parser.value(activeBrightnessOption).toInt()
+        : envInt(env, QStringLiteral("HOMEUI_ACTIVE_BRIGHTNESS"), 80);
+    const int idleBrightness = parser.isSet(idleBrightnessOption)
+        ? parser.value(idleBrightnessOption).toInt()
+        : envInt(env, QStringLiteral("HOMEUI_IDLE_BRIGHTNESS"), 0);
+    screenIdle.setActiveBrightness(activeBrightness);
+    screenIdle.setIdleBrightness(idleBrightness);
+    QObject::connect(&screenIdle, &ScreenIdleController::brightnessRequested,
+                     &app, [](int percent) {
+                         applyBrightnessPercent(percent);
+                     });
+
     qmlRegisterType<MjpegView>("HomeUI", 1, 0, "MjpegView");
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("dashboardConfig"), &dashboardConfig);
     engine.rootContext()->setContextProperty(QStringLiteral("openhabClient"), &openHabClient);
+    engine.rootContext()->setContextProperty(QStringLiteral("screenIdle"), &screenIdle);
 
 #ifdef HOMEUI_HAS_MQTT
     MqttClient mqttClient;
@@ -214,8 +305,14 @@ int main(int argc, char *argv[])
     QObject::connect(&mqttClient, &MqttClient::reloadRequested, &dashboardConfig, [&]() {
         dashboardConfig.reload();
     });
-    QObject::connect(&mqttClient, &MqttClient::brightnessRequested, &app, [](int percent) {
-        applyBrightnessPercent(percent);
+    QObject::connect(&mqttClient, &MqttClient::brightnessRequested, &app, [&](int percent) {
+        // setActiveBrightness already routes through ScreenIdleController's
+        // brightnessRequested signal, which the QApplication-scoped connect
+        // below forwards to applyBrightnessPercent(). No double-write.
+        screenIdle.setActiveBrightness(percent);
+    });
+    QObject::connect(&screenIdle, &ScreenIdleController::idleChanged, &mqttClient, [&]() {
+        mqttClient.setStatusField(QStringLiteral("idle"), screenIdle.idle());
     });
 #else
     static QObject mqttDummy;
@@ -237,6 +334,12 @@ int main(int argc, char *argv[])
     mqttClient.setStatusField(QStringLiteral("openhabConnected"), openHabClient.connected());
     mqttClient.start();
 #endif
+
+    // Apply the initial backlight level so the panel boots into a known
+    // brightness rather than whatever value was last written to /sys.
+    if (screenIdle.enabled()) {
+        applyBrightnessPercent(activeBrightness);
+    }
 
     return app.exec();
 }

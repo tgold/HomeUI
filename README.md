@@ -4,21 +4,22 @@ Native OpenHAB touchscreen dashboard prototype for Raspberry Pi wall panels.
 
 ## Current prototype
 
-This repository currently contains the Milestone 5 shell:
+This repository currently contains the Milestone 6 production shell:
 
 - Qt 6/QML native application scaffold.
 - Fullscreen 1280x800 touchscreen-oriented dashboard.
 - Dark HABPanel-inspired visual style.
 - Horizontally swipeable, JSON-driven pages and panels.
 - OpenHAB REST integration for initial item states and commands.
-- OpenHAB event stream integration for live item state updates.
+- OpenHAB event stream integration for live item state updates with auto-reconnect.
 - MQTT integration with broker auto-reconnect, Last Will, and retained heartbeat status.
 - MQTT-backed control tiles and a dedicated `mqtt` panel type for read-only topics.
 - MQTT control plane on `home/panel/<panel-id>/{page,brightness,reload}` topics.
 - Home-automation widget catalogue: switch, dimmer (slider), roller shutter (up/stop/down), thermostat (+/- setpoint), and scene push button tiles, addressable per control via `kind`.
 - Built-in live camera tile: MJPEG (Synology Surveillance Station, axis, motion, etc.) decoded directly in QML via a small `MjpegView` C++ component; JPEG snapshot polling as a low-bandwidth fallback.
+- Raspberry Pi production deployment: systemd user / system service templates, XDG autostart fallback, idle screen dimming with touch-wake, live `dashboard.json` reloading on disk changes, and a structured `--log-level` controllable journal log.
 
-Raspberry Pi production deployment polish (systemd autostart, brightness/sleep behaviour beyond MQTT control, log rotation) is planned for milestone 6.
+See `docs/deployment.md` for the production kiosk install guide.
 
 ## Project structure
 
@@ -35,6 +36,8 @@ src/
   MqttClient.h
   OpenHabClient.cpp
   OpenHabClient.h
+  ScreenIdleController.cpp
+  ScreenIdleController.h
   main.cpp
 qml/
   Main.qml
@@ -58,8 +61,14 @@ qml/
     ThermostatTile.qml
 scripts/
   install-pi-deps.sh
+  install-service.sh
+packaging/
+  autostart/homeui.desktop
+  systemd/homeui.service
+  systemd/homeui-system.service
 docs/
   dashboard-config.md
+  deployment.md
   openhab-touch-ui-plan.md
 ```
 

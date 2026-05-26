@@ -1,6 +1,8 @@
 #pragma once
 
+#include <QFileSystemWatcher>
 #include <QObject>
+#include <QTimer>
 #include <QVariantList>
 
 class DashboardConfig : public QObject
@@ -11,6 +13,7 @@ class DashboardConfig : public QObject
     Q_PROPERTY(QString errorText READ errorText NOTIFY errorTextChanged)
     Q_PROPERTY(QVariantList pages READ pages NOTIFY pagesChanged)
     Q_PROPERTY(int revision READ revision NOTIFY revisionChanged)
+    Q_PROPERTY(bool watching READ watching WRITE setWatching NOTIFY watchingChanged)
 
 public:
     explicit DashboardConfig(QObject *parent = nullptr);
@@ -22,6 +25,8 @@ public:
     QString errorText() const;
     QVariantList pages() const;
     int revision() const;
+    bool watching() const;
+    void setWatching(bool watching);
 
     Q_INVOKABLE bool reload();
 
@@ -31,6 +36,8 @@ signals:
     void errorTextChanged();
     void pagesChanged();
     void revisionChanged();
+    void watchingChanged();
+    void configFileChanged();
 
 private:
     static QString defaultConfigPath();
@@ -39,10 +46,16 @@ private:
     void setValid(bool valid);
     void setErrorText(const QString &errorText);
     void setPages(const QVariantList &pages);
+    void refreshWatchedPath();
+    void onPathChanged(const QString &path);
 
     QString m_sourcePath;
     bool m_valid = false;
     QString m_errorText;
     QVariantList m_pages;
     int m_revision = 0;
+    bool m_watching = false;
+
+    QFileSystemWatcher m_watcher;
+    QTimer m_reloadDebounce;
 };

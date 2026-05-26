@@ -1,0 +1,43 @@
+[Unit]
+Description=HomeUI OpenHAB touchscreen dashboard (system service)
+Documentation=https://github.com/tgold/HomeUI
+After=graphical.target
+Wants=graphical.target
+
+# This system-level unit is the fallback for setups that run HomeUI on a
+# headless KMS/EGLFS framebuffer or for kiosk images that do not use a
+# desktop session. For desktop-session deployments prefer the user service
+# at packaging/systemd/homeui.service.
+
+[Service]
+Type=simple
+User=thomas
+Group=thomas
+WorkingDirectory=/home/thomas
+
+ExecStart=/usr/local/bin/homeui --config /etc/homeui/dashboard.json
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=10
+
+# When running outside a desktop session, EGLFS is usually the right Qt
+# platform. Comment out or change as needed.
+Environment=QT_QPA_PLATFORM=eglfs
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+
+EnvironmentFile=-/etc/homeui/env
+
+# Allow writes to /sys/class/backlight/*/brightness for the idle controller.
+# AmbientCapabilities + CAP_SYS_RAWIO is too permissive; instead point
+# HOMEUI_BRIGHTNESS_PATH at a writable backlight node and adjust udev so
+# the user has write access, e.g. via /etc/udev/rules.d/99-backlight.rules:
+#   ACTION=="add", SUBSYSTEM=="backlight", RUN+="/bin/chmod 0664 /sys%p/brightness"
+ProtectSystem=full
+ProtectHome=read-only
+NoNewPrivileges=true
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=graphical.target

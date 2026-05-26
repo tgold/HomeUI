@@ -3,12 +3,18 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+#include <QLoggingCategory>
 #include <QProcessEnvironment>
 #include <QStringList>
 #include <QVariantMap>
+
+namespace {
+Q_LOGGING_CATEGORY(lcConfig, "homeui.config")
+}
 
 namespace {
 const QStringList ValidPanelTypes = {
@@ -54,6 +60,17 @@ bool hasObjectList(const QVariantMap &object, const QString &key)
 DashboardConfig::DashboardConfig(QObject *parent)
     : QObject(parent)
 {
+    m_reloadDebounce.setSingleShot(true);
+    m_reloadDebounce.setInterval(250);
+    connect(&m_reloadDebounce, &QTimer::timeout, this, [this]() {
+        qCInfo(lcConfig, "Dashboard config changed on disk - reloading");
+        reload();
+    });
+    connect(&m_watcher, &QFileSystemWatcher::fileChanged,
+            this, &DashboardConfig::onPathChanged);
+    connect(&m_watcher, &QFileSystemWatcher::directoryChanged,
+            this, &DashboardConfig::onPathChanged);
+
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     setSourcePath(env.value(QStringLiteral("HOMEUI_CONFIG"), defaultConfigPath()));
 }
@@ -72,6 +89,54 @@ void DashboardConfig::setSourcePath(const QString &sourcePath)
 
     m_sourcePath = cleanedPath;
     emit sourcePathChanged();
+    refreshWatchedPath();
+}
+
+bool DashboardConfig::watching() const
+{
+    return m_watching;
+}
+
+void DashboardConfig::setWatching(bool watching)
+{
+    if (m_watching == watching) {
+        return;
+    }
+    m_watching = watching;
+    emit watchingChanged();
+    refreshWatchedPath();
+}
+
+void DashboardConfig::refreshWatchedPath()
+{
+    if (!m_watcher.files().isEmpty()) {
+        m_watcher.removePaths(m_watcher.files());
+    }
+    if (!m_watcher.directories().isEmpty()) {
+        m_watcher.removePaths(m_watcher.directories());
+    }
+    if (!m_watching || m_sourcePath.isEmpty()) {
+        return;
+    }
+    const QFileInfo info(m_sourcePath);
+    if (info.exists()) {
+        m_watcher.addPath(m_sourcePath);
+    }
+    const QString dir = info.absolutePath();
+    if (!dir.isEmpty() && QFileInfo(dir).isDir()) {
+        m_watcher.addPath(dir);
+    }
+}
+
+void DashboardConfig::onPathChanged(const QString &path)
+{
+    Q_UNUSED(path);
+    // Editors often replace the file via tmp+rename, which drops the watch
+    // on the old inode. Re-add the path on every change so future edits are
+    // also caught.
+    refreshWatchedPath();
+    m_reloadDebounce.start();
+    emit configFileChanged();
 }
 
 bool DashboardConfig::valid() const

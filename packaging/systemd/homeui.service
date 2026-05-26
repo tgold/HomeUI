@@ -1,0 +1,35 @@
+[Unit]
+Description=HomeUI OpenHAB touchscreen dashboard
+Documentation=https://github.com/tgold/HomeUI
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+# Adjust the executable and config paths to where install-service.sh placed them.
+ExecStart=/usr/local/bin/homeui --config /etc/homeui/dashboard.json
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=10
+
+# Environment overrides. Either set them here, in EnvironmentFile, or via
+# the install-service.sh helper.
+#Environment=HOMEUI_OPENHAB_URL=http://openhabian:8080
+#Environment=HOMEUI_OPENHAB_TOKEN=
+#Environment=HOMEUI_MQTT_BROKER=mqtt://openhabian:1883
+#Environment=HOMEUI_MQTT_USERNAME=panel
+#Environment=HOMEUI_MQTT_PASSWORD=
+#Environment=HOMEUI_MQTT_PANEL_ID=wallpanel-eg
+#Environment=HOMEUI_BRIGHTNESS_PATH=/sys/class/backlight/10-0045/brightness
+#Environment=HOMEUI_IDLE_TIMEOUT_MS=600000
+#Environment=HOMEUI_LOG_LEVEL=info
+EnvironmentFile=-%h/.config/homeui/env
+
+# Forward Qt/journal output to the journal so `journalctl --user -u homeui`
+# captures it; this is the default for Type=simple services but spelled out
+# for clarity.
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=graphical-session.target

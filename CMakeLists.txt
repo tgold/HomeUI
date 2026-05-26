@@ -52,6 +52,8 @@ qt_add_executable(homeui
     src/MjpegView.h
     src/OpenHabClient.cpp
     src/OpenHabClient.h
+    src/ScreenIdleController.cpp
+    src/ScreenIdleController.h
     src/main.cpp
 )
 
