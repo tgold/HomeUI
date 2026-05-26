@@ -12,6 +12,14 @@ Rectangle {
     property int itemCount: 0
     property string statusText: "OpenHAB not connected"
 
+    // Each indicator: { label: string, state: "ok"|"warn"|"active"|"idle", tooltip?: string }
+    // - "ok"/"warn"   : diagnostic indicators (system health)
+    // - "active"/"idle": activity indicators (something is happening right now)
+    property var indicators: [
+        { "label": "OH", "state": root.openhabConnected ? "ok" : "warn" },
+        { "label": "LIVE", "state": root.eventStreamConnected ? "ok" : "warn" }
+    ]
+
     height: 72
     color: "#0b1220"
     border.color: "#1f2b3d"
@@ -68,26 +76,31 @@ Rectangle {
         }
 
         Repeater {
-            model: [
-                { "label": "OH", "ok": root.openhabConnected },
-                { "label": "EV", "ok": root.eventStreamConnected },
-                { "label": "LAN", "ok": true },
-                { "label": "PV", "ok": true },
-                { "label": "BAT", "ok": true },
-                { "label": "CAM", "ok": false }
-            ]
+            model: root.indicators
 
             Rectangle {
-                Layout.preferredWidth: 48
+                readonly property string indicatorState: modelData && modelData.state ? modelData.state : "idle"
+                readonly property var palette: {
+                    switch (indicatorState) {
+                    case "ok":     return { bg: "#12291d", border: "#22c55e", text: "#86efac" }
+                    case "warn":   return { bg: "#2a2230", border: "#f59e0b", text: "#fbbf24" }
+                    case "active": return { bg: "#0f2740", border: "#38bdf8", text: "#7dd3fc" }
+                    case "idle":
+                    default:       return { bg: "#141a25", border: "#243043", text: "#52617a" }
+                    }
+                }
+
+                Layout.preferredWidth: Math.max(48, indicatorText.implicitWidth + 18)
                 Layout.preferredHeight: 34
                 radius: 10
-                color: modelData.ok ? "#12291d" : "#2a2230"
-                border.color: modelData.ok ? "#22c55e" : "#f59e0b"
+                color: palette.bg
+                border.color: palette.border
 
                 Text {
+                    id: indicatorText
                     anchors.centerIn: parent
-                    text: modelData.label
-                    color: modelData.ok ? "#86efac" : "#fbbf24"
+                    text: modelData ? modelData.label : ""
+                    color: palette.text
                     font.pixelSize: 11
                     font.bold: true
                 }

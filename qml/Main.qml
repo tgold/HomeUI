@@ -54,6 +54,40 @@ ApplicationWindow {
         }
     }
 
+    // Helpers for status bar activity indicators. They read openhabClient and
+    // depend on stateRevision so QML re-evaluates them on every state change.
+    function _evccCharging() {
+        var _ = openhabClient.stateRevision
+        return openhabClient.itemIsOn("evcc_loadpoint0_charging", false)
+    }
+
+    function _robotRunning() {
+        var _ = openhabClient.stateRevision
+        var state = (openhabClient.itemState("GF_robi_command", "") || "").toLowerCase().trim()
+        // EG Robi command values: "charge"/"dock"/"pause" = idle, "vacuum"/"clean"/"cleaning"/"spot" = running
+        return state === "vacuum" || state === "clean" || state === "cleaning" || state === "spot"
+    }
+
+    function _irrigationRunning() {
+        var _ = openhabClient.stateRevision
+        var valves = ["gardena_ventil1_activity", "gardena_ventil2_activity", "gardena_ventil3_activity"]
+        for (var i = 0; i < valves.length; ++i) {
+            var v = (openhabClient.itemState(valves[i], "") || "").toUpperCase().trim()
+            // Gardena valve activities: "CLOSED" = idle, "MANUAL_WATERING"/"SCHEDULED_WATERING" = running
+            if (v && v !== "CLOSED" && v !== "NULL" && v !== "UNDEF") {
+                return true
+            }
+        }
+        var pump = (openhabClient.itemState("gardena_pumpe_activity", "") || "").toUpperCase().trim()
+        if (pump && pump !== "OFF" && pump !== "NULL" && pump !== "UNDEF") {
+            return true
+        }
+        if (openhabClient.itemIsOn("gardena_start_irrigation_switch", false)) {
+            return true
+        }
+        return false
+    }
+
     Shortcut {
         sequences: ["Ctrl+Q", "Esc"]
         context: Qt.ApplicationShortcut
@@ -87,6 +121,13 @@ ApplicationWindow {
         eventStreamConnected: openhabClient.eventStreamConnected
         itemCount: openhabClient.itemCount
         statusText: openhabClient.statusText
+        indicators: [
+            { "label": "OH",   "state": openhabClient.connected ? "ok" : "warn" },
+            { "label": "LIVE", "state": openhabClient.eventStreamConnected ? "ok" : "warn" },
+            { "label": "CAR",  "state": root._evccCharging() ? "active" : "idle" },
+            { "label": "ROBI", "state": root._robotRunning() ? "active" : "idle" },
+            { "label": "BEW",  "state": root._irrigationRunning() ? "active" : "idle" }
+        ]
     }
 
     SwipeView {
