@@ -1,3 +1,4 @@
+#include "DashboardConfig.h"
 #include "OpenHabClient.h"
 
 #include <QCoreApplication>
@@ -27,10 +28,21 @@ int main(int argc, char *argv[])
     const QCommandLineOption noOpenHabOption(
         QStringLiteral("no-openhab"),
         QStringLiteral("Start the UI without connecting to OpenHAB."));
+    const QCommandLineOption configOption(
+        QStringLiteral("config"),
+        QStringLiteral("Dashboard JSON config path. HOMEUI_CONFIG is preferred for regular use."),
+        QStringLiteral("path"));
     parser.addOption(openHabUrlOption);
     parser.addOption(openHabTokenOption);
     parser.addOption(noOpenHabOption);
+    parser.addOption(configOption);
     parser.process(app);
+
+    DashboardConfig dashboardConfig;
+    if (parser.isSet(configOption)) {
+        dashboardConfig.setSourcePath(parser.value(configOption));
+    }
+    dashboardConfig.reload();
 
     OpenHabClient openHabClient;
     if (parser.isSet(openHabUrlOption)) {
@@ -44,6 +56,7 @@ int main(int argc, char *argv[])
     }
 
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty(QStringLiteral("dashboardConfig"), &dashboardConfig);
     engine.rootContext()->setContextProperty(QStringLiteral("openhabClient"), &openHabClient);
     QObject::connect(
         &engine,

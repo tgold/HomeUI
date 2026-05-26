@@ -1,0 +1,355 @@
+{
+  "pages": [
+    {
+      "id": "ground-floor",
+      "title": "RAUME EG",
+      "layout": "columns",
+      "columns": [
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "room",
+              "title": "Wohnzimmer",
+              "subtitle": "Licht, Hue, Rollo",
+              "fallback": {
+                "temperature": "24.9 C",
+                "humidity": "45 %",
+                "lightOn": true,
+                "shutterClosed": false,
+                "shutterPosition": "Terrasse 30 %"
+              },
+              "items": {
+                "temperature": "Wohnzimmer_Temperatur",
+                "humidity": "Wohnzimmer_Luftfeuchtigkeit",
+                "light": "Wohnzimmer_Licht",
+                "hue": "Wohnzimmer_Hue",
+                "shutter": "Wohnzimmer_Rollo"
+              }
+            },
+            {
+              "type": "room",
+              "title": "Terrasse",
+              "subtitle": "Aussenbereich",
+              "fallback": {
+                "temperature": "30.0 C",
+                "humidity": "38 %",
+                "lightOn": false,
+                "shutterClosed": true,
+                "shutterPosition": "Sonne 20 %"
+              },
+              "items": {
+                "temperature": "Terrasse_Temperatur",
+                "humidity": "Terrasse_Luftfeuchtigkeit",
+                "light": "Terrasse_Licht",
+                "shutter": "Terrasse_Rollo"
+              }
+            }
+          ]
+        },
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "room",
+              "title": "Esszimmer",
+              "subtitle": "Esstisch und Szene",
+              "fallback": {
+                "temperature": "24.8 C",
+                "humidity": "43 %",
+                "lightOn": true,
+                "shutterClosed": true,
+                "shutterPosition": "100 %"
+              },
+              "items": {
+                "temperature": "Esszimmer_Temperatur",
+                "humidity": "Esszimmer_Luftfeuchtigkeit",
+                "light": "Esszimmer_Licht",
+                "hue": "Esszimmer_Hue",
+                "shutter": "Esszimmer_Rollo"
+              }
+            },
+            {
+              "type": "room",
+              "title": "Kueche",
+              "subtitle": "Arbeitslicht",
+              "fallback": {
+                "temperature": "24.6 C",
+                "humidity": "46 %",
+                "lightOn": false,
+                "shutterClosed": false,
+                "shutterPosition": "0 %"
+              },
+              "items": {
+                "temperature": "Kueche_Temperatur",
+                "humidity": "Kueche_Luftfeuchtigkeit",
+                "light": "Kueche_Licht",
+                "shutter": "Kueche_Rollo"
+              }
+            }
+          ]
+        },
+        {
+          "fillWidth": true,
+          "panels": [
+            {
+              "type": "camera",
+              "title": "Live Kamera",
+              "location": "Einfahrt",
+              "height": 292
+            },
+            {
+              "type": "room",
+              "title": "Flur",
+              "subtitle": "Praesenz und Szene",
+              "fallback": {
+                "temperature": "23.5 C",
+                "humidity": "41 %",
+                "lightOn": true,
+                "shutterClosed": false,
+                "shutterPosition": "offen"
+              },
+              "items": {
+                "temperature": "Flur_Temperatur",
+                "humidity": "Flur_Luftfeuchtigkeit",
+                "light": "Flur_Licht"
+              }
+            }
+          ]
+        },
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "mode"
+            },
+            {
+              "type": "energy",
+              "title": "Energie",
+              "items": {
+                "pv": "PV_Power",
+                "grid": "Grid_Power",
+                "consumption": "House_Power",
+                "battery": "Battery_Level"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "climate",
+      "title": "KLIMA",
+      "layout": "grid",
+      "columns": 3,
+      "panels": [
+        {
+          "type": "room",
+          "title": "Wohnzimmer Klima",
+          "subtitle": "Soll 22.0 C",
+          "fallback": {
+            "temperature": "24.9 C",
+            "humidity": "45 %",
+            "lightOn": false,
+            "shutterClosed": false,
+            "shutterPosition": "offen"
+          },
+          "items": {
+            "temperature": "Wohnzimmer_Temperatur",
+            "humidity": "Wohnzimmer_Luftfeuchtigkeit",
+            "shutter": "Wohnzimmer_Rollo"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Esszimmer Klima",
+          "subtitle": "Soll 22.0 C",
+          "fallback": {
+            "temperature": "24.8 C",
+            "humidity": "43 %",
+            "lightOn": false,
+            "shutterClosed": true,
+            "shutterPosition": "100 %"
+          },
+          "items": {
+            "temperature": "Esszimmer_Temperatur",
+            "humidity": "Esszimmer_Luftfeuchtigkeit",
+            "shutter": "Esszimmer_Rollo"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Schlafzimmer",
+          "subtitle": "Nachtprofil",
+          "fallback": {
+            "temperature": "21.2 C",
+            "humidity": "50 %",
+            "lightOn": false,
+            "shutterClosed": true,
+            "shutterPosition": "90 %"
+          },
+          "items": {
+            "temperature": "Schlafzimmer_Temperatur",
+            "humidity": "Schlafzimmer_Luftfeuchtigkeit",
+            "light": "Schlafzimmer_Licht",
+            "shutter": "Schlafzimmer_Rollo"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Bad",
+          "subtitle": "Lueftung",
+          "fallback": {
+            "temperature": "23.1 C",
+            "humidity": "58 %",
+            "lightOn": true,
+            "shutterClosed": false,
+            "shutterPosition": "offen"
+          },
+          "items": {
+            "temperature": "Bad_Temperatur",
+            "humidity": "Bad_Luftfeuchtigkeit",
+            "light": "Bad_Licht"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Buero",
+          "subtitle": "Arbeitsmodus",
+          "fallback": {
+            "temperature": "22.7 C",
+            "humidity": "42 %",
+            "lightOn": true,
+            "shutterClosed": false,
+            "shutterPosition": "30 %"
+          },
+          "items": {
+            "temperature": "Buero_Temperatur",
+            "humidity": "Buero_Luftfeuchtigkeit",
+            "light": "Buero_Licht",
+            "shutter": "Buero_Rollo"
+          }
+        },
+        {
+          "type": "room",
+          "title": "Keller",
+          "subtitle": "Technikraum",
+          "fallback": {
+            "temperature": "19.4 C",
+            "humidity": "54 %",
+            "lightOn": false,
+            "shutterClosed": false,
+            "shutterPosition": "n/a"
+          },
+          "items": {
+            "temperature": "Keller_Temperatur",
+            "humidity": "Keller_Luftfeuchtigkeit",
+            "light": "Keller_Licht"
+          }
+        }
+      ]
+    },
+    {
+      "id": "energy-security",
+      "title": "ENERGIE & SECURITY",
+      "layout": "columns",
+      "columns": [
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "energy",
+              "title": "Energie",
+              "items": {
+                "pv": "PV_Power",
+                "grid": "Grid_Power",
+                "consumption": "House_Power",
+                "battery": "Battery_Level"
+              }
+            },
+            {
+              "type": "mode"
+            }
+          ]
+        },
+        {
+          "fillWidth": true,
+          "panels": [
+            {
+              "type": "camera",
+              "title": "Security Kamera",
+              "location": "Carport",
+              "fillHeight": true
+            },
+            {
+              "type": "controls",
+              "title": "Security",
+              "controls": [
+                {
+                  "label": "Alarm",
+                  "value": "HOME",
+                  "secondary": "armed night",
+                  "iconText": "S",
+                  "accentColor": "#ef4444",
+                  "item": "Alarm_Mode",
+                  "onCommand": "HOME",
+                  "offCommand": "OFF"
+                },
+                {
+                  "label": "Tuer",
+                  "value": "LOCKED",
+                  "secondary": "front",
+                  "iconText": "D",
+                  "accentColor": "#22c55e",
+                  "item": "Front_Door_Lock",
+                  "onCommand": "LOCK",
+                  "offCommand": "UNLOCK"
+                },
+                {
+                  "label": "Fenster",
+                  "value": "CLOSED",
+                  "secondary": "all zones",
+                  "iconText": "W",
+                  "accentColor": "#38bdf8",
+                  "item": "Windows_State",
+                  "onCommand": "CLOSED",
+                  "offCommand": "OPEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "width": 292,
+          "panels": [
+            {
+              "type": "room",
+              "title": "Aussenlicht",
+              "subtitle": "Dusk scene",
+              "fallback": {
+                "temperature": "18.0 C",
+                "humidity": "62 %",
+                "lightOn": true,
+                "shutterClosed": false,
+                "shutterPosition": "n/a"
+              },
+              "items": {
+                "temperature": "Aussen_Temperatur",
+                "humidity": "Aussen_Luftfeuchtigkeit",
+                "light": "Aussen_Licht"
+              }
+            },
+            {
+              "type": "energy",
+              "title": "Verbrauch",
+              "items": {
+                "consumption": "House_Power",
+                "battery": "Battery_Level"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

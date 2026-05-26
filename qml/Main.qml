@@ -14,7 +14,13 @@ ApplicationWindow {
     title: "HomeUI"
     color: "#070d18"
 
-    property var pageTitles: ["RAUME EG", "KLIMA", "ENERGIE & SECURITY"]
+    function currentPageTitle() {
+        if (!dashboardConfig.valid || dashboardConfig.pages.length === 0) {
+            return "CONFIG"
+        }
+
+        return dashboardConfig.pages[Math.min(swipeView.currentIndex, dashboardConfig.pages.length - 1)].title
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -27,7 +33,7 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.top: parent.top
         title: "OPENHAB"
-        section: root.pageTitles[swipeView.currentIndex]
+        section: root.currentPageTitle()
         openhabConnected: openhabClient.connected
         eventStreamConnected: openhabClient.eventStreamConnected
         itemCount: openhabClient.itemCount
@@ -41,343 +47,74 @@ ApplicationWindow {
         anchors.top: statusBar.bottom
         anchors.bottom: footer.top
         clip: true
-        interactive: true
+        interactive: dashboardConfig.valid && dashboardConfig.pages.length > 1
+        visible: dashboardConfig.valid
 
-        Item {
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 20
-                spacing: 16
+        Repeater {
+            model: dashboardConfig.pages
 
-                ColumnLayout {
-                    Layout.preferredWidth: 292
-                    Layout.fillHeight: true
-                    spacing: 16
-
-                    RoomPanel {
-                        openhab: openhabClient
-                        title: "Wohnzimmer"
-                        subtitle: "Licht, Hue, Rollo"
-                        temperature: "24.9 C"
-                        humidity: "45 %"
-                        lightOn: true
-                        shutterClosed: false
-                        shutterPosition: "Terrasse 30 %"
-                        temperatureItem: "Wohnzimmer_Temperatur"
-                        humidityItem: "Wohnzimmer_Luftfeuchtigkeit"
-                        lightItem: "Wohnzimmer_Licht"
-                        hueItem: "Wohnzimmer_Hue"
-                        shutterItem: "Wohnzimmer_Rollo"
-                        Layout.fillWidth: true
-                    }
-
-                    RoomPanel {
-                        openhab: openhabClient
-                        title: "Terrasse"
-                        subtitle: "Aussenbereich"
-                        temperature: "30.0 C"
-                        humidity: "38 %"
-                        lightOn: false
-                        shutterClosed: true
-                        shutterPosition: "Sonne 20 %"
-                        temperatureItem: "Terrasse_Temperatur"
-                        humidityItem: "Terrasse_Luftfeuchtigkeit"
-                        lightItem: "Terrasse_Licht"
-                        shutterItem: "Terrasse_Rollo"
-                        Layout.fillWidth: true
-                    }
-                }
-
-                ColumnLayout {
-                    Layout.preferredWidth: 292
-                    Layout.fillHeight: true
-                    spacing: 16
-
-                    RoomPanel {
-                        openhab: openhabClient
-                        title: "Esszimmer"
-                        subtitle: "Esstisch und Szene"
-                        temperature: "24.8 C"
-                        humidity: "43 %"
-                        lightOn: true
-                        shutterClosed: true
-                        shutterPosition: "100 %"
-                        temperatureItem: "Esszimmer_Temperatur"
-                        humidityItem: "Esszimmer_Luftfeuchtigkeit"
-                        lightItem: "Esszimmer_Licht"
-                        hueItem: "Esszimmer_Hue"
-                        shutterItem: "Esszimmer_Rollo"
-                        Layout.fillWidth: true
-                    }
-
-                    RoomPanel {
-                        openhab: openhabClient
-                        title: "Kueche"
-                        subtitle: "Arbeitslicht"
-                        temperature: "24.6 C"
-                        humidity: "46 %"
-                        lightOn: false
-                        shutterClosed: false
-                        shutterPosition: "0 %"
-                        temperatureItem: "Kueche_Temperatur"
-                        humidityItem: "Kueche_Luftfeuchtigkeit"
-                        lightItem: "Kueche_Licht"
-                        shutterItem: "Kueche_Rollo"
-                        Layout.fillWidth: true
-                    }
-                }
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    spacing: 16
-
-                    CameraTile {
-                        title: "Live Kamera"
-                        location: "Einfahrt"
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 292
-                    }
-
-                    RoomPanel {
-                        openhab: openhabClient
-                        title: "Flur"
-                        subtitle: "Praesenz und Szene"
-                        temperature: "23.5 C"
-                        humidity: "41 %"
-                        lightOn: true
-                        shutterClosed: false
-                        shutterPosition: "offen"
-                        temperatureItem: "Flur_Temperatur"
-                        humidityItem: "Flur_Luftfeuchtigkeit"
-                        lightItem: "Flur_Licht"
-                        Layout.fillWidth: true
-                    }
-                }
-
-                ColumnLayout {
-                    Layout.preferredWidth: 292
-                    Layout.fillHeight: true
-                    spacing: 16
-
-                    ModePanel {
-                        Layout.fillWidth: true
-                    }
-
-                    EnergyPanel {
-                        openhab: openhabClient
-                        pvItem: "PV_Power"
-                        gridItem: "Grid_Power"
-                        consumptionItem: "House_Power"
-                        batteryItem: "Battery_Level"
-                        Layout.fillWidth: true
-                    }
-                }
+            ConfiguredPage {
+                page: modelData
+                openhab: openhabClient
             }
         }
+    }
 
-        Item {
-            GridLayout {
+    Rectangle {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: statusBar.bottom
+        anchors.bottom: footer.top
+        visible: !dashboardConfig.valid
+        color: "#070d18"
+
+        Rectangle {
+            anchors.centerIn: parent
+            width: Math.min(parent.width - 80, 820)
+            height: Math.min(parent.height - 80, 260)
+            radius: 18
+            color: "#2a2230"
+            border.color: "#f59e0b"
+
+            ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 20
-                columns: 3
-                columnSpacing: 16
-                rowSpacing: 16
+                anchors.margins: 24
+                spacing: 14
 
-                RoomPanel {
-                    openhab: openhabClient
-                    title: "Wohnzimmer Klima"
-                    subtitle: "Soll 22.0 C"
-                    temperature: "24.9 C"
-                    humidity: "45 %"
-                    lightOn: false
-                    shutterClosed: false
-                    shutterPosition: "offen"
-                    temperatureItem: "Wohnzimmer_Temperatur"
-                    humidityItem: "Wohnzimmer_Luftfeuchtigkeit"
-                    shutterItem: "Wohnzimmer_Rollo"
+                Text {
+                    text: "Dashboard config error"
+                    color: "#fbbf24"
+                    font.pixelSize: 24
+                    font.bold: true
                     Layout.fillWidth: true
                 }
 
-                RoomPanel {
-                    openhab: openhabClient
-                    title: "Esszimmer Klima"
-                    subtitle: "Soll 22.0 C"
-                    temperature: "24.8 C"
-                    humidity: "43 %"
-                    lightOn: false
-                    shutterClosed: true
-                    shutterPosition: "100 %"
-                    temperatureItem: "Esszimmer_Temperatur"
-                    humidityItem: "Esszimmer_Luftfeuchtigkeit"
-                    shutterItem: "Esszimmer_Rollo"
-                    Layout.fillWidth: true
-                }
-
-                RoomPanel {
-                    openhab: openhabClient
-                    title: "Schlafzimmer"
-                    subtitle: "Nachtprofil"
-                    temperature: "21.2 C"
-                    humidity: "50 %"
-                    lightOn: false
-                    shutterClosed: true
-                    shutterPosition: "90 %"
-                    temperatureItem: "Schlafzimmer_Temperatur"
-                    humidityItem: "Schlafzimmer_Luftfeuchtigkeit"
-                    lightItem: "Schlafzimmer_Licht"
-                    shutterItem: "Schlafzimmer_Rollo"
-                    Layout.fillWidth: true
-                }
-
-                RoomPanel {
-                    openhab: openhabClient
-                    title: "Bad"
-                    subtitle: "Lueftung"
-                    temperature: "23.1 C"
-                    humidity: "58 %"
-                    lightOn: true
-                    shutterClosed: false
-                    shutterPosition: "offen"
-                    temperatureItem: "Bad_Temperatur"
-                    humidityItem: "Bad_Luftfeuchtigkeit"
-                    lightItem: "Bad_Licht"
-                    Layout.fillWidth: true
-                }
-
-                RoomPanel {
-                    openhab: openhabClient
-                    title: "Buero"
-                    subtitle: "Arbeitsmodus"
-                    temperature: "22.7 C"
-                    humidity: "42 %"
-                    lightOn: true
-                    shutterClosed: false
-                    shutterPosition: "30 %"
-                    temperatureItem: "Buero_Temperatur"
-                    humidityItem: "Buero_Luftfeuchtigkeit"
-                    lightItem: "Buero_Licht"
-                    shutterItem: "Buero_Rollo"
-                    Layout.fillWidth: true
-                }
-
-                RoomPanel {
-                    openhab: openhabClient
-                    title: "Keller"
-                    subtitle: "Technikraum"
-                    temperature: "19.4 C"
-                    humidity: "54 %"
-                    lightOn: false
-                    shutterClosed: false
-                    shutterPosition: "n/a"
-                    temperatureItem: "Keller_Temperatur"
-                    humidityItem: "Keller_Luftfeuchtigkeit"
-                    lightItem: "Keller_Licht"
-                    Layout.fillWidth: true
-                }
-            }
-        }
-
-        Item {
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 20
-                spacing: 16
-
-                ColumnLayout {
-                    Layout.preferredWidth: 292
-                    Layout.fillHeight: true
-                    spacing: 16
-
-                    EnergyPanel {
-                        openhab: openhabClient
-                        title: "Energie"
-                        pvItem: "PV_Power"
-                        gridItem: "Grid_Power"
-                        consumptionItem: "House_Power"
-                        batteryItem: "Battery_Level"
-                        Layout.fillWidth: true
-                    }
-
-                    ModePanel {
-                        Layout.fillWidth: true
-                    }
-                }
-
-                ColumnLayout {
+                Text {
+                    text: dashboardConfig.errorText
+                    color: "#f8fafc"
+                    font.pixelSize: 14
+                    wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    spacing: 16
-
-                    CameraTile {
-                        title: "Security Kamera"
-                        location: "Carport"
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 16
-
-                        ControlTile {
-                            label: "Alarm"
-                            value: "HOME"
-                            secondary: "armed night"
-                            iconText: "S"
-                            active: true
-                            accentColor: "#ef4444"
-                            Layout.fillWidth: true
-                        }
-
-                        ControlTile {
-                            label: "Tuer"
-                            value: "LOCKED"
-                            secondary: "front"
-                            iconText: "D"
-                            active: true
-                            accentColor: "#22c55e"
-                            Layout.fillWidth: true
-                        }
-
-                        ControlTile {
-                            label: "Fenster"
-                            value: "CLOSED"
-                            secondary: "all zones"
-                            iconText: "W"
-                            active: false
-                            accentColor: "#38bdf8"
-                            Layout.fillWidth: true
-                        }
-                    }
                 }
 
-                ColumnLayout {
-                    Layout.preferredWidth: 292
-                    Layout.fillHeight: true
-                    spacing: 16
+                Rectangle {
+                    Layout.preferredWidth: 140
+                    Layout.preferredHeight: 42
+                    radius: 10
+                    color: "#f59e0b"
 
-                    RoomPanel {
-                        openhab: openhabClient
-                        title: "Aussenlicht"
-                        subtitle: "Dusk scene"
-                        temperature: "18.0 C"
-                        humidity: "62 %"
-                        lightOn: true
-                        shutterClosed: false
-                        shutterPosition: "n/a"
-                        temperatureItem: "Aussen_Temperatur"
-                        humidityItem: "Aussen_Luftfeuchtigkeit"
-                        lightItem: "Aussen_Licht"
-                        Layout.fillWidth: true
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Reload config"
+                        color: "#111827"
+                        font.pixelSize: 13
+                        font.bold: true
                     }
 
-                    EnergyPanel {
-                        openhab: openhabClient
-                        title: "Verbrauch"
-                        consumptionItem: "House_Power"
-                        batteryItem: "Battery_Level"
-                        Layout.fillWidth: true
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: dashboardConfig.reload()
                     }
                 }
             }
@@ -399,20 +136,22 @@ ApplicationWindow {
             anchors.rightMargin: 24
 
             Text {
-                text: "Swipe to change page · OpenHAB " + openhabClient.baseUrl
-                color: "#64748b"
+                text: "Config: " + dashboardConfig.sourcePath + " · OpenHAB " + openhabClient.baseUrl
+                color: dashboardConfig.valid ? "#64748b" : "#fbbf24"
                 font.pixelSize: 12
+                elide: Text.ElideMiddle
                 Layout.fillWidth: true
             }
 
             PageDots {
+                visible: dashboardConfig.valid
                 count: swipeView.count
                 currentIndex: swipeView.currentIndex
             }
 
             Text {
-                text: (swipeView.currentIndex + 1) + " / " + swipeView.count
-                color: "#93a4ba"
+                text: dashboardConfig.valid ? (swipeView.currentIndex + 1) + " / " + swipeView.count : "invalid config"
+                color: dashboardConfig.valid ? "#93a4ba" : "#fbbf24"
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignRight
                 Layout.fillWidth: true
