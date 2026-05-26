@@ -76,24 +76,35 @@ Rectangle {
 
     // Generic dispatch used by every tile kind. Sends an arbitrary command
     // either to MQTT (preferred when mqttTopic is set) or to OpenHAB.
+    //
+    // Items can opt to display state from one OpenHAB item while sending
+    // commands to a different one by setting `commandItem`. This is useful
+    // for shutters where the visible Switch item only accepts ON/OFF but a
+    // sibling `*_Scene` String item accepts the real movement commands.
     function dispatchCommand(control, command) {
         if (!control || command === undefined || command === null) {
             return
         }
         var payload = String(command)
-        if (control.mqttTopic && control.mqttTopic.length > 0) {
+        var commandTopic = control.commandTopic && control.commandTopic.length > 0
+                ? control.commandTopic
+                : control.mqttTopic
+        if (commandTopic && commandTopic.length > 0) {
             if (!mqtt || !mqtt.publish) {
                 return
             }
             var qos = control.mqttQos !== undefined ? control.mqttQos : 0
             var retain = control.mqttRetain === true
-            mqtt.publish(control.mqttTopic, payload, qos, retain)
+            mqtt.publish(commandTopic, payload, qos, retain)
             return
         }
-        if (!openhab || !control.item || control.item.length === 0) {
+        var target = control.commandItem && control.commandItem.length > 0
+                ? control.commandItem
+                : control.item
+        if (!openhab || !target || target.length === 0) {
             return
         }
-        openhab.sendCommand(control.item, payload)
+        openhab.sendCommand(target, payload)
     }
 
     // Toggle helper used by the default switch tile. Honours `command` for

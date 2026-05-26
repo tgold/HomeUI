@@ -56,7 +56,11 @@
             {
               "kind": "shutter",
               "label": "Rollo",
-              "item": "GF_LivingRoom_Shutter"
+              "item": "GF_LivingRoom_Shutter",
+              "commandItem": "GF_LivingRoom_Shutter_Scene",
+              "upCommand": "FULLUP",
+              "stopCommand": "FULLSTOP",
+              "downCommand": "FULLDOWN"
             },
             {
               "kind": "selector",
@@ -72,7 +76,11 @@
             {
               "kind": "shutter",
               "label": "Rollo Terrasse",
-              "item": "GF_Terrace_Shutter"
+              "item": "GF_Terrace_Shutter",
+              "commandItem": "GF_Terrace_Shutter_Scene",
+              "upCommand": "FULLUP",
+              "stopCommand": "FULLSTOP",
+              "downCommand": "FULLDOWN"
             },
             {
               "kind": "selector",
@@ -123,7 +131,11 @@
             {
               "kind": "shutter",
               "label": "Rollo",
-              "item": "GF_Dining_Shutter"
+              "item": "GF_Dining_Shutter",
+              "commandItem": "GF_Dining_Shutter_Scene",
+              "upCommand": "FULLUP",
+              "stopCommand": "FULLSTOP",
+              "downCommand": "FULLDOWN"
             },
             {
               "kind": "selector",
@@ -284,7 +296,7 @@
             { "kind": "color",  "label": "Licht Hue",     "iconText": "H", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light_Color" },
             { "label": "Stehlampe",     "iconText": "S", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Toggle" },
             { "kind": "color",  "label": "Stehlampe Hue", "iconText": "H", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Color" },
-            { "kind": "shutter","label": "Rollo",         "item": "GF_LivingRoom_Shutter" },
+            { "kind": "shutter","label": "Rollo",         "item": "GF_LivingRoom_Shutter", "commandItem": "GF_LivingRoom_Shutter_Scene", "upCommand": "FULLUP", "stopCommand": "FULLSTOP", "downCommand": "FULLDOWN" },
             {
               "kind": "selector", "label": "Rollo Szene",
               "item": "GF_LivingRoom_Shutter_Scene", "accentColor": "#38bdf8",
@@ -304,7 +316,7 @@
             { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
             { "kind": "dimmer", "label": "Licht",      "iconText": "%", "accentColor": "#fbbf24", "item": "GF_DiningRoom_Light_Dimmer" },
             { "kind": "dimmer", "label": "Licht Hue",  "iconText": "%", "accentColor": "#fbbf24", "item": "GF_DiningRoom_Light_Temperature" },
-            { "kind": "shutter","label": "Rollo Essen","item": "GF_Dining_Shutter" },
+            { "kind": "shutter","label": "Rollo Essen","item": "GF_Dining_Shutter", "commandItem": "GF_Dining_Shutter_Scene", "upCommand": "FULLUP", "stopCommand": "FULLSTOP", "downCommand": "FULLDOWN" },
             {
               "kind": "selector", "label": "Rollo Szene",
               "item": "GF_Dining_Shutter_Scene", "accentColor": "#38bdf8",
@@ -323,7 +335,7 @@
           "controls": [
             { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "thz_aussentemp" },
             { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "GF_Terrace_Light" },
-            { "kind": "shutter","label": "Rollo",      "item": "GF_Terrace_Shutter" },
+            { "kind": "shutter","label": "Rollo",      "item": "GF_Terrace_Shutter", "commandItem": "GF_Terrace_Shutter_Scene", "upCommand": "FULLUP", "stopCommand": "FULLSTOP", "downCommand": "FULLDOWN" },
             {
               "kind": "selector", "label": "Rollo Szene",
               "item": "GF_Terrace_Shutter_Scene", "accentColor": "#38bdf8",
@@ -484,14 +496,14 @@
               "accentColor": "#f97316"
             },
             { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "FF_Bedroom_Light" },
-            { "kind": "shutter","label": "Rollo",      "item": "FF_Bedroom_Shutter" },
+            { "kind": "shutter","label": "Rollo",      "item": "FF_Bedroom_Shutter", "commandItem": "FF_Bedroom_Shutter_Scene", "upCommand": "FULLUP", "stopCommand": "FULLSTOP", "downCommand": "FULLDOWN" },
             { "label": "Licht Ankleide", "iconText": "A", "accentColor": "#fbbf24", "item": "FF_Bedroom_Bed_Light_Switch" },
             {
               "kind": "scene", "label": "Rollo Bett",
               "iconText": "B", "accentColor": "#a855f7",
               "item": "FF_Bedroom_Shutter_Scene_Switch", "command": "ON"
             },
-            { "kind": "shutter","label": "Rollo Ankleide", "item": "FF_Office_Desk_Shutter" }
+            { "kind": "shutter","label": "Rollo Ankleide", "item": "FF_Office_Desk_Shutter", "upCommand": "OFF", "downCommand": "ON", "hideStop": true }
           ]
         },
         {
@@ -501,8 +513,8 @@
           "controls": [
             { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_Office_Temperature" },
             { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "FF_Office_Light" },
-            { "kind": "shutter","label": "Rollo",      "item": "FF_Office_Shutter" },
-            { "kind": "shutter","label": "Rollo Tisch","item": "FF_Office_Desk_Shutter" },
+            { "kind": "shutter","label": "Rollo",      "item": "FF_Office_Shutter", "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
+            { "kind": "shutter","label": "Rollo Tisch","item": "FF_Office_Desk_Shutter", "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
             {
               "kind": "selector", "label": "Alle Rollos",
               "item": "GF_Shutter_Scene", "accentColor": "#38bdf8",
@@ -520,8 +532,8 @@
           "controls": [
             { "kind": "value",  "format": "temperature", "label": "Temperatur",     "iconText": "T", "accentColor": "#f97316", "item": "FF_Bathroom_Temperature" },
             { "label": "Licht",                "iconText": "L", "accentColor": "#fbbf24", "item": "FF_Bathroom_Light" },
-            { "kind": "shutter","label": "Rollo",          "item": "FF_Bathroom_Shutter1" },
-            { "kind": "shutter","label": "Rollo Sauna",    "item": "FF_Bathroom_Shutter2" },
+            { "kind": "shutter","label": "Rollo",          "item": "FF_Bathroom_Shutter1", "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
+            { "kind": "shutter","label": "Rollo Sauna",    "item": "FF_Bathroom_Shutter2", "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
             {
               "kind": "selector", "label": "Rollo Alle",
               "item": "gShutterScene", "accentColor": "#38bdf8",
@@ -812,14 +824,14 @@
               "title": "Alle Rollaeden",
               "tilesPerRow": 2,
               "controls": [
-                { "kind": "shutter", "label": "Wohnzimmer",    "item": "GF_LivingRoom_Shutter" },
-                { "kind": "shutter", "label": "Esszimmer",     "item": "GF_Dining_Shutter" },
-                { "kind": "shutter", "label": "Terrasse",      "item": "GF_Terrace_Shutter" },
-                { "kind": "shutter", "label": "Schlafzimmer",  "item": "FF_Bedroom_Shutter" },
-                { "kind": "shutter", "label": "Bad 1",         "item": "FF_Bathroom_Shutter1" },
-                { "kind": "shutter", "label": "Bad 2",         "item": "FF_Bathroom_Shutter2" },
-                { "kind": "shutter", "label": "Buero",         "item": "FF_Office_Shutter" },
-                { "kind": "shutter", "label": "Schreibtisch",  "item": "FF_Office_Desk_Shutter" }
+                { "kind": "shutter", "label": "Wohnzimmer",    "item": "GF_LivingRoom_Shutter", "commandItem": "GF_LivingRoom_Shutter_Scene", "upCommand": "FULLUP", "stopCommand": "FULLSTOP", "downCommand": "FULLDOWN" },
+                { "kind": "shutter", "label": "Esszimmer",     "item": "GF_Dining_Shutter",     "commandItem": "GF_Dining_Shutter_Scene",     "upCommand": "FULLUP", "stopCommand": "FULLSTOP", "downCommand": "FULLDOWN" },
+                { "kind": "shutter", "label": "Terrasse",      "item": "GF_Terrace_Shutter",    "commandItem": "GF_Terrace_Shutter_Scene",    "upCommand": "FULLUP", "stopCommand": "FULLSTOP", "downCommand": "FULLDOWN" },
+                { "kind": "shutter", "label": "Schlafzimmer",  "item": "FF_Bedroom_Shutter",    "commandItem": "FF_Bedroom_Shutter_Scene",    "upCommand": "FULLUP", "stopCommand": "FULLSTOP", "downCommand": "FULLDOWN" },
+                { "kind": "shutter", "label": "Bad 1",         "item": "FF_Bathroom_Shutter1",  "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
+                { "kind": "shutter", "label": "Bad 2",         "item": "FF_Bathroom_Shutter2",  "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
+                { "kind": "shutter", "label": "Buero",         "item": "FF_Office_Shutter",     "upCommand": "OFF", "downCommand": "ON", "hideStop": true },
+                { "kind": "shutter", "label": "Schreibtisch",  "item": "FF_Office_Desk_Shutter","upCommand": "OFF", "downCommand": "ON", "hideStop": true }
               ]
             }
           ]

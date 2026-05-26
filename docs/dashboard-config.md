@@ -286,7 +286,23 @@ Renders three press buttons (UP / STOP / DOWN) plus a textual position readout. 
 }
 ```
 
-`upCommand`, `stopCommand`, and `downCommand` default to `UP`, `STOP`, `DOWN`.
+`upCommand`, `stopCommand`, and `downCommand` default to `UP`, `STOP`, `DOWN`. The state parser also understands `OPEN` / `CLOSED`, `ON` / `OFF`, and the `FULLUP` / `HALFDOWN` / `FULLDOWN` / `FULLSTOP` scene strings produced by some KNX setups.
+
+If the visible state lives on a different OpenHAB item than the one that accepts movement commands (e.g. a `Switch` status item alongside a sibling `*_Scene` `String` item), set `commandItem` to the command target. The widget then reads state from `item` but sends `upCommand` / `stopCommand` / `downCommand` to `commandItem`. Set `hideStop: true` to remove the stop button (useful for plain 2-state `Switch` items).
+
+```json
+{
+  "kind": "shutter",
+  "label": "Wohnzimmer",
+  "item": "GF_LivingRoom_Shutter",
+  "commandItem": "GF_LivingRoom_Shutter_Scene",
+  "upCommand": "FULLUP",
+  "stopCommand": "FULLSTOP",
+  "downCommand": "FULLDOWN"
+}
+```
+
+`commandItem` works the same way for any other control kind — its presence routes the OpenHAB `POST` to that item instead of `item`. For MQTT-backed tiles the equivalent is `commandTopic`.
 
 #### Thermostat (`kind: "thermostat"`)
 

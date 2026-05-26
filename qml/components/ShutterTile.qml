@@ -11,11 +11,23 @@ Rectangle {
 
     readonly property real currentPosition: {
         var raw = String(rawValue).trim().toUpperCase()
-        if (raw === "UP" || raw === "OPEN") {
+        switch (raw) {
+        case "UP":
+        case "OPEN":
+        case "OFF":
+        case "FULLUP":
             return 0
-        }
-        if (raw === "DOWN" || raw === "CLOSED") {
+        case "HALFDOWN":
+        case "HALFUP":
+            return 50
+        case "DOWN":
+        case "CLOSED":
+        case "ON":
+        case "FULLDOWN":
             return 100
+        case "FULLSTOP":
+        case "STOP":
+            return -1
         }
         var match = raw.match(/^-?\d+(?:\.\d+)?/)
         if (!match) {
@@ -26,10 +38,11 @@ Rectangle {
     }
     readonly property bool isClosed: currentPosition >= 50
     readonly property color accent: control.accentColor || "#38bdf8"
-    readonly property bool hasBinding: !!(control.item || control.mqttTopic)
+    readonly property bool hasBinding: !!(control.item || control.commandItem || control.mqttTopic || control.commandTopic)
     readonly property string upCommand: control.upCommand || "UP"
     readonly property string stopCommand: control.stopCommand || "STOP"
     readonly property string downCommand: control.downCommand || "DOWN"
+    readonly property bool stopVisible: control.hideStop !== true
 
     function positionLabel() {
         var pos = currentPosition
@@ -83,11 +96,16 @@ Rectangle {
             spacing: 6
 
             Repeater {
-                model: [
-                    { id: "up",   icon: "\u25B2", cmd: root.upCommand },
-                    { id: "stop", icon: "\u25A0", cmd: root.stopCommand },
-                    { id: "down", icon: "\u25BC", cmd: root.downCommand }
-                ]
+                model: root.stopVisible
+                       ? [
+                           { id: "up",   icon: "\u25B2", cmd: root.upCommand },
+                           { id: "stop", icon: "\u25A0", cmd: root.stopCommand },
+                           { id: "down", icon: "\u25BC", cmd: root.downCommand }
+                         ]
+                       : [
+                           { id: "up",   icon: "\u25B2", cmd: root.upCommand },
+                           { id: "down", icon: "\u25BC", cmd: root.downCommand }
+                         ]
 
                 Rectangle {
                     Layout.fillWidth: true
