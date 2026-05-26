@@ -79,8 +79,13 @@ Rectangle {
             model: root.indicators
 
             Rectangle {
+                id: indicator
+
                 readonly property string indicatorState: modelData && modelData.state ? modelData.state : "idle"
-                readonly property var palette: {
+                // Note: name this `tone` rather than `palette` to avoid colliding with
+                // QQuickItem's built-in `palette` (a QQuickPalette where `.text` is the
+                // system text color – which is what made these labels render in black).
+                readonly property var tone: {
                     switch (indicatorState) {
                     case "ok":     return { bg: "#12291d", border: "#22c55e", text: "#86efac" }
                     case "warn":   return { bg: "#2a2230", border: "#f59e0b", text: "#fbbf24" }
@@ -93,14 +98,14 @@ Rectangle {
                 Layout.preferredWidth: Math.max(48, indicatorText.implicitWidth + 18)
                 Layout.preferredHeight: 34
                 radius: 10
-                color: palette.bg
-                border.color: palette.border
+                color: indicator.tone.bg
+                border.color: indicator.tone.border
 
                 Text {
                     id: indicatorText
                     anchors.centerIn: parent
                     text: modelData ? modelData.label : ""
-                    color: palette.text
+                    color: indicator.tone.text
                     font.pixelSize: 11
                     font.bold: true
                 }
