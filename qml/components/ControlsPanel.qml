@@ -321,7 +321,12 @@ Rectangle {
             readonly property var control: parent.control
             readonly property string rawValue: parent.rawValue
             label: control.label || "Wert"
-            value: Fmt.smart(rawValue)
+            value: Fmt.apply(rawValue, {
+                format: control.format,
+                unit: control.unit,
+                decimals: control.decimals,
+                scale: control.scale
+            })
             secondary: parent.currentValue
             iconText: control.iconText || ""
             active: false

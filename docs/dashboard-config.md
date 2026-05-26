@@ -400,12 +400,22 @@ Read-only display tile. Renders the OpenHAB / MQTT state with the standard forma
 ```json
 {
   "kind": "value",
+  "format": "temperature",
   "label": "Temperatur",
   "iconText": "T",
   "accentColor": "#f97316",
   "item": "GF_LivingRoom_Temperature"
 }
 ```
+
+Optional formatting hints (also honoured by the `progress` tile):
+
+- `format` - one of `temperature` (1 decimal + `°C`), `humidity` (0 decimals + `%`), `power` (0 decimals + `W`), `energy` (2 decimals + `kWh`), `fraction` (0..1 scaled to %). When set, `decimals` overrides the default precision.
+- `unit` - manual unit suffix (used when the OpenHAB state has no unit). Combine with `decimals` to control precision.
+- `decimals` - explicit decimal-place count.
+- `scale` - multiplier applied to the numeric value before formatting (e.g. `0.001` to render `Wh` items as `kWh`).
+
+Without any of those hints the tile falls back to `Fmt.smart`, which preserves whatever unit the OpenHAB state already carries and picks a sensible number of decimals.
 
 ### Sonos panel
 

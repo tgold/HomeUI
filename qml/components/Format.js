@@ -90,6 +90,35 @@ function fraction(state, decimals) {
     return _toFixed(value, decimals) + " " + unit
 }
 
+// Applies a named formatter ("temperature", "humidity", "power", "energy",
+// "fraction") or a manual { unit, decimals } pair. Falls back to `smart`
+// when no hint is given. Used by control tiles that accept a `format`,
+// `unit`, or `decimals` option.
+function apply(state, opts) {
+    opts = opts || {}
+    var named = opts.format
+    if (named) {
+        switch (String(named).toLowerCase()) {
+        case "temperature": return temperature(state, opts.decimals)
+        case "humidity":    return humidity(state, opts.decimals)
+        case "power":       return power(state, opts.decimals)
+        case "energy":      return energy(state, opts.decimals)
+        case "fraction":    return fraction(state, opts.decimals)
+        }
+    }
+    if (opts.unit !== undefined && opts.unit !== null) {
+        return format(state, {
+            unit: String(opts.unit),
+            decimals: opts.decimals !== undefined ? Number(opts.decimals) : 1,
+            scale: opts.scale
+        })
+    }
+    if (opts.decimals !== undefined && opts.decimals !== null) {
+        return format(state, { decimals: Number(opts.decimals), scale: opts.scale })
+    }
+    return smart(state)
+}
+
 // Best-effort formatter for the generic ControlsPanel. Leaves strings like
 // "ON" / "OFF" / "UP" untouched, and rounds numeric states sensibly.
 function smart(state) {

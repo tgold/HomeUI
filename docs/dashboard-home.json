@@ -209,7 +209,7 @@
           "type": "camera",
           "title": "Tuerklingel",
           "location": "Einfahrt",
-          "height": 240,
+          "height": 360,
           "format": "mjpeg",
           "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22",
           "snapshotUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.SnapShot&version=1&method=TakeSnapshot&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22",
@@ -276,7 +276,7 @@
           "title": "Wohnzimmer",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",  "label": "Temperatur",    "iconText": "T", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
+            { "kind": "value",  "format": "temperature", "label": "Temperatur",    "iconText": "T", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
             { "label": "Licht",         "iconText": "L", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light" },
             { "kind": "color",  "label": "Licht Hue",     "iconText": "H", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light_Color" },
             { "label": "Stehlampe",     "iconText": "S", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Toggle" },
@@ -298,7 +298,7 @@
           "title": "Esszimmer",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",  "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
+            { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
             { "kind": "dimmer", "label": "Licht",      "iconText": "%", "accentColor": "#fbbf24", "item": "GF_DiningRoom_Light_Dimmer" },
             { "kind": "dimmer", "label": "Licht Hue",  "iconText": "%", "accentColor": "#fbbf24", "item": "GF_DiningRoom_Light_Temperature" },
             { "kind": "shutter","label": "Rollo Essen","item": "GF_Dining_Shutter" },
@@ -318,7 +318,7 @@
           "title": "Terrasse",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",  "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "thz_aussentemp" },
+            { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "thz_aussentemp" },
             { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "GF_Terrace_Light" },
             { "kind": "shutter","label": "Rollo",      "item": "GF_Terrace_Shutter" },
             {
@@ -347,7 +347,7 @@
           "title": "Gang",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",  "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "GF_Corridor_Temperature" },
+            { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "GF_Corridor_Temperature" },
             { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "GF_Corridor_Light" }
           ]
         },
@@ -356,7 +356,7 @@
           "title": "WC",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",  "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "GF_Toilet_Temperature" },
+            { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "GF_Toilet_Temperature" },
             { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "GF_Toilet_Light" }
           ]
         },
@@ -365,7 +365,7 @@
           "title": "Technik",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",  "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "GF_Tech_Temperature" },
+            { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "GF_Tech_Temperature" },
             { "kind": "value",  "label": "Feuchte",    "iconText": "F", "accentColor": "#38bdf8", "item": "GF_Tech_Humidity" },
             { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "GF_Tech_Light" }
           ]
@@ -464,7 +464,7 @@
           "title": "Schlafzimmer",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",  "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_Bedroom_Temperature" },
+            { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_Bedroom_Temperature" },
             {
               "kind": "selector", "label": "Klima",
               "item": "thz_heizen", "accentColor": "#ef4444",
@@ -496,7 +496,7 @@
           "title": "Arbeitszimmer",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",  "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_Office_Temperature" },
+            { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_Office_Temperature" },
             { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "FF_Office_Light" },
             { "kind": "shutter","label": "Rollo",      "item": "FF_Office_Shutter" },
             { "kind": "shutter","label": "Rollo Tisch","item": "FF_Office_Desk_Shutter" },
@@ -515,7 +515,7 @@
           "title": "Bad",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",  "label": "Temperatur",     "iconText": "T", "accentColor": "#f97316", "item": "FF_Bathroom_Temperature" },
+            { "kind": "value",  "format": "temperature", "label": "Temperatur",     "iconText": "T", "accentColor": "#f97316", "item": "FF_Bathroom_Temperature" },
             { "label": "Licht",                "iconText": "L", "accentColor": "#fbbf24", "item": "FF_Bathroom_Light" },
             { "kind": "shutter","label": "Rollo",          "item": "FF_Bathroom_Shutter1" },
             { "kind": "shutter","label": "Rollo Sauna",    "item": "FF_Bathroom_Shutter2" },
@@ -534,7 +534,7 @@
           "title": "Gaestezimmer",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_GuestRoom_Temperature" },
+            { "kind": "value", "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_GuestRoom_Temperature" },
             { "label": "Licht",         "iconText": "L", "accentColor": "#fbbf24", "item": "FF_GuestRoom_Light" }
           ]
         },
@@ -543,7 +543,7 @@
           "title": "Galerie",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_Gallery_Temperature" },
+            { "kind": "value", "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_Gallery_Temperature" },
             { "label": "Licht",         "iconText": "L", "accentColor": "#fbbf24", "item": "FF_Gallery_Light" }
           ]
         },
@@ -617,14 +617,14 @@
           "title": "Ist-Temperaturen",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value", "label": "Wohnzimmer", "iconText": "W", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
-            { "kind": "value", "label": "Gang",       "iconText": "G", "accentColor": "#f97316", "item": "GF_Corridor_Temperature" },
-            { "kind": "value", "label": "Toilette",   "iconText": "T", "accentColor": "#f97316", "item": "GF_Toilet_Temperature" },
-            { "kind": "value", "label": "Technik",    "iconText": "K", "accentColor": "#f97316", "item": "GF_Tech_Temperature" },
-            { "kind": "value", "label": "Schlafzimmer","iconText":"S", "accentColor": "#f97316", "item": "FF_Bedroom_Temperature" },
-            { "kind": "value", "label": "Bad",        "iconText": "B", "accentColor": "#f97316", "item": "FF_Bathroom_Temperature" },
-            { "kind": "value", "label": "Buero",      "iconText": "U", "accentColor": "#f97316", "item": "FF_Office_Temperature" },
-            { "kind": "value", "label": "Gaeste",     "iconText": "G", "accentColor": "#f97316", "item": "FF_GuestRoom_Temperature" }
+            { "kind": "value", "format": "temperature", "label": "Wohnzimmer", "iconText": "W", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
+            { "kind": "value", "format": "temperature", "label": "Gang",       "iconText": "G", "accentColor": "#f97316", "item": "GF_Corridor_Temperature" },
+            { "kind": "value", "format": "temperature", "label": "Toilette",   "iconText": "T", "accentColor": "#f97316", "item": "GF_Toilet_Temperature" },
+            { "kind": "value", "format": "temperature", "label": "Technik",    "iconText": "K", "accentColor": "#f97316", "item": "GF_Tech_Temperature" },
+            { "kind": "value", "format": "temperature", "label": "Schlafzimmer","iconText":"S", "accentColor": "#f97316", "item": "FF_Bedroom_Temperature" },
+            { "kind": "value", "format": "temperature", "label": "Bad",        "iconText": "B", "accentColor": "#f97316", "item": "FF_Bathroom_Temperature" },
+            { "kind": "value", "format": "temperature", "label": "Buero",      "iconText": "U", "accentColor": "#f97316", "item": "FF_Office_Temperature" },
+            { "kind": "value", "format": "temperature", "label": "Gaeste",     "iconText": "G", "accentColor": "#f97316", "item": "FF_GuestRoom_Temperature" }
           ]
         }
       ]
@@ -691,14 +691,14 @@
             { "label": "Warmwasser",    "iconText": "W", "accentColor": "#38bdf8", "item": "thz_warmwasserbereitung" },
             { "label": "Verdichter",    "iconText": "V", "accentColor": "#a855f7", "item": "thz_verdichter" },
             { "label": "Heizkreispumpe","iconText": "P", "accentColor": "#fbbf24", "item": "thz_heizkreispumpe" },
-            { "kind": "value", "label": "Raum Ist",       "iconText": "I", "accentColor": "#f97316", "item": "thz_raumisttemp_hk1" },
-            { "kind": "value", "label": "Raum Soll",      "iconText": "S", "accentColor": "#f97316", "item": "thz_raumsolltemp_hk1" },
-            { "kind": "value", "label": "HK1 Ist",        "iconText": "I", "accentColor": "#f97316", "item": "thz_istwert_hk1" },
-            { "kind": "value", "label": "HK1 Soll",       "iconText": "S", "accentColor": "#f97316", "item": "thz_sollwert_hk1" },
-            { "kind": "value", "label": "Vorlauf",        "iconText": "V", "accentColor": "#ef4444", "item": "thz_vorlauftemp" },
-            { "kind": "value", "label": "Ruecklauf",      "iconText": "R", "accentColor": "#ef4444", "item": "thz_ruecklauftemp" },
-            { "kind": "value", "label": "WW Ist",         "iconText": "I", "accentColor": "#38bdf8", "item": "thz_ww_isttemp" },
-            { "kind": "value", "label": "WW Soll",        "iconText": "S", "accentColor": "#38bdf8", "item": "thz_ww_solltemp" }
+            { "kind": "value", "format": "temperature", "label": "Raum Ist",       "iconText": "I", "accentColor": "#f97316", "item": "thz_raumisttemp_hk1" },
+            { "kind": "value", "format": "temperature", "label": "Raum Soll",      "iconText": "S", "accentColor": "#f97316", "item": "thz_raumsolltemp_hk1" },
+            { "kind": "value", "format": "temperature", "label": "HK1 Ist",        "iconText": "I", "accentColor": "#f97316", "item": "thz_istwert_hk1" },
+            { "kind": "value", "format": "temperature", "label": "HK1 Soll",       "iconText": "S", "accentColor": "#f97316", "item": "thz_sollwert_hk1" },
+            { "kind": "value", "format": "temperature", "label": "Vorlauf",        "iconText": "V", "accentColor": "#ef4444", "item": "thz_vorlauftemp" },
+            { "kind": "value", "format": "temperature", "label": "Ruecklauf",      "iconText": "R", "accentColor": "#ef4444", "item": "thz_ruecklauftemp" },
+            { "kind": "value", "format": "temperature", "label": "WW Ist",         "iconText": "I", "accentColor": "#38bdf8", "item": "thz_ww_isttemp" },
+            { "kind": "value", "format": "temperature", "label": "WW Soll",        "iconText": "S", "accentColor": "#38bdf8", "item": "thz_ww_solltemp" }
           ]
         },
         {
@@ -709,8 +709,8 @@
           "controls": [
             { "kind": "value", "label": "Niederdruck",       "iconText": "N", "accentColor": "#38bdf8", "item": "thz_niederdruck",          "unit": "bar" },
             { "kind": "value", "label": "Hochdruck",         "iconText": "H", "accentColor": "#ef4444", "item": "thz_hochdruck",            "unit": "bar" },
-            { "kind": "value", "label": "Verdampfer",        "iconText": "V", "accentColor": "#38bdf8", "item": "thz_verdampfertemp" },
-            { "kind": "value", "label": "Verfluessiger",     "iconText": "F", "accentColor": "#ef4444", "item": "thz_verfluessigertemp" },
+            { "kind": "value", "format": "temperature", "label": "Verdampfer",        "iconText": "V", "accentColor": "#38bdf8", "item": "thz_verdampfertemp" },
+            { "kind": "value", "format": "temperature", "label": "Verfluessiger",     "iconText": "F", "accentColor": "#ef4444", "item": "thz_verfluessigertemp" },
             { "kind": "value", "label": "Fortluft Ist",      "iconText": "I", "accentColor": "#38bdf8", "item": "thz_fortluft_ist",         "unit": "Hz" },
             { "kind": "value", "label": "Fortluft Soll",     "iconText": "S", "accentColor": "#38bdf8", "item": "thz_fortluft_soll",        "unit": "Hz" }
           ]
@@ -1000,9 +1000,9 @@
           "title": "Aussen",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",    "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "thz_aussentemp" },
+            { "kind": "value",    "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "thz_aussentemp" },
             { "kind": "value",    "label": "Aktuell",    "iconText": "W", "accentColor": "#0ea5e9", "item": "localCurrentCondition" },
-            { "kind": "value",    "label": "Temp lokal", "iconText": "L", "accentColor": "#f97316", "item": "localCurrentTemperature" }
+            { "kind": "value",    "format": "temperature", "label": "Temp lokal", "iconText": "L", "accentColor": "#f97316", "item": "localCurrentTemperature" }
           ]
         },
         {
@@ -1010,7 +1010,7 @@
           "title": "Hochbeet",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",    "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "hochbeet_bodentemperatur" },
+            { "kind": "value",    "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "hochbeet_bodentemperatur" },
             { "kind": "progress", "label": "Feuchte",
               "accentColor": "#38bdf8", "item": "hochbeet_feuchte",
               "unit": "%", "decimals": 0 },
@@ -1022,7 +1022,7 @@
           "title": "Rasen",
           "tilesPerRow": 2,
           "controls": [
-            { "kind": "value",    "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "rasen_bodentemperatur" },
+            { "kind": "value",    "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "rasen_bodentemperatur" },
             { "kind": "progress", "label": "Feuchte",
               "accentColor": "#38bdf8", "item": "rasen_feuchte",
               "unit": "%", "decimals": 0 },
