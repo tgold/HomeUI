@@ -130,8 +130,7 @@ Grid pages also accept `columnSpan` / `rowSpan` on any panel to make it stretch 
     "pv": "PV_Power",
     "grid": "Grid_Power",
     "consumption": "House_Power",
-    "battery": "Battery_Level",
-    "water": "Water_Today"
+    "battery": "Battery_Level"
   }
 }
 ```

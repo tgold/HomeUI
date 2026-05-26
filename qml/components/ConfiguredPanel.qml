@@ -82,7 +82,6 @@ Item {
             gridItem: root.value(["items", "grid"], "")
             consumptionItem: root.value(["items", "consumption"], "")
             batteryItem: root.value(["items", "battery"], "")
-            waterItem: root.value(["items", "water"], "")
         }
     }
 

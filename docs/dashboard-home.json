@@ -202,8 +202,7 @@
             "pv": "evcc_pvPower",
             "grid": "evcc_gridPower",
             "consumption": "evcc_homePower",
-            "battery": "evcc_batterySoC",
-            "water": "waermepumpe_power"
+            "battery": "evcc_batterySoC"
           }
         },
         {
@@ -226,14 +225,14 @@
               "label": "PV heute",
               "iconText": "P",
               "accentColor": "#fbbf24",
-              "item": "ForecastSolarHome_Actual"
+              "item": "SE10K_Day_Production"
             },
             {
               "kind": "value",
               "label": "Verbrauch heute",
               "iconText": "H",
               "accentColor": "#a855f7",
-              "item": "evcc_homePower"
+              "item": "SE10K_Day_Consumption"
             }
           ]
         },
@@ -404,8 +403,7 @@
             "pv": "evcc_pvPower",
             "grid": "evcc_gridPower",
             "consumption": "evcc_homePower",
-            "battery": "evcc_batterySoC",
-            "water": "waermepumpe_power"
+            "battery": "evcc_batterySoC"
           }
         },
         {
@@ -810,8 +808,7 @@
                 "pv": "evcc_pvPower",
                 "grid": "evcc_gridPower",
                 "consumption": "evcc_homePower",
-                "battery": "evcc_batterySoC",
-                "water": "waermestrom_power"
+                "battery": "evcc_batterySoC"
               }
             },
             {
@@ -821,8 +818,7 @@
                 "pv": "ForecastSolarHome_Actual_Power",
                 "grid": "ForecastSolarHome_Today",
                 "consumption": "ForecastSolarHome_Remaining",
-                "battery": "ForecastSolarHome_Tomorrow",
-                "water": "ForecastSolarHome_Actual"
+                "battery": "ForecastSolarHome_Tomorrow"
               }
             }
           ]

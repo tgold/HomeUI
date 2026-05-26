@@ -11,7 +11,6 @@ Rectangle {
     property string gridItem: ""
     property string consumptionItem: ""
     property string batteryItem: ""
-    property string waterItem: ""
     property int stateRevision: openhab ? openhab.stateRevision : 0
 
     function itemState(itemName, fallback) {
@@ -87,14 +86,6 @@ Rectangle {
             label: "Batterie"
             value: Fmt.fraction(root.itemState(root.batteryItem, "100.0 %"))
             detail: "+0.0 kW"
-            Layout.fillWidth: true
-        }
-
-        MetricRow {
-            label: "Wasser heute"
-            value: Fmt.energy(root.itemState(root.waterItem, "137 kWh"))
-            detail: "thermal"
-            warning: true
             Layout.fillWidth: true
         }
     }
