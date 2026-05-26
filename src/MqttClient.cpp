@@ -322,11 +322,12 @@ void MqttClient::applyConnectionParams()
     m_client->setClientId(m_clientId);
 
     const QByteArray will = statusPayload(false);
+    // QMqttClient activates the Last Will implicitly when willTopic is set
+    // to a non-empty value, so no explicit "enabled" toggle is needed.
     m_client->setWillTopic(statusTopic());
     m_client->setWillMessage(will);
     m_client->setWillQoS(1);
     m_client->setWillRetain(true);
-    m_client->setWillEnabled(true);
 }
 
 void MqttClient::connectToBroker()
