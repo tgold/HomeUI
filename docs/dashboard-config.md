@@ -164,6 +164,88 @@ Layout options:
 
 If `command` is provided, the control always sends that command. Otherwise it toggles between `onCommand` and `offCommand`.
 
+### Control widget kinds (milestone 5)
+
+Every entry in `controls` may declare a `kind` that selects a specialised home automation widget. Without `kind` (or with `kind: "switch"`) the existing toggle tile is rendered.
+
+Supported kinds: `switch`, `dimmer`, `shutter`, `thermostat`, `scene`.
+
+#### Dimmer (`kind: "dimmer"`)
+
+Renders a slider 0..100 plus a power icon that toggles between `0` and `onLevel`.
+
+```json
+{
+  "kind": "dimmer",
+  "label": "Wohnzimmer",
+  "iconText": "L",
+  "item": "GF_LivingRoom_Light_Dimmer",
+  "min": 0,
+  "max": 100,
+  "onLevel": 80
+}
+```
+
+- `min` / `max` (defaults `0` / `100`) - slider range.
+- `onLevel` (default `max`) - value sent when the icon is tapped to turn the dimmer on.
+- The slider sends the new integer value as a numeric command when released.
+
+#### Shutter (`kind: "shutter"`)
+
+Renders three press buttons (UP / STOP / DOWN) plus a textual position readout. Reads the rollershutter state to detect open/closed.
+
+```json
+{
+  "kind": "shutter",
+  "label": "Wohnzimmer",
+  "item": "GF_LivingRoom_Shutter",
+  "upCommand": "UP",
+  "stopCommand": "STOP",
+  "downCommand": "DOWN"
+}
+```
+
+`upCommand`, `stopCommand`, and `downCommand` default to `UP`, `STOP`, `DOWN`.
+
+#### Thermostat (`kind: "thermostat"`)
+
+Renders a setpoint readout with `-` / `+` buttons. Optionally shows a separate live current temperature.
+
+```json
+{
+  "kind": "thermostat",
+  "label": "Wohnzimmer",
+  "item": "GF_LivingRoom_Setpoint",
+  "currentItem": "GF_LivingRoom_Temperature",
+  "step": 0.5,
+  "min": 5,
+  "max": 30
+}
+```
+
+- `item` - the setpoint item, updated by the `-` / `+` buttons.
+- `currentItem` - optional, displayed in the header.
+- `step` (default `0.5`), `min` (default `5`), `max` (default `30`) - bounds for the setpoint.
+
+#### Scene (`kind: "scene"`)
+
+Renders a wide push button styled with the accent colour. Best for one-shot triggers (scenes, doorbell pushes, alarm scenes).
+
+```json
+{
+  "kind": "scene",
+  "label": "Alle Rollos hoch",
+  "iconText": "U",
+  "accentColor": "#22c55e",
+  "item": "GF_Shutter_Scene",
+  "command": "FULLUP"
+}
+```
+
+Falls back to `mqttPayload` (or `"ON"`) when no `command` is set.
+
+### MQTT-backed controls
+
 A control can also be backed by an MQTT topic instead of an OpenHAB item:
 
 ```json

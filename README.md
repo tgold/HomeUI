@@ -4,7 +4,7 @@ Native OpenHAB touchscreen dashboard prototype for Raspberry Pi wall panels.
 
 ## Current prototype
 
-This repository currently contains the Milestone 4 shell:
+This repository currently contains the Milestone 5 shell:
 
 - Qt 6/QML native application scaffold.
 - Fullscreen 1280x800 touchscreen-oriented dashboard.
@@ -15,8 +15,9 @@ This repository currently contains the Milestone 4 shell:
 - MQTT integration with broker auto-reconnect, Last Will, and retained heartbeat status.
 - MQTT-backed control tiles and a dedicated `mqtt` panel type for read-only topics.
 - MQTT control plane on `home/panel/<panel-id>/{page,brightness,reload}` topics.
+- Home-automation widget catalogue: switch, dimmer (slider), roller shutter (up/stop/down), thermostat (+/- setpoint), and scene push button tiles, addressable per control via `kind`.
 
-Custom home-automation widget catalogues and Raspberry Pi production deployment polish are planned for later milestones.
+Raspberry Pi production deployment polish (systemd autostart, brightness/sleep behaviour beyond MQTT control, log rotation) is planned for milestone 6.
 
 ## Project structure
 
@@ -40,6 +41,7 @@ qml/
     ConfiguredPanel.qml
     ControlsPanel.qml
     ControlTile.qml
+    DimmerTile.qml
     EnergyPanel.qml
     Format.js
     MetricRow.qml
@@ -47,7 +49,10 @@ qml/
     MqttPanel.qml
     PageDots.qml
     RoomPanel.qml
+    SceneTile.qml
+    ShutterTile.qml
     StatusBar.qml
+    ThermostatTile.qml
 scripts/
   install-pi-deps.sh
 docs/
@@ -160,6 +165,8 @@ HOMEUI_MQTT_BROKER=mqtt://openhabian:1883 \
 `HOMEUI_BRIGHTNESS_PATH=/sys/class/backlight/10-0045/brightness` can pin the backlight device written to by `brightness/set`. Otherwise the app picks the first device under `/sys/class/backlight/`.
 
 If the Qt MQTT module is not available at build time the MQTT integration is silently dropped (the `--mqtt-*` flags become no-ops).
+
+Debian / Raspberry Pi OS does not ship the Qt MQTT add-on (`qt6-mqtt-dev`) in its repositories. `scripts/install-pi-deps.sh` therefore tries `apt install qt6-mqtt-dev` first and, if that fails, clones the matching `qtmqtt` release from `https://code.qt.io/qt/qtmqtt.git` (using the system Qt version) and builds & installs it system-wide via CMake. After running the script, delete any existing `build-gcc/` directory and reconfigure so CMake picks up the freshly installed `Qt6::Mqtt`.
 
 ## Troubleshooting Qt detection
 

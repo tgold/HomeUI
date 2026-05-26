@@ -36,8 +36,10 @@ if(Qt6Mqtt_FOUND)
 else()
     message(WARNING
         "Qt6::Mqtt was not found - MQTT integration will be disabled.\n"
-        "On Raspberry Pi OS / Debian / Ubuntu install it with:\n"
-        "  sudo apt install qt6-mqtt-dev qml6-module-qtmqtt"
+        "Debian / Raspberry Pi OS does not ship the Qt MQTT add-on in apt;\n"
+        "run scripts/install-pi-deps.sh to build the matching qtmqtt release\n"
+        "from source against the system Qt, or install qt6-mqtt-dev manually\n"
+        "if a backport is available on your system."
     )
 endif()
 
@@ -69,6 +71,7 @@ qt_add_qml_module(homeui
         qml/components/CameraTile.qml
         qml/components/ControlsPanel.qml
         qml/components/ControlTile.qml
+        qml/components/DimmerTile.qml
         qml/components/EnergyPanel.qml
         qml/components/Format.js
         qml/components/MetricRow.qml
@@ -76,7 +79,10 @@ qt_add_qml_module(homeui
         qml/components/MqttPanel.qml
         qml/components/PageDots.qml
         qml/components/RoomPanel.qml
+        qml/components/SceneTile.qml
+        qml/components/ShutterTile.qml
         qml/components/StatusBar.qml
+        qml/components/ThermostatTile.qml
 )
 
 target_link_libraries(homeui

@@ -20,6 +20,14 @@ const QStringList ValidPanelTypes = {
     QStringLiteral("mqtt"),
 };
 
+const QStringList ValidControlKinds = {
+    QStringLiteral("switch"),
+    QStringLiteral("dimmer"),
+    QStringLiteral("shutter"),
+    QStringLiteral("thermostat"),
+    QStringLiteral("scene"),
+};
+
 bool hasObjectList(const QVariantMap &object, const QString &key)
 {
     const QVariant value = object.value(key);
@@ -210,9 +218,28 @@ bool DashboardConfig::validatePanel(const QVariantMap &panel, const QString &pat
         return false;
     }
 
-    if (type == QStringLiteral("controls") && !hasObjectList(panel, QStringLiteral("controls"))) {
-        *errorText = QStringLiteral("%1.controls must be an array of control objects").arg(path);
-        return false;
+    if (type == QStringLiteral("controls")) {
+        if (!hasObjectList(panel, QStringLiteral("controls"))) {
+            *errorText = QStringLiteral("%1.controls must be an array of control objects").arg(path);
+            return false;
+        }
+
+        const QVariantList controls = panel.value(QStringLiteral("controls")).toList();
+        for (int controlIndex = 0; controlIndex < controls.size(); ++controlIndex) {
+            const QVariantMap control = controls.at(controlIndex).toMap();
+            const QString controlPath = QStringLiteral("%1.controls[%2]").arg(path).arg(controlIndex);
+            const QVariant kindValue = control.contains(QStringLiteral("kind"))
+                                           ? control.value(QStringLiteral("kind"))
+                                           : control.value(QStringLiteral("widget"));
+            if (kindValue.isValid() && !kindValue.toString().isEmpty()) {
+                const QString kind = kindValue.toString().toLower();
+                if (!ValidControlKinds.contains(kind)) {
+                    *errorText = QStringLiteral("%1.kind must be one of: %2")
+                                     .arg(controlPath, ValidControlKinds.join(QStringLiteral(", ")));
+                    return false;
+                }
+            }
+        }
     }
 
     if (type == QStringLiteral("mqtt") && !hasObjectList(panel, QStringLiteral("items"))) {

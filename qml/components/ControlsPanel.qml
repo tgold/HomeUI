@@ -58,6 +58,13 @@ Rectangle {
         return itemState(control.item || "", fallback)
     }
 
+    function controlSecondary(control) {
+        if (control.currentItem && control.currentItem.length > 0) {
+            return itemState(control.currentItem, control.secondary || "")
+        }
+        return control.secondary || ""
+    }
+
     function isOnState(state) {
         var normalized = String(state).trim().toUpperCase()
         if (normalized === "ON" || normalized === "OPEN" || normalized === "DOWN" || normalized === "LOCKED" || normalized === "HOME") {
@@ -67,43 +74,68 @@ Rectangle {
         return !isNaN(number) && number > 0
     }
 
-    function sendControl(control) {
-        if (control.mqttTopic && control.mqttTopic.length > 0) {
-            sendMqtt(control)
+    // Generic dispatch used by every tile kind. Sends an arbitrary command
+    // either to MQTT (preferred when mqttTopic is set) or to OpenHAB.
+    function dispatchCommand(control, command) {
+        if (!control || command === undefined || command === null) {
             return
         }
-
+        var payload = String(command)
+        if (control.mqttTopic && control.mqttTopic.length > 0) {
+            if (!mqtt || !mqtt.publish) {
+                return
+            }
+            var qos = control.mqttQos !== undefined ? control.mqttQos : 0
+            var retain = control.mqttRetain === true
+            mqtt.publish(control.mqttTopic, payload, qos, retain)
+            return
+        }
         if (!openhab || !control.item || control.item.length === 0) {
             return
         }
-
-        if (control.command) {
-            openhab.sendCommand(control.item, control.command)
-            return
-        }
-
-        var currentState = itemState(control.item, control.value || "OFF")
-        var onCommand = control.onCommand || "ON"
-        var offCommand = control.offCommand || "OFF"
-        openhab.sendCommand(control.item, isOnState(currentState) ? offCommand : onCommand)
+        openhab.sendCommand(control.item, payload)
     }
 
-    function sendMqtt(control) {
-        if (!mqtt || !mqtt.publish || !control.mqttTopic || control.mqttTopic.length === 0) {
+    // Toggle helper used by the default switch tile. Honours `command` for
+    // single-shot pushes (e.g. doorbell triggers).
+    function toggleSwitch(control) {
+        if (!control) {
             return
         }
-        var qos = control.mqttQos !== undefined ? control.mqttQos : 0
-        var retain = control.mqttRetain === true
-
-        if (control.mqttPayload !== undefined && control.mqttPayload !== null) {
-            mqtt.publish(control.mqttTopic, String(control.mqttPayload), qos, retain)
+        if (control.command) {
+            dispatchCommand(control, control.command)
             return
         }
+        if (control.mqttTopic && control.mqttTopic.length > 0
+                && control.mqttPayload !== undefined && control.mqttPayload !== null) {
+            dispatchCommand(control, control.mqttPayload)
+            return
+        }
+        var currentState = controlValue(control)
+        var on = control.onCommand
+                || control.mqttOnPayload
+                || "ON"
+        var off = control.offCommand
+                || control.mqttOffPayload
+                || "OFF"
+        dispatchCommand(control, isOnState(currentState) ? off : on)
+    }
 
-        var currentState = topicValue(control.mqttTopic, control.value || "OFF")
-        var onPayload = control.mqttOnPayload || control.onCommand || "ON"
-        var offPayload = control.mqttOffPayload || control.offCommand || "OFF"
-        mqtt.publish(control.mqttTopic, isOnState(currentState) ? offPayload : onPayload, qos, retain)
+    function controlKind(control) {
+        if (!control) {
+            return "switch"
+        }
+        var kind = (control.kind || control.widget || "switch").toLowerCase()
+        switch (kind) {
+        case "switch":
+        case "dimmer":
+        case "shutter":
+        case "thermostat":
+        case "scene":
+            return kind
+        default:
+            return "switch"
+        }
     }
 
     implicitWidth: 292
@@ -138,20 +170,90 @@ Rectangle {
             Repeater {
                 model: root.controls
 
-                ControlTile {
+                Loader {
+                    id: tileLoader
+                    readonly property var control: modelData
+                    readonly property string kind: root.controlKind(modelData)
                     readonly property string rawValue: root.controlValue(modelData)
-                    label: modelData.label || "Control"
-                    value: Fmt.smart(rawValue)
-                    secondary: modelData.secondary || ""
-                    iconText: modelData.iconText || ""
-                    active: root.isOnState(rawValue)
-                    interactive: !!(modelData.item || modelData.mqttTopic)
-                    accentColor: modelData.accentColor || "#f59e0b"
-                    onClicked: root.sendControl(modelData)
+                    readonly property string currentValue: root.controlSecondary(modelData)
+
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
+
+                    sourceComponent: {
+                        switch (kind) {
+                        case "dimmer":
+                            return dimmerComponent
+                        case "shutter":
+                            return shutterComponent
+                        case "thermostat":
+                            return thermostatComponent
+                        case "scene":
+                            return sceneComponent
+                        default:
+                            return switchComponent
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    Component {
+        id: switchComponent
+
+        ControlTile {
+            readonly property var control: parent.control
+            readonly property string rawValue: parent.rawValue
+            label: control.label || "Control"
+            value: Fmt.smart(rawValue)
+            secondary: parent.currentValue
+            iconText: control.iconText || ""
+            active: root.isOnState(rawValue)
+            interactive: !!(control.item || control.mqttTopic)
+            accentColor: control.accentColor || "#f59e0b"
+            onClicked: root.toggleSwitch(control)
+        }
+    }
+
+    Component {
+        id: dimmerComponent
+
+        DimmerTile {
+            control: parent.control
+            panel: root
+            rawValue: parent.rawValue
+        }
+    }
+
+    Component {
+        id: shutterComponent
+
+        ShutterTile {
+            control: parent.control
+            panel: root
+            rawValue: parent.rawValue
+        }
+    }
+
+    Component {
+        id: thermostatComponent
+
+        ThermostatTile {
+            control: parent.control
+            panel: root
+            rawValue: parent.rawValue
+            currentValue: parent.currentValue
+        }
+    }
+
+    Component {
+        id: sceneComponent
+
+        SceneTile {
+            control: parent.control
+            panel: root
+            rawValue: parent.rawValue
         }
     }
 }

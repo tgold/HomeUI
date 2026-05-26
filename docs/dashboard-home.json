@@ -76,6 +76,7 @@
               "title": "Klingel",
               "controls": [
                 {
+                  "kind": "scene",
                   "label": "Tuer 1",
                   "iconText": "T",
                   "accentColor": "#22c55e",
@@ -252,22 +253,24 @@
           "title": "Extra Rollaeden",
           "controls": [
             {
+              "kind": "shutter",
               "label": "Bad 2",
-              "iconText": "R",
               "accentColor": "#38bdf8",
               "item": "FF_Bathroom_Shutter2"
             },
             {
+              "kind": "shutter",
               "label": "Schreibtisch",
-              "iconText": "R",
               "accentColor": "#38bdf8",
               "item": "FF_Office_Desk_Shutter"
             },
             {
+              "kind": "scene",
               "label": "Schlaf Szene",
               "iconText": "S",
               "accentColor": "#a855f7",
-              "item": "FF_Bedroom_Shutter_Scene_Switch"
+              "item": "FF_Bedroom_Shutter_Scene_Switch",
+              "command": "ON"
             }
           ]
         }
@@ -348,6 +351,7 @@
         {
           "type": "controls",
           "title": "Heizung",
+          "tilesPerRow": 2,
           "controls": [
             {
               "label": "Heizen",
@@ -374,6 +378,43 @@
               "item": "thz_filterwechsel"
             }
           ]
+        },
+        {
+          "type": "controls",
+          "title": "Sollwerte",
+          "tilesPerRow": 1,
+          "controls": [
+            {
+              "kind": "thermostat",
+              "label": "Raum Tag",
+              "item": "thz_raumtemp_tag",
+              "currentItem": "thz_raumisttemp_hk1",
+              "min": 15,
+              "max": 26,
+              "step": 0.5,
+              "accentColor": "#f97316"
+            },
+            {
+              "kind": "thermostat",
+              "label": "Raum Nacht",
+              "item": "thz_raumtemp_nacht",
+              "currentItem": "thz_raumisttemp_hk1",
+              "min": 15,
+              "max": 24,
+              "step": 0.5,
+              "accentColor": "#38bdf8"
+            },
+            {
+              "kind": "thermostat",
+              "label": "Warmwasser",
+              "item": "thz_ww_solltemp",
+              "currentItem": "thz_ww_isttemp",
+              "min": 30,
+              "max": 60,
+              "step": 1,
+              "accentColor": "#ef4444"
+            }
+          ]
         }
       ]
     },
@@ -391,6 +432,7 @@
               "title": "Szene Alle Rollaeden",
               "controls": [
                 {
+                  "kind": "scene",
                   "label": "Hoch",
                   "iconText": "U",
                   "accentColor": "#22c55e",
@@ -398,6 +440,7 @@
                   "command": "FULLUP"
                 },
                 {
+                  "kind": "scene",
                   "label": "Halb",
                   "iconText": "M",
                   "accentColor": "#fbbf24",
@@ -405,6 +448,7 @@
                   "command": "HALFDOWN"
                 },
                 {
+                  "kind": "scene",
                   "label": "Runter",
                   "iconText": "D",
                   "accentColor": "#38bdf8",
@@ -418,6 +462,7 @@
               "title": "Szene Esszimmer + Terrasse",
               "controls": [
                 {
+                  "kind": "scene",
                   "label": "Hoch",
                   "iconText": "U",
                   "accentColor": "#22c55e",
@@ -425,6 +470,7 @@
                   "command": "FULLUP"
                 },
                 {
+                  "kind": "scene",
                   "label": "Halb",
                   "iconText": "M",
                   "accentColor": "#fbbf24",
@@ -432,6 +478,7 @@
                   "command": "HALFDOWN"
                 },
                 {
+                  "kind": "scene",
                   "label": "Runter",
                   "iconText": "D",
                   "accentColor": "#38bdf8",
@@ -445,10 +492,12 @@
               "title": "Regel",
               "controls": [
                 {
+                  "kind": "scene",
                   "label": "Rollos runter",
                   "iconText": "R",
                   "accentColor": "#a855f7",
-                  "item": "rule_rollosRunter"
+                  "item": "rule_rollosRunter",
+                  "command": "ON"
                 }
               ]
             }
@@ -460,53 +509,53 @@
             {
               "type": "controls",
               "title": "Alle Rollaeden",
-              "tilesPerRow": 4,
+              "tilesPerRow": 2,
               "controls": [
                 {
+                  "kind": "shutter",
                   "label": "Wohnzimmer",
-                  "iconText": "R",
                   "accentColor": "#38bdf8",
                   "item": "GF_LivingRoom_Shutter"
                 },
                 {
+                  "kind": "shutter",
                   "label": "Esszimmer",
-                  "iconText": "R",
                   "accentColor": "#38bdf8",
                   "item": "GF_Dining_Shutter"
                 },
                 {
+                  "kind": "shutter",
                   "label": "Terrasse",
-                  "iconText": "R",
                   "accentColor": "#38bdf8",
                   "item": "GF_Terrace_Shutter"
                 },
                 {
+                  "kind": "shutter",
                   "label": "Schlafzimmer",
-                  "iconText": "R",
                   "accentColor": "#38bdf8",
                   "item": "FF_Bedroom_Shutter"
                 },
                 {
+                  "kind": "shutter",
                   "label": "Bad 1",
-                  "iconText": "R",
                   "accentColor": "#38bdf8",
                   "item": "FF_Bathroom_Shutter1"
                 },
                 {
+                  "kind": "shutter",
                   "label": "Bad 2",
-                  "iconText": "R",
                   "accentColor": "#38bdf8",
                   "item": "FF_Bathroom_Shutter2"
                 },
                 {
+                  "kind": "shutter",
                   "label": "Buero",
-                  "iconText": "R",
                   "accentColor": "#38bdf8",
                   "item": "FF_Office_Shutter"
                 },
                 {
+                  "kind": "shutter",
                   "label": "Schreibtisch",
-                  "iconText": "R",
                   "accentColor": "#38bdf8",
                   "item": "FF_Office_Desk_Shutter"
                 }
@@ -558,6 +607,7 @@
               "tilesPerRow": 2,
               "controls": [
                 {
+                  "kind": "scene",
                   "label": "Off",
                   "iconText": "O",
                   "accentColor": "#94a3b8",
@@ -565,6 +615,7 @@
                   "command": "off"
                 },
                 {
+                  "kind": "scene",
                   "label": "PV",
                   "iconText": "P",
                   "accentColor": "#22c55e",
@@ -572,6 +623,7 @@
                   "command": "pv"
                 },
                 {
+                  "kind": "scene",
                   "label": "Now",
                   "iconText": "N",
                   "accentColor": "#ef4444",
@@ -713,6 +765,7 @@
               "title": "Klingel",
               "controls": [
                 {
+                  "kind": "scene",
                   "label": "Tuer 1",
                   "iconText": "T",
                   "accentColor": "#22c55e",
@@ -847,52 +900,68 @@
                   "item": "gardena_use_cistern_switch"
                 },
                 {
+                  "kind": "scene",
                   "label": "Pumpe Ein",
                   "iconText": "E",
                   "accentColor": "#22c55e",
-                  "item": "gardena_pumpe_cmd_openwithduration"
+                  "item": "gardena_pumpe_cmd_openwithduration",
+                  "command": "ON"
                 },
                 {
+                  "kind": "scene",
                   "label": "Pumpe Aus",
                   "iconText": "A",
                   "accentColor": "#ef4444",
-                  "item": "gardena_pumpe_cmd_close"
+                  "item": "gardena_pumpe_cmd_close",
+                  "command": "ON"
                 },
                 {
+                  "kind": "scene",
                   "label": "V1 Start",
                   "iconText": "1",
                   "accentColor": "#22c55e",
-                  "item": "gardena_ventil1_cmd_openwithduration"
+                  "item": "gardena_ventil1_cmd_openwithduration",
+                  "command": "ON"
                 },
                 {
+                  "kind": "scene",
                   "label": "V1 Stop",
                   "iconText": "1",
                   "accentColor": "#ef4444",
-                  "item": "gardena_ventil1_cmd_close"
+                  "item": "gardena_ventil1_cmd_close",
+                  "command": "ON"
                 },
                 {
+                  "kind": "scene",
                   "label": "V2 Start",
                   "iconText": "2",
                   "accentColor": "#22c55e",
-                  "item": "gardena_ventil2_cmd_openwithduration"
+                  "item": "gardena_ventil2_cmd_openwithduration",
+                  "command": "ON"
                 },
                 {
+                  "kind": "scene",
                   "label": "V2 Stop",
                   "iconText": "2",
                   "accentColor": "#ef4444",
-                  "item": "gardena_ventil2_cmd_close"
+                  "item": "gardena_ventil2_cmd_close",
+                  "command": "ON"
                 },
                 {
+                  "kind": "scene",
                   "label": "V3 Start",
                   "iconText": "3",
                   "accentColor": "#22c55e",
-                  "item": "gardena_ventil3_cmd_openwithduration"
+                  "item": "gardena_ventil3_cmd_openwithduration",
+                  "command": "ON"
                 },
                 {
+                  "kind": "scene",
                   "label": "V3 Stop",
                   "iconText": "3",
                   "accentColor": "#ef4444",
-                  "item": "gardena_ventil3_cmd_close"
+                  "item": "gardena_ventil3_cmd_close",
+                  "command": "ON"
                 }
               ]
             },
@@ -1041,16 +1110,20 @@
                   "item": "Sonos_Kitchen_LED"
                 },
                 {
+                  "kind": "scene",
                   "label": "Save",
                   "iconText": "S",
                   "accentColor": "#22c55e",
-                  "item": "Sonos_Kitchen_Save"
+                  "item": "Sonos_Kitchen_Save",
+                  "command": "ON"
                 },
                 {
+                  "kind": "scene",
                   "label": "Restore",
                   "iconText": "R",
                   "accentColor": "#a855f7",
-                  "item": "Sonos_Kitchen_Restore"
+                  "item": "Sonos_Kitchen_Restore",
+                  "command": "ON"
                 }
               ]
             }
