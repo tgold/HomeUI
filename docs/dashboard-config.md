@@ -238,7 +238,7 @@ Tapping a zone opens `Start` / `Stop` quick actions.
 
 Fields:
 
-- `imageSource` (required): file path or URL to the floorplan image.
+- `imageSource` (required): file path or URL to the floorplan image. Relative paths resolve against the dashboard config directory (e.g. `../assets/irrigation-floorplan.png`). A bundled fallback image is used when loading fails.
 - `zones` (required): array of overlays with:
   - `label` (required), `activityItem` (required), `x`/`y` (required, normalized `0..1`).
   - optional action bindings: `startItem`, `startCommand`, `stopItem`, `stopCommand`.

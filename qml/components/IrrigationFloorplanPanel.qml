@@ -18,6 +18,23 @@ Rectangle {
 
     property int selectedZoneIndex: -1
 
+    readonly property string resolvedImageSource: {
+        if (!imageSource || imageSource.length === 0) {
+            return "qrc:/qt/qml/HomeUI/assets/irrigation-floorplan.png"
+        }
+        if (typeof dashboardConfig !== "undefined" && dashboardConfig.resolveAssetUrl) {
+            var resolved = dashboardConfig.resolveAssetUrl(imageSource)
+            if (resolved && resolved.length > 0) {
+                return resolved
+            }
+        }
+        return imageSource
+    }
+
+    readonly property bool imageReady: floorplanImage.status === Image.Ready
+            && floorplanImage.paintedWidth > 0
+            && floorplanImage.paintedHeight > 0
+
     function itemState(itemName, fallback) {
         stateRevision
         if (openhab && itemName && itemName.length > 0) {
@@ -69,22 +86,22 @@ Rectangle {
         return isNaN(number) ? -1 : number
     }
 
-    function imageX(normX) {
-        var painted = floorplanImage.paintedWidth
-        if (painted <= 0) {
-            return 0
+    function overlayX(normX) {
+        if (imageReady) {
+            var painted = floorplanImage.paintedWidth
+            var offset = floorplanImage.x + (floorplanImage.width - painted) / 2
+            return offset + normX * painted
         }
-        var offset = floorplanImage.x + (floorplanImage.width - painted) / 2
-        return offset + normX * painted
+        return normX * mapHost.width
     }
 
-    function imageY(normY) {
-        var painted = floorplanImage.paintedHeight
-        if (painted <= 0) {
-            return 0
+    function overlayY(normY) {
+        if (imageReady) {
+            var painted = floorplanImage.paintedHeight
+            var offset = floorplanImage.y + (floorplanImage.height - painted) / 2
+            return offset + normY * painted
         }
-        var offset = floorplanImage.y + (floorplanImage.height - painted) / 2
-        return offset + normY * painted
+        return normY * mapHost.height
     }
 
     implicitWidth: 620
@@ -141,17 +158,42 @@ Rectangle {
             Image {
                 id: floorplanImage
                 anchors.fill: parent
-                source: root.imageSource
+                source: root.resolvedImageSource
                 asynchronous: true
                 cache: true
                 smooth: true
                 fillMode: Image.PreserveAspectFit
-                opacity: 0.58
+                opacity: imageReady ? 0.92 : 0.35
             }
 
             Rectangle {
                 anchors.fill: parent
-                color: "#8810192b"
+                color: imageReady ? "#330f1726" : "#660f1726"
+            }
+
+            Column {
+                anchors.centerIn: parent
+                spacing: 6
+                visible: floorplanImage.status === Image.Error
+                        || (floorplanImage.status === Image.Ready && !imageReady)
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "Grundriss konnte nicht geladen werden"
+                    color: "#fbbf24"
+                    font.pixelSize: 14
+                    font.bold: true
+                }
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: mapHost.width - 40
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.Wrap
+                    text: root.resolvedImageSource
+                    color: "#94a3b8"
+                    font.pixelSize: 10
+                }
             }
 
             Repeater {
@@ -160,8 +202,8 @@ Rectangle {
                 Rectangle {
                     required property var modelData
                     property var sensor: modelData
-                    x: root.imageX(sensor.x !== undefined ? sensor.x : 0.1) - width / 2
-                    y: root.imageY(sensor.y !== undefined ? sensor.y : 0.1) - height / 2
+                    x: root.overlayX(sensor.x !== undefined ? sensor.x : 0.1) - width / 2
+                    y: root.overlayY(sensor.y !== undefined ? sensor.y : 0.1) - height / 2
                     width: Math.max(120, sensor.width !== undefined ? sensor.width : 136)
                     height: 48
                     radius: 10
@@ -205,8 +247,8 @@ Rectangle {
                 Item {
                     required property var modelData
                     property var zone: modelData
-                    x: root.imageX(zone.x !== undefined ? zone.x : 0.5)
-                    y: root.imageY(zone.y !== undefined ? zone.y : 0.5)
+                    x: root.overlayX(zone.x !== undefined ? zone.x : 0.5) - width / 2
+                    y: root.overlayY(zone.y !== undefined ? zone.y : 0.5) - height / 2
                     width: 92
                     height: 62
 

@@ -1051,7 +1051,7 @@
           "type": "irrigationFloorplan",
           "title": "Bewaesserung Uebersicht",
           "columnSpan": 3,
-          "imageSource": "file:///C:/Users/mail/.cursor/projects/d-dev-HomeUI/assets/c__Users_mail_AppData_Roaming_Cursor_User_workspaceStorage_526bc5c1d94e06ba7fee7b043c815bc4_images_image-fd2e091b-cacd-4d36-a1f9-dd03d5fc1757.png",
+          "imageSource": "../assets/irrigation-floorplan.png",
           "programItem": "gardena_start_irrigation_switch",
           "useCisternItem": "gardena_use_cistern_switch",
           "durationItem": "gardena_irrigatino_duration",

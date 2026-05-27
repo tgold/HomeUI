@@ -96,6 +96,8 @@ qt_add_qml_module(homeui
         qml/components/SonosPanel.qml
         qml/components/StatusBar.qml
         qml/components/ThermostatTile.qml
+    RESOURCES
+        assets/irrigation-floorplan.png
 )
 
 target_include_directories(homeui
@@ -127,4 +129,8 @@ install(TARGETS homeui
 
 install(FILES config/dashboard.json
     DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/homeui
+)
+
+install(FILES assets/irrigation-floorplan.png
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/homeui/assets
 )

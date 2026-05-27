@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QUrl>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -166,6 +167,34 @@ QVariantList DashboardConfig::pages() const
 int DashboardConfig::revision() const
 {
     return m_revision;
+}
+
+QString DashboardConfig::resolveAssetUrl(const QString &path) const
+{
+    const QString trimmed = path.trimmed();
+    if (trimmed.isEmpty()) {
+        return {};
+    }
+
+    if (trimmed.startsWith(QStringLiteral("qrc:"))
+        || trimmed.startsWith(QStringLiteral("file:"))
+        || trimmed.contains(QStringLiteral("://"))) {
+        return trimmed;
+    }
+
+    const QFileInfo pathInfo(trimmed);
+    if (pathInfo.isAbsolute()) {
+        return QUrl::fromLocalFile(pathInfo.absoluteFilePath()).toString();
+    }
+
+    const QFileInfo configInfo(m_sourcePath);
+    const QString baseDir = configInfo.absolutePath();
+    if (baseDir.isEmpty()) {
+        return trimmed;
+    }
+
+    const QString resolved = QDir(baseDir).absoluteFilePath(trimmed);
+    return QUrl::fromLocalFile(resolved).toString();
 }
 
 bool DashboardConfig::reload()

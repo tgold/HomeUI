@@ -29,6 +29,7 @@ public:
     void setWatching(bool watching);
 
     Q_INVOKABLE bool reload();
+    Q_INVOKABLE QString resolveAssetUrl(const QString &path) const;
 
 signals:
     void sourcePathChanged();
