@@ -57,6 +57,7 @@ private:
     void pollZone(const QString &host);
     void requestTransportInfo(const QString &host);
     void requestPositionInfo(const QString &host);
+    void requestMediaInfo(const QString &host);
     void requestRenderingState(const QString &host);
     void postSoap(const QString &host,
                   const QString &servicePath,

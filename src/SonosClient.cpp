@@ -9,6 +9,20 @@
 
 namespace {
 Q_LOGGING_CATEGORY(lcSonos, "homeui.sonos")
+
+bool looksLikeUrlOrUri(const QString &value)
+{
+    const QString v = value.trimmed();
+    if (v.isEmpty()) {
+        return false;
+    }
+    return v.startsWith(QStringLiteral("http://"), Qt::CaseInsensitive)
+        || v.startsWith(QStringLiteral("https://"), Qt::CaseInsensitive)
+        || v.startsWith(QStringLiteral("x-sonos"), Qt::CaseInsensitive)
+        || v.contains(QStringLiteral("sid="), Qt::CaseInsensitive)
+        || v.contains(QStringLiteral("cid="), Qt::CaseInsensitive)
+        || v.contains(QLatin1Char('?'));
+}
 }
 
 SonosClient::SonosClient(QObject *parent)
@@ -306,6 +320,7 @@ void SonosClient::pollZone(const QString &host)
 
     requestTransportInfo(host);
     requestPositionInfo(host);
+    requestMediaInfo(host);
     requestRenderingState(host);
 }
 
@@ -375,9 +390,7 @@ void SonosClient::requestPositionInfo(const QString &host)
                      if (track.isEmpty()) {
                          track = !title.isEmpty() ? title : streamContent;
                      }
-                     if (track.startsWith(QStringLiteral("x-sonos"))
-                         || track.startsWith(QStringLiteral("http://"))
-                         || track.startsWith(QStringLiteral("https://"))) {
+                     if (looksLikeUrlOrUri(track)) {
                          if (!title.isEmpty()) {
                              track = title;
                          } else if (!streamContent.isEmpty()) {
@@ -385,6 +398,9 @@ void SonosClient::requestPositionInfo(const QString &host)
                          } else if (!radioShow.isEmpty()) {
                              track = radioShow;
                          }
+                     }
+                     if (looksLikeUrlOrUri(title)) {
+                         title.clear();
                      }
 
                      applyZoneUpdate(host, [title, artist, album, albumArt, track](ZoneData &zone) {
@@ -400,6 +416,66 @@ void SonosClient::requestPositionInfo(const QString &host)
                      qCWarning(lcSonos, "GetPositionInfo failed for %s: %s",
                                qUtf8Printable(host), qUtf8Printable(reply->errorString()));
                  }
+             });
+}
+
+void SonosClient::requestMediaInfo(const QString &host)
+{
+    static const QByteArray body =
+        "<u:GetMediaInfo xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+        "<InstanceID>0</InstanceID>"
+        "</u:GetMediaInfo>";
+
+    postSoap(host,
+             QStringLiteral("/MediaRenderer/AVTransport/Control"),
+             QByteArray("urn:schemas-upnp-org:service:AVTransport:1#GetMediaInfo"),
+             body,
+             [this, host](QNetworkReply *reply) {
+                 if (reply->error() != QNetworkReply::NoError) {
+                     qCWarning(lcSonos, "GetMediaInfo failed for %s: %s",
+                               qUtf8Printable(host), qUtf8Printable(reply->errorString()));
+                     return;
+                 }
+
+                 const QString xml = QString::fromUtf8(reply->readAll());
+                 const QString uri = firstTagText(xml, QStringLiteral("CurrentURI"));
+                 const QString metadata = firstTagText(xml, QStringLiteral("CurrentURIMetaData"));
+                 QString stationTitle = parseMetaField(metadata, QStringLiteral("title"));
+                 QString stationArt = parseMetaField(metadata, QStringLiteral("albumArtURI"));
+
+                 if (!stationArt.isEmpty() && stationArt.startsWith('/')) {
+                     stationArt = QStringLiteral("http://%1:1400%2").arg(host, stationArt);
+                 }
+                 if (looksLikeUrlOrUri(stationTitle) || stationTitle.compare(QStringLiteral("x-rincon-mp3radio"), Qt::CaseInsensitive) == 0) {
+                     stationTitle.clear();
+                 }
+
+                 applyZoneUpdate(host, [stationTitle, stationArt, uri](ZoneData &zone) {
+                     bool changed = false;
+
+                     // MediaInfo often carries radio station metadata/logo even when
+                     // PositionInfo only has stream URLs.
+                     if (!stationTitle.isEmpty()
+                         && (zone.title.isEmpty() || looksLikeUrlOrUri(zone.title))) {
+                         zone.title = stationTitle;
+                         changed = true;
+                     }
+                     if (!stationArt.isEmpty() && zone.albumArtUrl.isEmpty()) {
+                         zone.albumArtUrl = stationArt;
+                         changed = true;
+                     }
+
+                     if ((zone.track.isEmpty() || looksLikeUrlOrUri(zone.track))
+                         && !zone.title.isEmpty()) {
+                         zone.track = zone.title;
+                         changed = true;
+                     } else if (zone.track.isEmpty() && !uri.isEmpty() && !looksLikeUrlOrUri(uri)) {
+                         zone.track = uri;
+                         changed = true;
+                     }
+
+                     return changed;
+                 });
              });
 }
 
