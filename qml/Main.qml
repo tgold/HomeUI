@@ -13,6 +13,22 @@ ApplicationWindow {
     visibility: Window.FullScreen
     title: "HomeUI"
     color: "#070d18"
+    property int maxDebugEvents: 300
+
+    function appendRawEvent(rawEvent) {
+        if (!rawEvent || rawEvent.length === 0) {
+            return
+        }
+
+        debugEventModel.insert(0, {
+            "timestamp": new Date().toLocaleTimeString(Qt.locale(), "HH:mm:ss"),
+            "payload": rawEvent
+        })
+
+        while (debugEventModel.count > maxDebugEvents) {
+            debugEventModel.remove(debugEventModel.count - 1)
+        }
+    }
 
     function currentPageTitle() {
         if (!dashboardConfig.valid || dashboardConfig.pages.length === 0) {
@@ -115,6 +131,14 @@ ApplicationWindow {
         }
     }
 
+    Connections {
+        target: openhabClient
+        ignoreUnknownSignals: true
+        function onRawEventReceived(rawEvent) {
+            root.appendRawEvent(rawEvent)
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
         color: "#070d18"
@@ -140,6 +164,153 @@ ApplicationWindow {
             { "label": "HEIZ", "state": root._thzHeating() ? "active" : "idle" },
             { "label": "WW",   "state": root._thzHotWater() ? "active" : "idle" }
         ]
+    }
+
+    ListModel {
+        id: debugEventModel
+    }
+
+    Rectangle {
+        id: debugButton
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.topMargin: 8
+        anchors.rightMargin: 12
+        width: 56
+        height: 30
+        radius: 8
+        color: debugModal.visible ? "#f59e0b" : "#1e293b"
+        border.color: debugModal.visible ? "#fde68a" : "#475569"
+        z: 20
+
+        Text {
+            anchors.centerIn: parent
+            text: "DBG"
+            color: debugModal.visible ? "#111827" : "#e2e8f0"
+            font.pixelSize: 12
+            font.bold: true
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: debugModal.open()
+        }
+    }
+
+    Popup {
+        id: debugModal
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        width: Math.min(root.width - 40, 1040)
+        height: Math.min(root.height - 70, 640)
+        anchors.centerIn: Overlay.overlay
+        padding: 0
+
+        background: Rectangle {
+            radius: 12
+            color: "#0f172a"
+            border.color: "#334155"
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 12
+            spacing: 10
+
+            RowLayout {
+                Layout.fillWidth: true
+
+                Text {
+                    text: "OpenHAB raw events (" + debugEventModel.count + ")"
+                    color: "#f8fafc"
+                    font.pixelSize: 16
+                    font.bold: true
+                    Layout.fillWidth: true
+                }
+
+                Rectangle {
+                    width: 88
+                    height: 30
+                    radius: 8
+                    color: "#334155"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Clear"
+                        color: "#e2e8f0"
+                        font.pixelSize: 12
+                        font.bold: true
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: debugEventModel.clear()
+                    }
+                }
+
+                Rectangle {
+                    width: 88
+                    height: 30
+                    radius: 8
+                    color: "#475569"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Close"
+                        color: "#f8fafc"
+                        font.pixelSize: 12
+                        font.bold: true
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: debugModal.close()
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: 8
+                color: "#020617"
+                border.color: "#1e293b"
+
+                ListView {
+                    id: debugEventList
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    clip: true
+                    spacing: 6
+                    model: debugEventModel
+
+                    delegate: Rectangle {
+                        required property string timestamp
+                        required property string payload
+                        width: debugEventList.width
+                        color: "#0b1220"
+                        radius: 6
+                        border.color: "#1f2b3d"
+                        border.width: 1
+                        implicitHeight: eventText.implicitHeight + 12
+
+                        Text {
+                            id: eventText
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.margins: 6
+                            text: "[" + timestamp + "] " + payload
+                            color: "#cbd5e1"
+                            font.pixelSize: 12
+                            font.family: "monospace"
+                            wrapMode: Text.WrapAnywhere
+                        }
+                    }
+                }
+            }
+        }
     }
 
     SwipeView {

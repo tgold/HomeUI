@@ -515,23 +515,75 @@ The panel automatically queries Grafana for the actual pixel dimensions of the t
 
 **One-time Grafana setup:**
 
-1. Install the renderer plugin on the Grafana server and restart it:
+The `/render/d-solo/...` endpoint requires the **Grafana Image Renderer** to be available. There are two ways to deploy it; pick **one**.
+
+#### Option A - Renderer as a Grafana plugin (x86_64 only)
+
+Works for Grafana running on `linux-x64`, `darwin-amd64`, or `windows-amd64`. **Does not work on arm64** (Raspberry Pi, arm64 NAS) - the plugin's binaries are not built for those architectures and `grafana-cli plugins install grafana-image-renderer` will fail with `[plugin.archNotFound] grafana-image-renderer is not compatible with your system architecture: linux-arm64`.
+
+```bash
+grafana-cli plugins install grafana-image-renderer
+sudo systemctl restart grafana-server
+```
+
+#### Option B - Renderer as a remote Docker service (works on arm64)
+
+The official `grafana/grafana-image-renderer` Docker image is multi-arch and includes a working arm64 build. Grafana itself stays as-is and talks to the container over HTTP.
+
+1. Run the renderer container on the same host as Grafana (or any reachable host on the LAN):
 
    ```bash
-   grafana-cli plugins install grafana-image-renderer
+   docker run -d \
+     --name grafana-renderer \
+     --restart unless-stopped \
+     --network host \
+     grafana/grafana-image-renderer:latest
+   ```
+
+   The image listens on port `8081` by default. If you cannot use `--network host` (e.g. on Synology DSM), publish the port and adjust the URLs below: `-p 8081:8081`.
+
+2. Tell Grafana to use it. In `/etc/grafana/grafana.ini` (or the container's mounted config):
+
+   ```ini
+   [rendering]
+   server_url  = http://localhost:8081/render
+   callback_url = http://192.168.0.95:3000/
+   ```
+
+   - `server_url` is what **Grafana** uses to reach the **renderer**. `localhost:8081` works whenever the renderer container runs on the same host as Grafana with `--network host`.
+   - `callback_url` is what the **renderer's headless Chromium** uses to fetch your dashboard. **Always use the host's LAN IP / DNS name here, not `localhost`.** From inside the renderer container, `localhost` resolves to the container itself (or, with `--network host`, to the host's loopback interface where Grafana may not be listening if Grafana is also dockerized), so requests to `http://localhost:3000/` typically time out with `status=408` after ~35 s. The LAN IP works in all common topologies (Grafana on host, Grafana in Docker with `-p 3000:3000`, separate hosts).
+
+   You can verify the renderer can reach Grafana before restarting anything:
+
+   ```bash
+   docker exec grafana-renderer curl -s -o /dev/null -w 'HTTP %{http_code}\n' http://192.168.0.95:3000/login
+   # expected: HTTP 200
+   ```
+
+3. Restart Grafana:
+
+   ```bash
    sudo systemctl restart grafana-server
    ```
 
-2. For a kiosk that doesn't authenticate, enable anonymous Viewer access in `/etc/grafana/grafana.ini`:
+4. Verify by hitting a render URL directly in a browser - it should return a PNG, not HTML:
 
-   ```ini
-   [auth.anonymous]
-   enabled = true
-   org_name = Main Org.
-   org_role = Viewer
+   ```text
+   http://<grafana-host>:3000/render/d-solo/<dashboardUid>/<slug>?orgId=1&panelId=1&width=600&height=400
    ```
 
-   Restart Grafana again afterwards. If your Grafana instance does require authentication, see the **Auth note** below.
+#### Anonymous access (kiosk only)
+
+For an unauthenticated kiosk it's cleanest to allow anonymous Viewer access in `/etc/grafana/grafana.ini`:
+
+```ini
+[auth.anonymous]
+enabled = true
+org_name = Main Org.
+org_role = Viewer
+```
+
+Restart Grafana again afterwards. If your Grafana instance does require authentication, see the **Auth note** below.
 
 **Auth note:** `QtQuick.Image` cannot attach custom HTTP headers, so bearer-token / API-key authentication is not supported out of the box. If your Grafana mandates auth, the current options are anonymous access (above) or running Grafana behind a reverse proxy that injects the API key. Native API-key support would require a small `QQuickImageProvider` similar to `src/MjpegView.cpp` - file an issue if you need it.
 

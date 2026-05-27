@@ -499,6 +499,7 @@ void OpenHabClient::dispatchEvent()
         return;
     }
 
+    emit rawEventReceived(QString::fromUtf8(m_currentEventData));
     applyEventData(m_currentEventData);
     m_currentEventData.clear();
 }

@@ -54,6 +54,7 @@ signals:
     void itemCountChanged();
     void stateRevisionChanged();
     void itemStateChanged(const QString &itemName, const QString &state);
+    void rawEventReceived(const QString &rawEvent);
 
 private:
     QNetworkRequest makeRequest(const QString &path, const QByteArray &acceptHeader = "application/json") const;
