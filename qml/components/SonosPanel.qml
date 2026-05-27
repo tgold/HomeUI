@@ -54,28 +54,62 @@ Rectangle {
     readonly property string controllerItem: _item("controller")
     readonly property string volumeItem: _item("volume")
     readonly property string muteItem: _item("mute")
-    readonly property string trackText: itemState(_item("track"), "")
-    readonly property string titleText: itemState(_item("title"), "")
-    readonly property string artistText: itemState(_item("artist"), "")
-    readonly property string albumText: itemState(_item("album"), "")
+    readonly property string trackText: {
+        root.stateRevision
+        return itemState(_item("track"), "")
+    }
+    readonly property string titleText: {
+        root.stateRevision
+        return itemState(_item("title"), "")
+    }
+    readonly property string artistText: {
+        root.stateRevision
+        return itemState(_item("artist"), "")
+    }
+    readonly property string albumText: {
+        root.stateRevision
+        return itemState(_item("album"), "")
+    }
     readonly property string albumArtUrl: {
+        root.stateRevision
         var url = itemState(_item("albumArt"), "")
         var raw = String(url).trim()
         if (raw.length === 0 || raw.toUpperCase() === "NULL" || raw.toUpperCase() === "UNDEF") {
             return ""
         }
-        return raw
+        // Many Sonos bindings reuse a stable artwork URL. Append a lightweight
+        // cache-buster so the Image reloads when track metadata changes.
+        var fingerprint = root.titleText + "|" + root.artistText + "|" + root.albumText + "|" + root.trackText
+        var separator = raw.indexOf("?") === -1 ? "?" : "&"
+        return raw + separator + "_homeui=" + encodeURIComponent(fingerprint)
     }
-    readonly property string stateText: String(itemState(_item("state"), "")).toUpperCase()
+    readonly property string stateText: {
+        root.stateRevision
+        return String(itemState(_item("state"), "")).toUpperCase()
+    }
     readonly property real volumeValue: {
+        root.stateRevision
         var raw = itemState(volumeItem, "")
         var match = String(raw).match(/^-?\d+(?:\.\d+)?/)
         if (!match) { return 0 }
         var n = Number(match[0])
         return isNaN(n) ? 0 : Math.max(0, Math.min(100, n))
     }
-    readonly property bool isMuted: String(itemState(muteItem, "")).toUpperCase() === "ON"
-    readonly property bool isPlaying: stateText.indexOf("PLAY") !== -1
+    readonly property bool isMuted: {
+        root.stateRevision
+        return String(itemState(muteItem, "")).toUpperCase() === "ON"
+    }
+    readonly property string normalizedState: root.stateText.trim().toUpperCase()
+    readonly property bool isPlaying: {
+        // "PAUSED_PLAYBACK" contains "PLAY"; treat pause/stop as not playing.
+        if (root.normalizedState.length === 0) {
+            return false
+        }
+        if (root.normalizedState.indexOf("PAUSE") !== -1 || root.normalizedState.indexOf("STOP") !== -1) {
+            return false
+        }
+        return root.normalizedState.indexOf("PLAY") !== -1
+    }
 
     implicitWidth: 480
     implicitHeight: contentColumn.implicitHeight + 2 * contentColumn.anchors.margins
