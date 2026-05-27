@@ -214,10 +214,16 @@ QString SonosClient::parseMetaField(const QString &metadata, const QString &loca
         return {};
     }
 
-    // Some Qt builds (especially older distro packages) do not provide
-    // QString::fromHtmlEscaped. TrackMetaData is already XML-decoded by
-    // QXmlStreamReader::readElementText() in firstTagText(), so parse directly.
-    return firstTagText(metadata, localTagName);
+    // Decode XML entities from Sonos DIDL metadata without relying on
+    // QString::fromHtmlEscaped (missing on some distro Qt builds).
+    QString decoded = metadata;
+    decoded.replace(QStringLiteral("&lt;"), QStringLiteral("<"));
+    decoded.replace(QStringLiteral("&gt;"), QStringLiteral(">"));
+    decoded.replace(QStringLiteral("&quot;"), QStringLiteral("\""));
+    decoded.replace(QStringLiteral("&apos;"), QStringLiteral("'"));
+    decoded.replace(QStringLiteral("&amp;"), QStringLiteral("&"));
+
+    return firstTagText(decoded, localTagName);
 }
 
 QString SonosClient::normalizedState(const QString &raw)

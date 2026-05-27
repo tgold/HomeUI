@@ -283,6 +283,7 @@ Rectangle {
                 label: "PREV"
                 onClicked: root.sendTransport("PREVIOUS")
                 enabled: root.usingDirectSonos || root.controllerItem.length > 0
+                active: root.isPlaying
                 Layout.fillWidth: true
             }
             TransportButton {
@@ -290,12 +291,14 @@ Rectangle {
                 accent: root.isPlaying ? "#f59e0b" : "#22c55e"
                 onClicked: root.sendTransport(root.isPlaying ? "PAUSE" : "PLAY")
                 enabled: root.usingDirectSonos || root.controllerItem.length > 0
+                active: true
                 Layout.fillWidth: true
             }
             TransportButton {
                 label: "NEXT"
                 onClicked: root.sendTransport("NEXT")
                 enabled: root.usingDirectSonos || root.controllerItem.length > 0
+                active: root.isPlaying
                 Layout.fillWidth: true
             }
             TransportButton {
@@ -303,6 +306,7 @@ Rectangle {
                 accent: root.isMuted ? "#ef4444" : "#475569"
                 onClicked: root.setMuteState(!root.isMuted)
                 enabled: root.usingDirectSonos || root.muteItem.length > 0
+                active: root.isMuted
                 Layout.fillWidth: true
                 visible: root.usingDirectSonos || root.muteItem.length > 0
             }
@@ -356,6 +360,7 @@ Rectangle {
                     label: modelData.label || modelData.command || "—"
                     accent: modelData.accentColor || "#475569"
                     onClicked: root.sendCommand(root._item("favorite"), modelData.command)
+                    active: true
                     Layout.fillWidth: true
                 }
             }
@@ -367,19 +372,20 @@ Rectangle {
         property string label: ""
         property color accent: "#475569"
         property bool enabled: true
+        property bool active: false
         signal clicked()
 
         implicitHeight: 36
         radius: 8
-        color: btn.enabled ? "#1c2839" : "#141e2c"
+        color: !btn.enabled ? "#141e2c" : (btn.active ? "#223047" : "#1c2839")
         border.color: btn.accent
-        border.width: 1
+        border.width: btn.active ? 2 : 1
         opacity: btn.enabled ? 1.0 : 0.4
 
         Text {
             anchors.centerIn: parent
             text: btn.label
-            color: btn.enabled ? "#f8fafc" : "#64748b"
+            color: btn.enabled ? (btn.active ? btn.accent : "#f8fafc") : "#64748b"
             font.pixelSize: 12
             font.bold: true
             elide: Text.ElideRight

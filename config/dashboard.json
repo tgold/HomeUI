@@ -1105,7 +1105,7 @@
         {
           "type": "sonos",
           "title": "Sonos Kueche",
-          "host": "sonos-kitchen.local",
+          "host": "192.168.0.13",
           "accentColor": "#f59e0b",
           "items": {
             "controller": "Sonos_Kitchen_Controller",
@@ -1131,7 +1131,7 @@
         {
           "type": "sonos",
           "title": "Sonos TV",
-          "host": "sonos-tv.local",
+          "host": "192.168.0.22",
           "accentColor": "#38bdf8",
           "items": {
             "controller": "Sonos_TV_Controller",
