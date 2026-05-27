@@ -23,6 +23,27 @@ bool looksLikeUrlOrUri(const QString &value)
         || v.contains(QStringLiteral("cid="), Qt::CaseInsensitive)
         || v.contains(QLatin1Char('?'));
 }
+
+bool isBetterMetadata(const QString &candidate, const QString &current)
+{
+    const QString c = candidate.trimmed();
+    const QString cur = current.trimmed();
+    if (c.isEmpty()) {
+        return false;
+    }
+    if (cur.isEmpty()) {
+        return true;
+    }
+    const bool candidateLooksLikeUrl = looksLikeUrlOrUri(c);
+    const bool currentLooksLikeUrl = looksLikeUrlOrUri(cur);
+    if (candidateLooksLikeUrl && !currentLooksLikeUrl) {
+        return false;
+    }
+    if (!candidateLooksLikeUrl && currentLooksLikeUrl) {
+        return true;
+    }
+    return c != cur;
+}
 }
 
 SonosClient::SonosClient(QObject *parent)
@@ -405,11 +426,26 @@ void SonosClient::requestPositionInfo(const QString &host)
 
                      applyZoneUpdate(host, [title, artist, album, albumArt, track](ZoneData &zone) {
                          bool changed = false;
-                         if (zone.title != title) { zone.title = title; changed = true; }
-                         if (zone.artist != artist) { zone.artist = artist; changed = true; }
-                         if (zone.album != album) { zone.album = album; changed = true; }
-                         if (zone.albumArtUrl != albumArt) { zone.albumArtUrl = albumArt; changed = true; }
-                         if (zone.track != track) { zone.track = track; changed = true; }
+                         if (isBetterMetadata(title, zone.title)) {
+                             zone.title = title;
+                             changed = true;
+                         }
+                         if (isBetterMetadata(artist, zone.artist)) {
+                             zone.artist = artist;
+                             changed = true;
+                         }
+                         if (isBetterMetadata(album, zone.album)) {
+                             zone.album = album;
+                             changed = true;
+                         }
+                         if (isBetterMetadata(albumArt, zone.albumArtUrl)) {
+                             zone.albumArtUrl = albumArt;
+                             changed = true;
+                         }
+                         if (isBetterMetadata(track, zone.track)) {
+                             zone.track = track;
+                             changed = true;
+                         }
                          return changed;
                      });
                  } else {
@@ -455,21 +491,19 @@ void SonosClient::requestMediaInfo(const QString &host)
 
                      // MediaInfo often carries radio station metadata/logo even when
                      // PositionInfo only has stream URLs.
-                     if (!stationTitle.isEmpty()
-                         && (zone.title.isEmpty() || looksLikeUrlOrUri(zone.title))) {
+                     if (isBetterMetadata(stationTitle, zone.title)) {
                          zone.title = stationTitle;
                          changed = true;
                      }
-                     if (!stationArt.isEmpty() && zone.albumArtUrl.isEmpty()) {
+                     if (isBetterMetadata(stationArt, zone.albumArtUrl)) {
                          zone.albumArtUrl = stationArt;
                          changed = true;
                      }
 
-                     if ((zone.track.isEmpty() || looksLikeUrlOrUri(zone.track))
-                         && !zone.title.isEmpty()) {
+                     if (!zone.title.isEmpty() && isBetterMetadata(zone.title, zone.track)) {
                          zone.track = zone.title;
                          changed = true;
-                     } else if (zone.track.isEmpty() && !uri.isEmpty() && !looksLikeUrlOrUri(uri)) {
+                     } else if (!uri.isEmpty() && !looksLikeUrlOrUri(uri) && isBetterMetadata(uri, zone.track)) {
                          zone.track = uri;
                          changed = true;
                      }

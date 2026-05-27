@@ -32,6 +32,9 @@ Rectangle {
     property int stateRevision: openhab ? openhab.stateRevision : 0
     property int directRevision: 0
     readonly property bool usingDirectSonos: sonosClient && host.trim().length > 0
+    readonly property bool sideControlsLayout: width >= 900 && height <= 280
+    readonly property bool showFavorites: root.favorites && root.favorites.length > 0
+    readonly property bool showFavoriteButtons: showFavorites && root._item("favorite").length > 0 && (!sideControlsLayout || height >= 320)
 
     function _item(role) {
         if (!items || !items[role]) {
@@ -150,7 +153,7 @@ Rectangle {
     }
 
     implicitWidth: 480
-    implicitHeight: contentColumn.implicitHeight + 2 * contentColumn.anchors.margins
+    implicitHeight: contentLayout.implicitHeight + 2 * contentLayout.anchors.margins
     radius: 18
     color: "#0f1726"
     border.color: "#26364d"
@@ -182,14 +185,17 @@ Rectangle {
         }
     }
 
-    ColumnLayout {
-        id: contentColumn
+    GridLayout {
+        id: contentLayout
         anchors.fill: parent
         anchors.margins: 14
+        columns: root.sideControlsLayout ? 2 : 1
+        columnSpacing: 14
         spacing: 12
 
         RowLayout {
             Layout.fillWidth: true
+            Layout.columnSpan: root.sideControlsLayout ? 2 : 1
             spacing: 10
             Text {
                 text: root.title
@@ -216,6 +222,9 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
+            Layout.column: 0
+            Layout.row: 1
+            Layout.alignment: Qt.AlignTop
             spacing: 14
 
             Rectangle {
@@ -289,94 +298,102 @@ Rectangle {
             }
         }
 
-        RowLayout {
+        ColumnLayout {
             Layout.fillWidth: true
+            Layout.column: root.sideControlsLayout ? 1 : 0
+            Layout.row: root.sideControlsLayout ? 1 : 2
+            Layout.alignment: Qt.AlignTop
             spacing: 8
-            visible: root.usingDirectSonos || root.controllerItem.length > 0 || root.muteItem.length > 0
 
-            TransportButton {
-                label: "PREV"
-                onClicked: root.sendTransport("PREVIOUS")
-                enabled: root.usingDirectSonos || root.controllerItem.length > 0
-                active: root.isPlaying
+            RowLayout {
                 Layout.fillWidth: true
-            }
-            TransportButton {
-                label: root.isPlaying ? "PAUSE" : "PLAY"
-                accent: root.isPlaying ? "#f59e0b" : "#22c55e"
-                onClicked: root.sendTransport(root.isPlaying ? "PAUSE" : "PLAY")
-                enabled: root.usingDirectSonos || root.controllerItem.length > 0
-                active: true
-                Layout.fillWidth: true
-            }
-            TransportButton {
-                label: "NEXT"
-                onClicked: root.sendTransport("NEXT")
-                enabled: root.usingDirectSonos || root.controllerItem.length > 0
-                active: root.isPlaying
-                Layout.fillWidth: true
-            }
-            TransportButton {
-                label: root.isMuted ? "UNMUTE" : "MUTE"
-                accent: root.isMuted ? "#ef4444" : "#475569"
-                onClicked: root.setMuteState(!root.isMuted)
-                enabled: root.usingDirectSonos || root.muteItem.length > 0
-                active: root.isMuted
-                Layout.fillWidth: true
-                visible: root.usingDirectSonos || root.muteItem.length > 0
-            }
-        }
+                spacing: 8
+                visible: root.usingDirectSonos || root.controllerItem.length > 0 || root.muteItem.length > 0
 
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 10
-            visible: root.usingDirectSonos || root.volumeItem.length > 0
-
-            Text {
-                text: "VOL"
-                color: "#94a3b8"
-                font.pixelSize: 11
-                font.bold: true
-            }
-            Slider {
-                id: volumeSlider
-                Layout.fillWidth: true
-                from: 0
-                to: 100
-                stepSize: 1
-                value: root.volumeValue
-                live: false
-                onPressedChanged: {
-                    if (!pressed) {
-                        root.setVolumeValue(value)
-                    }
+                TransportButton {
+                    label: "PREV"
+                    onClicked: root.sendTransport("PREVIOUS")
+                    enabled: root.usingDirectSonos || root.controllerItem.length > 0
+                    active: root.isPlaying
+                    Layout.fillWidth: true
                 }
-            }
-            Text {
-                text: Math.round(root.volumeValue) + "%"
-                color: "#f8fafc"
-                font.pixelSize: 13
-                font.bold: true
-                horizontalAlignment: Text.AlignRight
-                Layout.preferredWidth: 44
-            }
-        }
-
-        GridLayout {
-            Layout.fillWidth: true
-            columns: 3
-            columnSpacing: 8
-            rowSpacing: 8
-            visible: root.favorites && root.favorites.length > 0 && root._item("favorite").length > 0
-
-            Repeater {
-                model: root.favorites
-                delegate: TransportButton {
-                    label: modelData.label || modelData.command || "—"
-                    accent: modelData.accentColor || "#475569"
-                    onClicked: root.sendCommand(root._item("favorite"), modelData.command)
+                TransportButton {
+                    label: root.isPlaying ? "PAUSE" : "PLAY"
+                    accent: root.isPlaying ? "#f59e0b" : "#22c55e"
+                    onClicked: root.sendTransport(root.isPlaying ? "PAUSE" : "PLAY")
+                    enabled: root.usingDirectSonos || root.controllerItem.length > 0
                     active: true
                     Layout.fillWidth: true
+                }
+                TransportButton {
+                    label: "NEXT"
+                    onClicked: root.sendTransport("NEXT")
+                    enabled: root.usingDirectSonos || root.controllerItem.length > 0
+                    active: root.isPlaying
+                    Layout.fillWidth: true
+                }
+                TransportButton {
+                    label: root.isMuted ? "UNMUTE" : "MUTE"
+                    accent: root.isMuted ? "#ef4444" : "#475569"
+                    onClicked: root.setMuteState(!root.isMuted)
+                    enabled: root.usingDirectSonos || root.muteItem.length > 0
+                    active: root.isMuted
+                    Layout.fillWidth: true
+                    visible: root.usingDirectSonos || root.muteItem.length > 0
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 10
+                visible: root.usingDirectSonos || root.volumeItem.length > 0
+
+                Text {
+                    text: "VOL"
+                    color: "#94a3b8"
+                    font.pixelSize: 11
+                    font.bold: true
+                }
+                Slider {
+                    id: volumeSlider
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 100
+                    stepSize: 1
+                    value: root.volumeValue
+                    live: false
+                    onPressedChanged: {
+                        if (!pressed) {
+                            root.setVolumeValue(value)
+                        }
+                    }
+                }
+                Text {
+                    text: Math.round(root.volumeValue) + "%"
+                    color: "#f8fafc"
+                    font.pixelSize: 13
+                    font.bold: true
+                    horizontalAlignment: Text.AlignRight
+                    Layout.preferredWidth: 44
+                }
+            }
+
+            GridLayout {
+                Layout.fillWidth: true
+                columns: root.sideControlsLayout ? 2 : 3
+                columnSpacing: 8
+                rowSpacing: 8
+                visible: root.showFavoriteButtons
+
+                Repeater {
+                    model: root.favorites
+                    delegate: TransportButton {
+                        label: modelData.label || modelData.command || "—"
+                        accent: modelData.accentColor || "#475569"
+                        onClicked: root.sendCommand(root._item("favorite"), modelData.command)
+                        active: true
+                        Layout.fillWidth: true
+                    }
                 }
             }
         }

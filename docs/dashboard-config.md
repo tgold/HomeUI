@@ -409,6 +409,24 @@ Renders a compact ComboBox-style picker. Same shape as `selector` but with the o
 - The currently active label is shown in the closed combobox. While the popup is open, live state updates do not yank the selection.
 - Picking an entry dispatches its `value` as the command (OpenHAB or MQTT).
 
+Irrigation example (duration preselection before start actions):
+
+```json
+{
+  "kind": "dropdown",
+  "label": "Dauer",
+  "item": "gardena_irrigatino_duration",
+  "accentColor": "#38bdf8",
+  "options": [
+    { "label": "3 min",  "value": 3 },
+    { "label": "30 min", "value": 30 },
+    { "label": "45 min", "value": 45 },
+    { "label": "60 min", "value": 60 },
+    { "label": "90 min", "value": 90 }
+  ]
+}
+```
+
 #### Value (`kind: "value"`)
 
 Read-only display tile. Renders the OpenHAB / MQTT state with the standard formatter but never sends a command on tap. Useful for status fields such as Fritzbox uptime, current weather condition, or sun azimuth.
