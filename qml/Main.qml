@@ -164,37 +164,13 @@ ApplicationWindow {
             { "label": "HEIZ", "state": root._thzHeating() ? "active" : "idle" },
             { "label": "WW",   "state": root._thzHotWater() ? "active" : "idle" }
         ]
+        showDebugButton: true
+        debugActive: debugModal.visible
+        onDebugClicked: debugModal.open()
     }
 
     ListModel {
         id: debugEventModel
-    }
-
-    Rectangle {
-        id: debugButton
-        anchors.top: parent.top
-        anchors.right: parent.right
-        anchors.topMargin: 8
-        anchors.rightMargin: 12
-        width: 56
-        height: 30
-        radius: 8
-        color: debugModal.visible ? "#f59e0b" : "#1e293b"
-        border.color: debugModal.visible ? "#fde68a" : "#475569"
-        z: 20
-
-        Text {
-            anchors.centerIn: parent
-            text: "DBG"
-            color: debugModal.visible ? "#111827" : "#e2e8f0"
-            font.pixelSize: 12
-            font.bold: true
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: debugModal.open()
-        }
     }
 
     Popup {

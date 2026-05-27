@@ -19,6 +19,10 @@ Rectangle {
         { "label": "OH", "state": root.openhabConnected ? "ok" : "warn" },
         { "label": "LIVE", "state": root.eventStreamConnected ? "ok" : "warn" }
     ]
+    property bool showDebugButton: false
+    property bool debugActive: false
+
+    signal debugClicked()
 
     height: 72
     color: "#0b1220"
@@ -109,6 +113,29 @@ Rectangle {
                     font.pixelSize: 11
                     font.bold: true
                 }
+            }
+        }
+
+        Rectangle {
+            visible: root.showDebugButton
+            Layout.preferredWidth: 56
+            Layout.preferredHeight: 34
+            Layout.leftMargin: 4
+            radius: 10
+            color: root.debugActive ? "#f59e0b" : "#1e293b"
+            border.color: root.debugActive ? "#fde68a" : "#475569"
+
+            Text {
+                anchors.centerIn: parent
+                text: "DBG"
+                color: root.debugActive ? "#111827" : "#e2e8f0"
+                font.pixelSize: 11
+                font.bold: true
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: root.debugClicked()
             }
         }
     }
