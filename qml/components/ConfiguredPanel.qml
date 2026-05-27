@@ -49,6 +49,8 @@ Item {
                 return sonosPanelComponent
             case "grafana":
                 return grafanaPanelComponent
+            case "irrigationFloorplan":
+                return irrigationFloorplanPanelComponent
             default:
                 return unsupportedPanelComponent
             }
@@ -138,6 +140,7 @@ Item {
             openhab: root.openhab
             sonosClient: root.sonos
             title: root.value(["title"], "Sonos")
+            columnSpan: root.value(["columnSpan"], 1)
             items: root.value(["items"], ({}))
             host: root.value(["host"], root.value(["items", "host"], ""))
             favorites: root.value(["favorites"], [])
@@ -162,6 +165,22 @@ Item {
             refreshInterval: root.value(["refreshInterval"], 60)
             renderScale: root.value(["renderScale"], 1.0)
             extraParams: root.value(["extraParams"], ({}))
+        }
+    }
+
+    Component {
+        id: irrigationFloorplanPanelComponent
+
+        IrrigationFloorplanPanel {
+            openhab: root.openhab
+            title: root.value(["title"], "Bewaesserung")
+            imageSource: root.value(["imageSource"], "")
+            zones: root.value(["zones"], [])
+            sensors: root.value(["sensors"], [])
+            programItem: root.value(["programItem"], "")
+            useCisternItem: root.value(["useCisternItem"], "")
+            durationItem: root.value(["durationItem"], "")
+            durationOptions: root.value(["durationOptions"], [3, 30, 45, 60, 90])
         }
     }
 

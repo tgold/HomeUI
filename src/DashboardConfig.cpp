@@ -26,6 +26,7 @@ const QStringList ValidPanelTypes = {
     QStringLiteral("mqtt"),
     QStringLiteral("sonos"),
     QStringLiteral("grafana"),
+    QStringLiteral("irrigationFloorplan"),
 };
 
 const QStringList ValidControlKinds = {
@@ -388,6 +389,71 @@ bool DashboardConfig::validatePanel(const QVariantMap &panel, const QString &pat
             *errorText = QStringLiteral("%1.extraParams must be an object of key/value query parameters")
                              .arg(path);
             return false;
+        }
+    }
+
+    if (type == QStringLiteral("irrigationFloorplan")) {
+        const QVariant imageSourceValue = panel.value(QStringLiteral("imageSource"));
+        if (!imageSourceValue.isValid() || imageSourceValue.toString().trimmed().isEmpty()) {
+            *errorText = QStringLiteral("%1.imageSource must be a non-empty image path/url").arg(path);
+            return false;
+        }
+
+        if (!hasObjectList(panel, QStringLiteral("zones"))) {
+            *errorText = QStringLiteral("%1.zones must be an array of zone objects").arg(path);
+            return false;
+        }
+        const QVariantList zones = panel.value(QStringLiteral("zones")).toList();
+        if (zones.isEmpty()) {
+            *errorText = QStringLiteral("%1.zones must contain at least one zone").arg(path);
+            return false;
+        }
+        for (int zoneIndex = 0; zoneIndex < zones.size(); ++zoneIndex) {
+            const QVariantMap zone = zones.at(zoneIndex).toMap();
+            const QString zonePath = QStringLiteral("%1.zones[%2]").arg(path).arg(zoneIndex);
+            if (zone.value(QStringLiteral("label")).toString().trimmed().isEmpty()) {
+                *errorText = QStringLiteral("%1.label must be set").arg(zonePath);
+                return false;
+            }
+            const QVariant xValue = zone.value(QStringLiteral("x"));
+            const QVariant yValue = zone.value(QStringLiteral("y"));
+            bool xOk = false;
+            bool yOk = false;
+            const double x = xValue.toDouble(&xOk);
+            const double y = yValue.toDouble(&yOk);
+            if (!xOk || !yOk || x < 0.0 || x > 1.0 || y < 0.0 || y > 1.0) {
+                *errorText = QStringLiteral("%1.x and %1.y must be numbers between 0 and 1").arg(zonePath);
+                return false;
+            }
+            if (zone.value(QStringLiteral("activityItem")).toString().trimmed().isEmpty()) {
+                *errorText = QStringLiteral("%1.activityItem must be set").arg(zonePath);
+                return false;
+            }
+        }
+
+        const QVariant sensorsValue = panel.value(QStringLiteral("sensors"));
+        if (sensorsValue.isValid()) {
+            if (!sensorsValue.canConvert<QVariantList>()) {
+                *errorText = QStringLiteral("%1.sensors must be an array of sensor objects").arg(path);
+                return false;
+            }
+            const QVariantList sensors = sensorsValue.toList();
+            for (int sensorIndex = 0; sensorIndex < sensors.size(); ++sensorIndex) {
+                if (!sensors.at(sensorIndex).canConvert<QVariantMap>()) {
+                    *errorText = QStringLiteral("%1.sensors[%2] must be an object").arg(path).arg(sensorIndex);
+                    return false;
+                }
+                const QVariantMap sensor = sensors.at(sensorIndex).toMap();
+                const QString sensorPath = QStringLiteral("%1.sensors[%2]").arg(path).arg(sensorIndex);
+                if (sensor.value(QStringLiteral("label")).toString().trimmed().isEmpty()) {
+                    *errorText = QStringLiteral("%1.label must be set").arg(sensorPath);
+                    return false;
+                }
+                if (sensor.value(QStringLiteral("item")).toString().trimmed().isEmpty()) {
+                    *errorText = QStringLiteral("%1.item must be set").arg(sensorPath);
+                    return false;
+                }
+            }
         }
     }
 

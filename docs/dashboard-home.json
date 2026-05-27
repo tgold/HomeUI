@@ -1048,47 +1048,55 @@
           ]
         },
         {
-          "type": "controls",
-          "title": "Bewaesserung Setup",
+          "type": "irrigationFloorplan",
+          "title": "Bewaesserung Uebersicht",
           "columnSpan": 3,
-          "tilesPerRow": 4,
-          "controls": [
-            { "label": "Automatik Programm", "iconText": "P", "accentColor": "#38bdf8", "item": "gardena_start_irrigation_switch" },
+          "imageSource": "file:///C:/Users/mail/.cursor/projects/d-dev-HomeUI/assets/c__Users_mail_AppData_Roaming_Cursor_User_workspaceStorage_526bc5c1d94e06ba7fee7b043c815bc4_images_image-fd2e091b-cacd-4d36-a1f9-dd03d5fc1757.png",
+          "programItem": "gardena_start_irrigation_switch",
+          "useCisternItem": "gardena_use_cistern_switch",
+          "durationItem": "gardena_irrigatino_duration",
+          "durationOptions": [3, 30, 45, 60, 90],
+          "zones": [
             {
-              "kind": "dropdown",
-              "label": "Dauer",
-              "iconText": "D",
-              "accentColor": "#38bdf8",
-              "item": "gardena_irrigatino_duration",
-              "options": [
-                { "label": "3 min",  "value": 3 },
-                { "label": "30 min", "value": 30 },
-                { "label": "45 min", "value": 45 },
-                { "label": "60 min", "value": 60 },
-                { "label": "90 min", "value": 90 }
-              ]
+              "id": "v1",
+              "label": "V1 Top Lawn",
+              "x": 0.52,
+              "y": 0.12,
+              "activityItem": "gardena_ventil1_activity",
+              "startItem": "gardena_ventil1_cmd_openwithduration",
+              "startCommand": "ON",
+              "stopItem": "gardena_ventil1_cmd_close",
+              "stopCommand": "ON"
             },
-            { "label": "Zisterne nutzen", "iconText": "Z", "accentColor": "#38bdf8", "item": "gardena_use_cistern_switch" },
-            { "kind": "scene", "label": "Pumpe Start", "iconText": "M", "accentColor": "#22c55e", "item": "gardena_pumpe_cmd_openwithduration", "command": "ON" },
-            { "kind": "scene", "label": "Pumpe Stop",  "iconText": "M", "accentColor": "#ef4444", "item": "gardena_pumpe_cmd_close",             "command": "ON" },
-            { "kind": "value", "label": "Pumpe Status","iconText": "M", "accentColor": "#94a3b8", "item": "gardena_pumpe_activity" }
-          ]
-        },
-        {
-          "type": "controls",
-          "title": "Bewaesserung Ventile",
-          "columnSpan": 3,
-          "tilesPerRow": 3,
-          "controls": [
-            { "kind": "scene", "label": "Ventil 1 Start", "iconText": "1", "accentColor": "#22c55e", "item": "gardena_ventil1_cmd_openwithduration", "command": "ON" },
-            { "kind": "scene", "label": "Ventil 1 Stop",  "iconText": "1", "accentColor": "#ef4444", "item": "gardena_ventil1_cmd_close",             "command": "ON" },
-            { "kind": "value", "label": "Ventil 1 Status","iconText": "1", "accentColor": "#94a3b8", "item": "gardena_ventil1_activity" },
-            { "kind": "scene", "label": "Ventil 2 Start", "iconText": "2", "accentColor": "#22c55e", "item": "gardena_ventil2_cmd_openwithduration", "command": "ON" },
-            { "kind": "scene", "label": "Ventil 2 Stop",  "iconText": "2", "accentColor": "#ef4444", "item": "gardena_ventil2_cmd_close",             "command": "ON" },
-            { "kind": "value", "label": "Ventil 2 Status","iconText": "2", "accentColor": "#94a3b8", "item": "gardena_ventil2_activity" },
-            { "kind": "scene", "label": "Ventil 3 Start", "iconText": "3", "accentColor": "#22c55e", "item": "gardena_ventil3_cmd_openwithduration", "command": "ON" },
-            { "kind": "scene", "label": "Ventil 3 Stop",  "iconText": "3", "accentColor": "#ef4444", "item": "gardena_ventil3_cmd_close",             "command": "ON" },
-            { "kind": "value", "label": "Ventil 3 Status","iconText": "3", "accentColor": "#94a3b8", "item": "gardena_ventil3_activity" }
+            {
+              "id": "v2",
+              "label": "V2 Left Lawn",
+              "x": 0.16,
+              "y": 0.52,
+              "activityItem": "gardena_ventil2_activity",
+              "startItem": "gardena_ventil2_cmd_openwithduration",
+              "startCommand": "ON",
+              "stopItem": "gardena_ventil2_cmd_close",
+              "stopCommand": "ON"
+            },
+            {
+              "id": "v3",
+              "label": "V3 Right Lawn",
+              "x": 0.78,
+              "y": 0.84,
+              "activityItem": "gardena_ventil3_activity",
+              "startItem": "gardena_ventil3_cmd_openwithduration",
+              "startCommand": "ON",
+              "stopItem": "gardena_ventil3_cmd_close",
+              "stopCommand": "ON"
+            }
+          ],
+          "sensors": [
+            { "label": "Aussen Temp", "item": "thz_aussentemp", "format": "temperature", "x": 0.08, "y": 0.16, "accentColor": "#f97316" },
+            { "label": "Top Lawn Feuchte", "item": "rasen_feuchte", "unit": "%", "decimals": 0, "x": 0.84, "y": 0.12, "accentColor": "#38bdf8" },
+            { "label": "Left Lawn Feuchte", "item": "hochbeet_feuchte", "unit": "%", "decimals": 0, "x": 0.11, "y": 0.74, "accentColor": "#38bdf8" },
+            { "label": "Zisterne", "item": "zisterne_fuellstand", "unit": "%", "decimals": 0, "x": 0.63, "y": 0.56, "accentColor": "#22c55e" },
+            { "label": "Pumpe", "item": "gardena_pumpe_activity", "x": 0.56, "y": 0.86, "accentColor": "#22c55e" }
           ]
         },
         {

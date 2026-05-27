@@ -8,6 +8,7 @@ Rectangle {
 
     property string title: "Sonos"
     property string accentColor: "#f59e0b"
+    property int columnSpan: 1
 
     // Item bindings - all optional.
     // - controllerItem: Player item, accepts PLAY/PAUSE/NEXT/PREVIOUS
@@ -32,9 +33,13 @@ Rectangle {
     property int stateRevision: openhab ? openhab.stateRevision : 0
     property int directRevision: 0
     readonly property bool usingDirectSonos: sonosClient && host.trim().length > 0
-    readonly property bool sideControlsLayout: width >= 900 && height <= 280
+    // Wide panels (full-width footer or multi-column span): metadata left,
+    // transport/volume right, favorites on a full-width row underneath.
+    readonly property bool compactLayout: root.columnSpan >= 2 || width >= 560
     readonly property bool showFavorites: root.favorites && root.favorites.length > 0
-    readonly property bool showFavoriteButtons: showFavorites && root._item("favorite").length > 0 && (!sideControlsLayout || height >= 320)
+    readonly property bool showFavoriteButtons: showFavorites && root._item("favorite").length > 0
+    readonly property int artSize: compactLayout ? 72 : 96
+    readonly property int favoriteColumns: compactLayout ? Math.min(6, Math.max(3, root.favorites.length)) : 3
 
     function _item(role) {
         if (!items || !items[role]) {
@@ -189,13 +194,13 @@ Rectangle {
         id: contentLayout
         anchors.fill: parent
         anchors.margins: 14
-        columns: root.sideControlsLayout ? 2 : 1
+        columns: root.compactLayout ? 2 : 1
         columnSpacing: 14
         rowSpacing: 12
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.columnSpan: root.sideControlsLayout ? 2 : 1
+            Layout.columnSpan: root.compactLayout ? 2 : 1
             spacing: 10
             Text {
                 text: root.title
@@ -228,8 +233,8 @@ Rectangle {
             spacing: 14
 
             Rectangle {
-                Layout.preferredWidth: 96
-                Layout.preferredHeight: 96
+                Layout.preferredWidth: root.artSize
+                Layout.preferredHeight: root.artSize
                 radius: 10
                 color: "#0b1322"
                 border.color: "#1f2a3d"
@@ -299,9 +304,10 @@ Rectangle {
         }
 
         ColumnLayout {
+            id: controlsColumn
             Layout.fillWidth: true
-            Layout.column: root.sideControlsLayout ? 1 : 0
-            Layout.row: root.sideControlsLayout ? 1 : 2
+            Layout.column: root.compactLayout ? 1 : 0
+            Layout.row: root.compactLayout ? 1 : 2
             Layout.alignment: Qt.AlignTop
             spacing: 8
 
@@ -380,10 +386,10 @@ Rectangle {
 
             GridLayout {
                 Layout.fillWidth: true
-                columns: root.sideControlsLayout ? 2 : 3
+                columns: root.favoriteColumns
                 columnSpacing: 8
                 rowSpacing: 8
-                visible: root.showFavoriteButtons
+                visible: root.showFavoriteButtons && !root.compactLayout
 
                 Repeater {
                     model: root.favorites
@@ -394,6 +400,27 @@ Rectangle {
                         active: true
                         Layout.fillWidth: true
                     }
+                }
+            }
+        }
+
+        GridLayout {
+            Layout.fillWidth: true
+            Layout.columnSpan: root.compactLayout ? 2 : 1
+            Layout.row: root.compactLayout ? 2 : 3
+            columns: root.favoriteColumns
+            columnSpacing: 8
+            rowSpacing: 8
+            visible: root.showFavoriteButtons && root.compactLayout
+
+            Repeater {
+                model: root.favorites
+                delegate: TransportButton {
+                    label: modelData.label || modelData.command || "—"
+                    accent: modelData.accentColor || "#475569"
+                    onClicked: root.sendCommand(root._item("favorite"), modelData.command)
+                    active: true
+                    Layout.fillWidth: true
                 }
             }
         }

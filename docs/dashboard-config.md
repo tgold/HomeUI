@@ -93,6 +93,8 @@ Supported panel types:
 - `controls`
 - `mqtt`
 - `sonos`
+- `grafana`
+- `irrigationFloorplan`
 
 Grid pages also accept `columnSpan` / `rowSpan` on any panel to make it stretch over multiple cells (e.g. a full-width Sonos footer below a 3-column overview).
 
@@ -194,6 +196,55 @@ You typically obtain the `StmKey` by logging into Surveillance Station and readi
   "type": "mode"
 }
 ```
+
+### Irrigation floorplan panel
+
+Top-down irrigation panel with a background image, live sensor badges and zone markers.
+Zone markers light up when watering is active (`activityItem` not `CLOSED/OFF/NULL/UNDEF`).
+Tapping a zone opens `Start` / `Stop` quick actions.
+
+```json
+{
+  "type": "irrigationFloorplan",
+  "title": "Bewaesserung Uebersicht",
+  "imageSource": "file:///C:/path/to/topdown.png",
+  "programItem": "gardena_start_irrigation_switch",
+  "useCisternItem": "gardena_use_cistern_switch",
+  "durationItem": "gardena_irrigatino_duration",
+  "durationOptions": [3, 30, 45, 60, 90],
+  "zones": [
+    {
+      "id": "v1",
+      "label": "V1 Top Lawn",
+      "x": 0.52,
+      "y": 0.12,
+      "activityItem": "gardena_ventil1_activity",
+      "startItem": "gardena_ventil1_cmd_openwithduration",
+      "stopItem": "gardena_ventil1_cmd_close"
+    }
+  ],
+  "sensors": [
+    {
+      "label": "Aussen Temp",
+      "item": "thz_aussentemp",
+      "format": "temperature",
+      "x": 0.08,
+      "y": 0.16,
+      "accentColor": "#f97316"
+    }
+  ]
+}
+```
+
+Fields:
+
+- `imageSource` (required): file path or URL to the floorplan image.
+- `zones` (required): array of overlays with:
+  - `label` (required), `activityItem` (required), `x`/`y` (required, normalized `0..1`).
+  - optional action bindings: `startItem`, `startCommand`, `stopItem`, `stopCommand`.
+- `sensors` (optional): array of badges (`label`, `item`, `x`, `y`) plus optional `format`, `unit`, `decimals`, `scale`, `accentColor`, `width`.
+- `programItem`, `useCisternItem`, `durationItem` (optional): shown in panel footer/header.
+- `durationOptions` (optional): preset minute buttons, default `[3, 30, 45, 60, 90]`.
 
 ### Controls panel
 
