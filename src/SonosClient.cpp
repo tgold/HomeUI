@@ -3,6 +3,7 @@
 #include <QLoggingCategory>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QRegularExpression>
 #include <QUrl>
 #include <QXmlStreamReader>
 
@@ -109,10 +110,29 @@ void SonosClient::sendTransport(const QString &hostOrUrl, const QString &command
              QStringLiteral("/MediaRenderer/AVTransport/Control"),
              action,
              body,
-             [this, host](QNetworkReply *reply) {
+             [this, host, normalized](QNetworkReply *reply) {
                  if (reply->error() != QNetworkReply::NoError) {
                      emit errorOccurred(host, reply->errorString());
                      return;
+                 }
+                 // Optimistic state transition so the play/pause button flips
+                 // immediately even before the next transport poll returns.
+                 if (normalized == QStringLiteral("PLAY")) {
+                     applyZoneUpdate(host, [](ZoneData &zone) {
+                         if (zone.state == QStringLiteral("PLAYING")) {
+                             return false;
+                         }
+                         zone.state = QStringLiteral("PLAYING");
+                         return true;
+                     });
+                 } else if (normalized == QStringLiteral("PAUSE")) {
+                     applyZoneUpdate(host, [](ZoneData &zone) {
+                         if (zone.state == QStringLiteral("PAUSED_PLAYBACK")) {
+                             return false;
+                         }
+                         zone.state = QStringLiteral("PAUSED_PLAYBACK");
+                         return true;
+                     });
                  }
                  pollZone(host);
              });
@@ -215,15 +235,38 @@ QString SonosClient::parseMetaField(const QString &metadata, const QString &loca
     }
 
     // Decode XML entities from Sonos DIDL metadata without relying on
-    // QString::fromHtmlEscaped (missing on some distro Qt builds).
+    // QString::fromHtmlEscaped (missing on some distro Qt builds). Some
+    // Sonos payloads are double-escaped, so decode a few rounds.
     QString decoded = metadata;
-    decoded.replace(QStringLiteral("&lt;"), QStringLiteral("<"));
-    decoded.replace(QStringLiteral("&gt;"), QStringLiteral(">"));
-    decoded.replace(QStringLiteral("&quot;"), QStringLiteral("\""));
-    decoded.replace(QStringLiteral("&apos;"), QStringLiteral("'"));
-    decoded.replace(QStringLiteral("&amp;"), QStringLiteral("&"));
+    for (int i = 0; i < 3; ++i) {
+        QString next = decoded;
+        next.replace(QStringLiteral("&lt;"), QStringLiteral("<"));
+        next.replace(QStringLiteral("&gt;"), QStringLiteral(">"));
+        next.replace(QStringLiteral("&quot;"), QStringLiteral("\""));
+        next.replace(QStringLiteral("&apos;"), QStringLiteral("'"));
+        next.replace(QStringLiteral("&amp;"), QStringLiteral("&"));
+        if (next == decoded) {
+            break;
+        }
+        decoded = next;
+    }
 
-    return firstTagText(decoded, localTagName);
+    QString value = firstTagText(decoded, localTagName);
+    if (!value.isEmpty()) {
+        return value;
+    }
+
+    // Fallback for payloads with awkward namespace/formatting combinations.
+    const QString tagPattern = QStringLiteral("<(?:\\w+:)?%1\\b[^>]*>(.*?)</(?:\\w+:)?%1>")
+                                   .arg(QRegularExpression::escape(localTagName));
+    QRegularExpression re(tagPattern,
+                          QRegularExpression::DotMatchesEverythingOption
+                              | QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpressionMatch m = re.match(decoded);
+    if (m.hasMatch()) {
+        return m.captured(1).trimmed();
+    }
+    return {};
 }
 
 QString SonosClient::normalizedState(const QString &raw)
@@ -260,11 +303,6 @@ void SonosClient::pollZone(const QString &host)
     if (!m_zones.contains(host)) {
         return;
     }
-    ZoneData &zone = m_zones[host];
-    if (zone.pollInFlight) {
-        return;
-    }
-    zone.pollInFlight = true;
 
     requestTransportInfo(host);
     requestPositionInfo(host);
@@ -321,13 +359,32 @@ void SonosClient::requestPositionInfo(const QString &host)
                      QString artist = parseMetaField(metadata, QStringLiteral("creator"));
                      QString album = parseMetaField(metadata, QStringLiteral("album"));
                      QString albumArt = parseMetaField(metadata, QStringLiteral("albumArtURI"));
+                     const QString streamContent = parseMetaField(metadata, QStringLiteral("streamContent"));
+                     const QString radioShow = parseMetaField(metadata, QStringLiteral("radioShowMd"));
                      QString track = firstTagText(xml, QStringLiteral("TrackURI"));
 
                      if (!albumArt.isEmpty() && albumArt.startsWith('/')) {
                          albumArt = QStringLiteral("http://%1:1400%2").arg(host, albumArt);
                      }
+                     if (title.isEmpty() && !streamContent.isEmpty()) {
+                         title = streamContent;
+                     }
+                     if (title.isEmpty() && !radioShow.isEmpty()) {
+                         title = radioShow;
+                     }
                      if (track.isEmpty()) {
-                         track = title;
+                         track = !title.isEmpty() ? title : streamContent;
+                     }
+                     if (track.startsWith(QStringLiteral("x-sonos"))
+                         || track.startsWith(QStringLiteral("http://"))
+                         || track.startsWith(QStringLiteral("https://"))) {
+                         if (!title.isEmpty()) {
+                             track = title;
+                         } else if (!streamContent.isEmpty()) {
+                             track = streamContent;
+                         } else if (!radioShow.isEmpty()) {
+                             track = radioShow;
+                         }
                      }
 
                      applyZoneUpdate(host, [title, artist, album, albumArt, track](ZoneData &zone) {
@@ -386,10 +443,6 @@ void SonosClient::requestRenderingState(const QString &host)
              QByteArray("urn:schemas-upnp-org:service:RenderingControl:1#GetMute"),
              muteBody,
              [this, host](QNetworkReply *reply) {
-                 ZoneData *zone = m_zones.contains(host) ? &m_zones[host] : nullptr;
-                 if (zone) {
-                    zone->pollInFlight = false;
-                 }
                  if (reply->error() == QNetworkReply::NoError) {
                      const QString xml = QString::fromUtf8(reply->readAll());
                      const QString mutedValue = firstTagText(xml, QStringLiteral("CurrentMute")).trimmed();

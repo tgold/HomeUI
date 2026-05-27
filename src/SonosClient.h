@@ -44,7 +44,6 @@ private:
         int volume = 0;
         bool muted = false;
         int revision = 0;
-        bool pollInFlight = false;
     };
 
     static QString normalizeHost(const QString &hostOrUrl);
