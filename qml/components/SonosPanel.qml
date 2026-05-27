@@ -30,7 +30,7 @@ Rectangle {
     property var sonosClient: null
     property string host: ""
     property int stateRevision: openhab ? openhab.stateRevision : 0
-    property int directRevision: usingDirectSonos && sonosClient ? sonosClient.zoneRevision(host) : 0
+    property int directRevision: 0
     readonly property bool usingDirectSonos: sonosClient && host.trim().length > 0
 
     function _item(role) {
@@ -159,11 +159,26 @@ Rectangle {
     Component.onCompleted: {
         if (usingDirectSonos && sonosClient) {
             sonosClient.ensureZone(host)
+            directRevision = sonosClient.zoneRevision(host)
         }
     }
     onHostChanged: {
         if (usingDirectSonos && sonosClient) {
             sonosClient.ensureZone(host)
+            directRevision = sonosClient.zoneRevision(host)
+        }
+    }
+
+    Connections {
+        target: sonosClient
+        ignoreUnknownSignals: true
+        function onZoneUpdated(updatedHost) {
+            if (!root.usingDirectSonos || !updatedHost) {
+                return
+            }
+            if (String(updatedHost).toLowerCase() === String(root.host).toLowerCase()) {
+                root.directRevision = root.directRevision + 1
+            }
         }
     }
 
