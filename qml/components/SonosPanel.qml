@@ -191,7 +191,7 @@ Rectangle {
         anchors.margins: 14
         columns: root.sideControlsLayout ? 2 : 1
         columnSpacing: 14
-        spacing: 12
+        rowSpacing: 12
 
         RowLayout {
             Layout.fillWidth: true
