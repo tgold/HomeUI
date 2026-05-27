@@ -243,6 +243,7 @@
           "type": "sonos",
           "title": "Sonos Play Kueche",
           "columnSpan": 3,
+          "host": "192.168.0.13",
           "accentColor": "#f59e0b",
           "items": {
             "controller": "Sonos_Kitchen_Controller",
@@ -1104,6 +1105,7 @@
         {
           "type": "sonos",
           "title": "Sonos Kueche",
+          "host": "sonos-kitchen.local",
           "accentColor": "#f59e0b",
           "items": {
             "controller": "Sonos_Kitchen_Controller",
@@ -1129,6 +1131,7 @@
         {
           "type": "sonos",
           "title": "Sonos TV",
+          "host": "sonos-tv.local",
           "accentColor": "#38bdf8",
           "items": {
             "controller": "Sonos_TV_Controller",

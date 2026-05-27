@@ -2,6 +2,7 @@
 #include "MjpegView.h"
 #include "OpenHabClient.h"
 #include "ScreenIdleController.h"
+#include "SonosClient.h"
 
 #ifdef HOMEUI_HAS_MQTT
 #include "MqttClient.h"
@@ -233,6 +234,7 @@ int main(int argc, char *argv[])
     }
 
     ScreenIdleController screenIdle;
+    SonosClient sonosClient;
     const int idleTimeoutMs = parser.isSet(idleTimeoutOption)
         ? parser.value(idleTimeoutOption).toInt()
         : envInt(env, QStringLiteral("HOMEUI_IDLE_TIMEOUT_MS"), 600000);
@@ -259,6 +261,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("dashboardConfig"), &dashboardConfig);
     engine.rootContext()->setContextProperty(QStringLiteral("openhabClient"), &openHabClient);
+    engine.rootContext()->setContextProperty(QStringLiteral("sonosClient"), &sonosClient);
     engine.rootContext()->setContextProperty(QStringLiteral("screenIdle"), &screenIdle);
 
 #ifdef HOMEUI_HAS_MQTT

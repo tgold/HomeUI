@@ -305,6 +305,7 @@ ApplicationWindow {
             ConfiguredPage {
                 page: modelData
                 openhab: openhabClient
+                sonos: sonosClient
                 mqtt: mqttClient
             }
         }

@@ -6,6 +6,7 @@ Item {
 
     property var page: ({})
     property var openhab: null
+    property var sonos: null
     property var mqtt: null
 
     function layoutValue(object, key, fallback) {
@@ -61,6 +62,7 @@ Item {
                         ConfiguredPanel {
                             panel: modelData
                             openhab: root.openhab
+                            sonos: root.sonos
                             mqtt: root.mqtt
                             Layout.fillWidth: true
                             Layout.fillHeight: root.layoutValue(modelData, "fillHeight", false)
@@ -88,6 +90,7 @@ Item {
                 ConfiguredPanel {
                     panel: modelData
                     openhab: root.openhab
+                    sonos: root.sonos
                     mqtt: root.mqtt
                     Layout.fillWidth: true
                     Layout.fillHeight: root.layoutValue(modelData, "fillHeight", false)
@@ -227,6 +230,7 @@ Item {
                 ConfiguredPanel {
                     panel: modelData
                     openhab: root.openhab
+                    sonos: root.sonos
                     mqtt: root.mqtt
                     onImplicitHeightChanged: Qt.callLater(masonryRoot.relayout)
                     Component.onCompleted: Qt.callLater(masonryRoot.relayout)

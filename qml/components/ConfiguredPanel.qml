@@ -6,6 +6,7 @@ Item {
 
     property var panel: ({})
     property var openhab: null
+    property var sonos: null
     property var mqtt: null
 
     implicitWidth: loader.implicitWidth
@@ -135,8 +136,10 @@ Item {
 
         SonosPanel {
             openhab: root.openhab
+            sonosClient: root.sonos
             title: root.value(["title"], "Sonos")
             items: root.value(["items"], ({}))
+            host: root.value(["host"], root.value(["items", "host"], ""))
             favorites: root.value(["favorites"], [])
             accentColor: root.value(["accentColor"], "#f59e0b")
         }

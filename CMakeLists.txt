@@ -54,6 +54,8 @@ qt_add_executable(homeui
     src/OpenHabClient.h
     src/ScreenIdleController.cpp
     src/ScreenIdleController.h
+    src/SonosClient.cpp
+    src/SonosClient.h
     src/main.cpp
 )
 

@@ -27,13 +27,29 @@ Rectangle {
     property var favorites: []
 
     property var openhab: null
+    property var sonosClient: null
+    property string host: ""
     property int stateRevision: openhab ? openhab.stateRevision : 0
+    property int directRevision: usingDirectSonos && sonosClient ? sonosClient.zoneRevision(host) : 0
+    readonly property bool usingDirectSonos: sonosClient && host.trim().length > 0
 
     function _item(role) {
         if (!items || !items[role]) {
             return ""
         }
         return items[role]
+    }
+
+    function directStateValue(role, fallback) {
+        directRevision
+        if (!usingDirectSonos || !sonosClient) {
+            return fallback
+        }
+        var state = sonosClient.zoneState(host)
+        if (state && state[role] !== undefined && state[role] !== null && String(state[role]).length > 0) {
+            return state[role]
+        }
+        return fallback
     }
 
     function itemState(name, fallback) {
@@ -51,28 +67,47 @@ Rectangle {
         openhab.sendCommand(name, String(command))
     }
 
+    function sendTransport(command) {
+        if (usingDirectSonos && sonosClient) {
+            sonosClient.sendTransport(host, String(command))
+            return
+        }
+        root.sendCommand(root.controllerItem, command)
+    }
+
+    function setMuteState(muted) {
+        if (usingDirectSonos && sonosClient) {
+            sonosClient.setMuted(host, muted)
+            return
+        }
+        root.sendCommand(root.muteItem, muted ? "ON" : "OFF")
+    }
+
+    function setVolumeValue(value) {
+        if (usingDirectSonos && sonosClient) {
+            sonosClient.setVolume(host, Math.round(value))
+            return
+        }
+        root.sendCommand(root.volumeItem, Math.round(value))
+    }
+
     readonly property string controllerItem: _item("controller")
     readonly property string volumeItem: _item("volume")
     readonly property string muteItem: _item("mute")
     readonly property string trackText: {
-        root.stateRevision
-        return itemState(_item("track"), "")
+        return usingDirectSonos ? String(directStateValue("track", "")) : itemState(_item("track"), "")
     }
     readonly property string titleText: {
-        root.stateRevision
-        return itemState(_item("title"), "")
+        return usingDirectSonos ? String(directStateValue("title", "")) : itemState(_item("title"), "")
     }
     readonly property string artistText: {
-        root.stateRevision
-        return itemState(_item("artist"), "")
+        return usingDirectSonos ? String(directStateValue("artist", "")) : itemState(_item("artist"), "")
     }
     readonly property string albumText: {
-        root.stateRevision
-        return itemState(_item("album"), "")
+        return usingDirectSonos ? String(directStateValue("album", "")) : itemState(_item("album"), "")
     }
     readonly property string albumArtUrl: {
-        root.stateRevision
-        var url = itemState(_item("albumArt"), "")
+        var url = usingDirectSonos ? String(directStateValue("albumArt", "")) : itemState(_item("albumArt"), "")
         var raw = String(url).trim()
         if (raw.length === 0 || raw.toUpperCase() === "NULL" || raw.toUpperCase() === "UNDEF") {
             return ""
@@ -84,19 +119,22 @@ Rectangle {
         return raw + separator + "_homeui=" + encodeURIComponent(fingerprint)
     }
     readonly property string stateText: {
-        root.stateRevision
+        if (usingDirectSonos) {
+            return String(directStateValue("state", "")).toUpperCase()
+        }
         return String(itemState(_item("state"), "")).toUpperCase()
     }
     readonly property real volumeValue: {
-        root.stateRevision
-        var raw = itemState(volumeItem, "")
+        var raw = usingDirectSonos ? String(directStateValue("volume", "0")) : itemState(volumeItem, "")
         var match = String(raw).match(/^-?\d+(?:\.\d+)?/)
         if (!match) { return 0 }
         var n = Number(match[0])
         return isNaN(n) ? 0 : Math.max(0, Math.min(100, n))
     }
     readonly property bool isMuted: {
-        root.stateRevision
+        if (usingDirectSonos) {
+            return String(directStateValue("mute", "OFF")).toUpperCase() === "ON"
+        }
         return String(itemState(muteItem, "")).toUpperCase() === "ON"
     }
     readonly property string normalizedState: root.stateText.trim().toUpperCase()
@@ -117,6 +155,17 @@ Rectangle {
     color: "#0f1726"
     border.color: "#26364d"
     border.width: 1
+
+    Component.onCompleted: {
+        if (usingDirectSonos && sonosClient) {
+            sonosClient.ensureZone(host)
+        }
+    }
+    onHostChanged: {
+        if (usingDirectSonos && sonosClient) {
+            sonosClient.ensureZone(host)
+        }
+    }
 
     ColumnLayout {
         id: contentColumn
@@ -228,41 +277,41 @@ Rectangle {
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
-            visible: root.controllerItem.length > 0 || root.muteItem.length > 0
+            visible: root.usingDirectSonos || root.controllerItem.length > 0 || root.muteItem.length > 0
 
             TransportButton {
                 label: "PREV"
-                onClicked: root.sendCommand(root.controllerItem, "PREVIOUS")
-                enabled: root.controllerItem.length > 0
+                onClicked: root.sendTransport("PREVIOUS")
+                enabled: root.usingDirectSonos || root.controllerItem.length > 0
                 Layout.fillWidth: true
             }
             TransportButton {
                 label: root.isPlaying ? "PAUSE" : "PLAY"
                 accent: root.isPlaying ? "#f59e0b" : "#22c55e"
-                onClicked: root.sendCommand(root.controllerItem, root.isPlaying ? "PAUSE" : "PLAY")
-                enabled: root.controllerItem.length > 0
+                onClicked: root.sendTransport(root.isPlaying ? "PAUSE" : "PLAY")
+                enabled: root.usingDirectSonos || root.controllerItem.length > 0
                 Layout.fillWidth: true
             }
             TransportButton {
                 label: "NEXT"
-                onClicked: root.sendCommand(root.controllerItem, "NEXT")
-                enabled: root.controllerItem.length > 0
+                onClicked: root.sendTransport("NEXT")
+                enabled: root.usingDirectSonos || root.controllerItem.length > 0
                 Layout.fillWidth: true
             }
             TransportButton {
                 label: root.isMuted ? "UNMUTE" : "MUTE"
                 accent: root.isMuted ? "#ef4444" : "#475569"
-                onClicked: root.sendCommand(root.muteItem, root.isMuted ? "OFF" : "ON")
-                enabled: root.muteItem.length > 0
+                onClicked: root.setMuteState(!root.isMuted)
+                enabled: root.usingDirectSonos || root.muteItem.length > 0
                 Layout.fillWidth: true
-                visible: root.muteItem.length > 0
+                visible: root.usingDirectSonos || root.muteItem.length > 0
             }
         }
 
         RowLayout {
             Layout.fillWidth: true
             spacing: 10
-            visible: root.volumeItem.length > 0
+            visible: root.usingDirectSonos || root.volumeItem.length > 0
 
             Text {
                 text: "VOL"
@@ -280,7 +329,7 @@ Rectangle {
                 live: false
                 onPressedChanged: {
                     if (!pressed) {
-                        root.sendCommand(root.volumeItem, Math.round(value))
+                        root.setVolumeValue(value)
                     }
                 }
             }
