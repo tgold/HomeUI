@@ -42,9 +42,15 @@ function _hoursMinutes(totalMinutes) {
         return ""
     }
     var minutes = Math.max(0, Math.floor(totalMinutes))
+    var daysPart = Math.floor(minutes / (24 * 60))
+    minutes = minutes % (24 * 60)
     var hoursPart = Math.floor(minutes / 60)
     var minsPart = minutes % 60
-    return _twoDigits(hoursPart) + ":" + _twoDigits(minsPart)
+    var hhmm = _twoDigits(hoursPart) + ":" + _twoDigits(minsPart)
+    if (daysPart > 0) {
+        return daysPart + "d " + hhmm
+    }
+    return hhmm
 }
 
 function _parseDurationMinutes(raw) {
@@ -106,7 +112,9 @@ function _parseDurationMinutes(raw) {
         return parsed.number
     }
     if (parsed.unit.length === 0) {
-        return parsed.number
+        // For plain numeric duration items (like Fritzbox uptime counters),
+        // treat the value as seconds.
+        return parsed.number / 60
     }
     return NaN
 }
