@@ -102,8 +102,10 @@ Rectangle {
         }
 
         Text {
-            text: root.control.secondary || ""
-            visible: root.control.secondary && root.control.secondary.length > 0
+            text: root.control && root.control.secondary !== undefined && root.control.secondary !== null
+                  ? String(root.control.secondary)
+                  : ""
+            visible: text.length > 0
             color: "#94a3b8"
             font.pixelSize: 10
             elide: Text.ElideRight

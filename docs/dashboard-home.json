@@ -996,14 +996,14 @@
     {
       "id": "garten",
       "title": "GARTEN",
-      "layout": "grid",
-      "columns": 3,
+      "layout": "masonry",
+      "columns": 2,
       "panels": [
         {
           "type": "irrigationFloorplan",
           "title": "Bewässerung Übersicht",
-          "columnSpan": 3,
-          "height": 600,
+          "columnSpan": 1,
+          "height": 700,
           "imageSource": "../assets/irrigation-floorplan.png",
           "programItem": "gardena_start_irrigation_switch",
           "useCisternItem": "gardena_use_cistern_switch",
@@ -1058,8 +1058,7 @@
         {
           "type": "controls",
           "title": "PV Prognose",
-          "columnSpan": 3,
-          "tilesPerRow": 4,
+          "columnSpan": 1,
           "controls": [
             { "kind": "value", "label": "Heute",     "iconText": "T", "accentColor": "#fbbf24", "item": "ForecastSolarHome_Today" },
             { "kind": "value", "label": "Aktuell",   "iconText": "A", "accentColor": "#fbbf24", "item": "ForecastSolarHome_Actual" },
@@ -1070,13 +1069,12 @@
         {
           "type": "controls",
           "title": "Astro",
-          "columnSpan": 3,
-          "tilesPerRow": 4,
+          "columnSpan": 1,
           "controls": [
             { "kind": "value", "label": "Sonnenaufgang",  "format": "hhmm", "iconText": "U", "accentColor": "#fbbf24", "item": "Sunrise_Time" },
             { "kind": "value", "label": "Sonnenuntergang","format": "hhmm", "iconText": "D", "accentColor": "#f97316", "item": "Sunset_Time" },
             { "kind": "value", "label": "Tageslicht",     "format": "hhmm", "iconText": "L", "accentColor": "#22c55e", "item": "Daylight_Duration" },
-            { "kind": "value", "label": "Mondphase",      "iconText": "M", "accentColor": "#a855f7", "item": "astro_MoonPhase", "valueMap": { "new moon": "🌑 Neumond", "waxing crescent": "🌒 zunehmend", "first quarter": "🌓 erstes Viertel", "waxing gibbous": "🌔 zunehmend", "full moon": "🌕 Vollmond", "waning gibbous": "🌖 abnehmend", "last quarter": "🌗 letztes Viertel", "third quarter": "🌗 letztes Viertel", "waning crescent": "🌘 abnehmend", "neumond": "🌑 Neumond", "zunehmender mond": "🌒 zunehmend", "erstes viertel": "🌓 erstes Viertel", "zunehmender dreiviertelmond": "🌔 zunehmend", "vollmond": "🌕 Vollmond", "abnehmender dreiviertelmond": "🌖 abnehmend", "letztes viertel": "🌗 letztes Viertel", "abnehmender mond": "🌘 abnehmend" } }
+            { "kind": "value", "label": "Mondphase",      "iconText": "M", "accentColor": "#a855f7", "item": "astro_MoonPhase", "valueMap": { "new_moon": "🌑 Neumond", "waxing_crescent": "🌒 zunehmend", "first_quarter": "🌓 erstes Viertel", "waxing_gibbous": "🌔 zunehmend", "full_moon": "🌕 Vollmond", "waning_gibbous": "🌖 abnehmend", "last_quarter": "🌗 letztes Viertel", "third_quarter": "🌗 letztes Viertel", "waning_crescent": "🌘 abnehmend" } }
           ]
         }
       ]
