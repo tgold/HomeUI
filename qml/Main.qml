@@ -14,6 +14,63 @@ ApplicationWindow {
     title: "HomeUI"
     color: "#070d18"
     property int maxDebugEvents: 300
+    property string doorbellItemName: "Doorbell_Pressed"
+    property bool lastDoorbellPressed: false
+    readonly property string doorbellStreamUrl: {
+        var _ = dashboardConfig.revision
+        return resolveDoorbellStreamUrl()
+    }
+
+    function resolveDoorbellStreamUrl() {
+        if (!dashboardConfig.valid || !dashboardConfig.pages) {
+            return ""
+        }
+
+        function firstDoorbellCamera(panels) {
+            if (!panels) {
+                return ""
+            }
+            for (var i = 0; i < panels.length; ++i) {
+                var panel = panels[i]
+                if (!panel || panel.type !== "camera") {
+                    continue
+                }
+                var title = String(panel.title || "").toLowerCase()
+                var stream = String(panel.streamUrl || "")
+                if (stream.length === 0) {
+                    continue
+                }
+                if (title.indexOf("tuerklingel") !== -1 || title.indexOf("doorbell") !== -1) {
+                    return stream
+                }
+            }
+            return ""
+        }
+
+        for (var p = 0; p < dashboardConfig.pages.length; ++p) {
+            var page = dashboardConfig.pages[p]
+            if (!page) {
+                continue
+            }
+
+            var direct = firstDoorbellCamera(page.panels)
+            if (direct.length > 0) {
+                return direct
+            }
+
+            if (page.columns) {
+                for (var c = 0; c < page.columns.length; ++c) {
+                    var column = page.columns[c]
+                    var nested = firstDoorbellCamera(column ? column.panels : null)
+                    if (nested.length > 0) {
+                        return nested
+                    }
+                }
+            }
+        }
+
+        return ""
+    }
 
     function appendRawEvent(rawEvent) {
         if (!rawEvent || rawEvent.length === 0) {
@@ -136,6 +193,19 @@ ApplicationWindow {
         ignoreUnknownSignals: true
         function onRawEventReceived(rawEvent) {
             root.appendRawEvent(rawEvent)
+        }
+        function onItemStateChanged(itemName, state) {
+            if (itemName !== root.doorbellItemName) {
+                return
+            }
+            var pressed = String(state || "").toUpperCase() === "ON"
+            if (pressed && !root.lastDoorbellPressed) {
+                doorbellPopup.open()
+                doorbellAutoClose.restart()
+            } else if (!pressed && root.lastDoorbellPressed) {
+                doorbellAutoClose.restart()
+            }
+            root.lastDoorbellPressed = pressed
         }
     }
 
@@ -285,6 +355,82 @@ ApplicationWindow {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    Timer {
+        id: doorbellAutoClose
+        interval: 20000
+        repeat: false
+        onTriggered: doorbellPopup.close()
+    }
+
+    Popup {
+        id: doorbellPopup
+        modal: false
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        width: Math.min(root.width - 60, 920)
+        height: Math.min(root.height - 80, 560)
+        anchors.centerIn: Overlay.overlay
+        padding: 0
+        z: 40
+
+        background: Rectangle {
+            radius: 14
+            color: "#020617"
+            border.color: "#38bdf8"
+            border.width: 2
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 10
+            spacing: 8
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                Text {
+                    text: "Doorbell"
+                    color: "#e2e8f0"
+                    font.pixelSize: 18
+                    font.bold: true
+                    Layout.fillWidth: true
+                }
+
+                Rectangle {
+                    width: 94
+                    height: 32
+                    radius: 8
+                    color: "#1e293b"
+                    border.color: "#475569"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Close"
+                        color: "#f8fafc"
+                        font.pixelSize: 12
+                        font.bold: true
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: doorbellPopup.close()
+                    }
+                }
+            }
+
+            CameraTile {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                title: "Tuerklingel"
+                location: "Einfahrt"
+                streamUrl: root.doorbellStreamUrl
+                streamFormat: "mjpeg"
+                refreshInterval: 1000
             }
         }
     }
