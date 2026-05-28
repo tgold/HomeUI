@@ -2,7 +2,7 @@
   "pages": [
     {
       "id": "uebersicht",
-      "title": "UEBERSICHT",
+      "title": "ÜBERSICHT",
       "layout": "masonry",
       "columns": 3,
       "panels": [
@@ -271,7 +271,7 @@
 
     {
       "id": "erdgeschoss",
-      "title": "RAEUME EG",
+      "title": "RÄUME EG",
       "layout": "masonry",
       "columns": 3,
       "panels": [
@@ -338,7 +338,7 @@
         },
         {
           "type": "controls",
-          "title": "Kueche",
+          "title": "Küche",
           "tilesPerRow": 2,
           "controls": [
             { "label": "Licht alle",  "iconText": "A", "accentColor": "#fbbf24", "item": "GF_Kitchen_Light_all" },
@@ -401,16 +401,6 @@
           ]
         },
         {
-          "type": "energy",
-          "title": "Energie",
-          "items": {
-            "pv": "evcc_pvPower",
-            "grid": "evcc_gridPower",
-            "consumption": "evcc_homePower",
-            "battery": "evcc_batterySoC"
-          }
-        },
-        {
           "type": "controls",
           "title": "Szenen",
           "columnSpan": 3,
@@ -442,16 +432,7 @@
                 { "label": "Halb",   "value": "HALFDOWN" },
                 { "label": "Runter", "value": "FULLDOWN" }
               ]
-            },
-            { "label": "Sommermodus",         "iconText": "S", "accentColor": "#fbbf24", "item": "rule_sommermodus" },
-            {
-              "kind": "scene", "label": "Rollos Sonnenuntergang",
-              "iconText": "U", "accentColor": "#f97316",
-              "item": "rule_rollosRunter", "command": "ON"
-            },
-            { "label": "Abwesenheitssimul.",  "iconText": "A", "accentColor": "#a855f7", "item": "rule_abwesenheitssimulation" },
-            { "kind": "value", "label": "Zuluft",  "iconText": "Z", "accentColor": "#38bdf8", "item": "zuluft_soll_volumenstrom" },
-            { "kind": "value", "label": "Abluft",  "iconText": "A", "accentColor": "#38bdf8", "item": "abluft_soll_volumenstrom" }
+            }
           ]
         }
       ]
@@ -459,7 +440,7 @@
 
     {
       "id": "obergeschoss",
-      "title": "RAEUME OG",
+      "title": "RÄUME OG",
       "layout": "masonry",
       "columns": 3,
       "panels": [
@@ -470,28 +451,13 @@
           "controls": [
             { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_Bedroom_Temperature" },
             {
-              "kind": "selector", "label": "Klima",
-              "item": "thz_heizen", "accentColor": "#ef4444",
-              "options": [
-                { "label": "ON",  "value": "ON" },
-                { "label": "OFF", "value": "OFF" }
-              ]
-            },
-            {
-              "kind": "thermostat", "label": "Sollwert",
-              "item": "thz_raumtemp_tag",
-              "currentItem": "thz_raumisttemp_hk1",
-              "min": 15, "max": 26, "step": 0.5,
-              "accentColor": "#f97316"
-            },
-            { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "FF_Bedroom_Light" },
-            { "kind": "shutter","label": "Rollo",      "item": "FF_Bedroom_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
-            { "label": "Licht Ankleide", "iconText": "A", "accentColor": "#fbbf24", "item": "FF_Bedroom_Bed_Light_Switch" },
-            {
               "kind": "scene", "label": "Rollo Bett",
               "iconText": "B", "accentColor": "#a855f7",
               "item": "FF_Bedroom_Shutter_Scene_Switch", "command": "ON"
             },
+            { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "FF_Bedroom_Light" },
+            { "kind": "shutter","label": "Rollo",      "item": "FF_Bedroom_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
+            { "label": "Licht Ankleide", "iconText": "A", "accentColor": "#fbbf24", "item": "FF_Bedroom_Bed_Light_Switch" },
             { "kind": "shutter","label": "Rollo Ankleide", "item": "FF_Office_Desk_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true }
           ]
         },
@@ -550,21 +516,6 @@
             { "kind": "value", "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "FF_Gallery_Temperature" },
             { "label": "Licht",         "iconText": "L", "accentColor": "#fbbf24", "item": "FF_Gallery_Light" }
           ]
-        },
-        {
-          "type": "controls",
-          "title": "Robi",
-          "tilesPerRow": 2,
-          "controls": [
-            {
-              "kind": "selector", "label": "Command",
-              "item": "GF_robi_command", "accentColor": "#38bdf8",
-              "options": [
-                { "label": "Clean", "value": "vacuum" },
-                { "label": "Home",  "value": "dock" }
-              ]
-            }
-          ]
         }
       ]
     },
@@ -578,7 +529,7 @@
         {
           "type": "controls",
           "title": "Sollwerte",
-          "tilesPerRow": 1,
+          "tilesPerRow": 3,
           "controls": [
             {
               "kind": "thermostat", "label": "Raum Tag",
@@ -619,7 +570,7 @@
         {
           "type": "controls",
           "title": "Ist-Temperaturen",
-          "tilesPerRow": 2,
+          "tilesPerRow": 3,
           "controls": [
             { "kind": "value", "format": "temperature", "label": "Wohnzimmer", "iconText": "W", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
             { "kind": "value", "format": "temperature", "label": "Gang",       "iconText": "G", "accentColor": "#f97316", "item": "GF_Corridor_Temperature" },
@@ -630,20 +581,11 @@
             { "kind": "value", "format": "temperature", "label": "Buero",      "iconText": "U", "accentColor": "#f97316", "item": "FF_Office_Temperature" },
             { "kind": "value", "format": "temperature", "label": "Gaeste",     "iconText": "G", "accentColor": "#f97316", "item": "FF_GuestRoom_Temperature" }
           ]
-        }
-      ]
-    },
-
-    {
-      "id": "technik",
-      "title": "TECHNIK",
-      "layout": "masonry",
-      "columns": 2,
-      "panels": [
+        },
         {
           "type": "controls",
           "title": "Lueftung",
-          "tilesPerRow": 6,
+          "tilesPerRow": 3,
           "controls": [
             {
               "kind": "dropdown", "label": "Lueftung Tag",
@@ -731,7 +673,7 @@
         {
           "type": "controls",
           "title": "Fritzbox",
-          "tilesPerRow": 6,
+          "tilesPerRow": 4,
           "controls": [
             { "kind": "value", "label": "Fritzbox Uptime",     "iconText": "U", "accentColor": "#38bdf8", "item": "fb_uptime",                "format": "hhmm" },
             { "kind": "value", "label": "Max Downstream",      "iconText": "D", "accentColor": "#22c55e", "item": "fb_wan_downstream",        "scale": 0.000001, "unit": "MBit/s", "decimals": 1 },
