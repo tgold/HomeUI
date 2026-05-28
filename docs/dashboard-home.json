@@ -637,13 +637,12 @@
     {
       "id": "technik",
       "title": "TECHNIK",
-      "layout": "grid",
-      "columns": 3,
+      "layout": "masonry",
+      "columns": 2,
       "panels": [
         {
           "type": "controls",
           "title": "Lueftung",
-          "columnSpan": 3,
           "tilesPerRow": 6,
           "controls": [
             {
@@ -675,7 +674,6 @@
         {
           "type": "controls",
           "title": "Waermepumpe - Status",
-          "columnSpan": 3,
           "tilesPerRow": 4,
           "controls": [
             {
@@ -708,7 +706,6 @@
         {
           "type": "controls",
           "title": "Waermepumpe - Verdichter",
-          "columnSpan": 3,
           "tilesPerRow": 4,
           "controls": [
             { "kind": "value", "label": "Niederdruck",       "iconText": "N", "accentColor": "#38bdf8", "item": "thz_niederdruck",          "unit": "bar" },
@@ -722,7 +719,6 @@
         {
           "type": "controls",
           "title": "Waermepumpe - Energie",
-          "columnSpan": 3,
           "tilesPerRow": 5,
           "controls": [
             { "kind": "value", "label": "WM Heizen Tag",     "iconText": "H", "accentColor": "#ef4444", "item": "thz_wm_heizen_tag",  "unit": "kWh" },
@@ -735,7 +731,6 @@
         {
           "type": "controls",
           "title": "Fritzbox",
-          "columnSpan": 3,
           "tilesPerRow": 6,
           "controls": [
             { "kind": "value", "label": "Fritzbox Uptime",     "iconText": "U", "accentColor": "#38bdf8", "item": "fb_uptime",                "unit": "s" },
@@ -754,7 +749,6 @@
         {
           "type": "controls",
           "title": "NAS",
-          "columnSpan": 3,
           "tilesPerRow": 2,
           "controls": [
             { "kind": "progress", "label": "NAS Volume",
