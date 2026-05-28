@@ -8,6 +8,13 @@ Rectangle {
     property var control: ({})
     property var panel: null
     property string rawValue: ""
+    property string maxRawValue: {
+        if (panel && panel.itemState && control && control.maxItem) {
+            return panel.itemState(control.maxItem, "")
+        }
+        return ""
+    }
+    readonly property real scaleValue: control.scale !== undefined ? Number(control.scale) : 1
 
     readonly property real minValue: control.min !== undefined ? Number(control.min) : 0
     readonly property real maxValue: control.max !== undefined ? Number(control.max) : 100
@@ -21,11 +28,32 @@ Rectangle {
             return Number.NaN
         }
         var n = Number(match[0])
-        return isNaN(n) ? Number.NaN : n
+        if (isNaN(n)) {
+            return Number.NaN
+        }
+        return n * scaleValue
+    }
+    readonly property real maxNumericValue: {
+        var raw = String(maxRawValue).trim()
+        if (raw.length === 0) {
+            return Number.NaN
+        }
+        var match = raw.match(/^-?\d+(?:\.\d+)?/)
+        if (!match) {
+            return Number.NaN
+        }
+        var n = Number(match[0])
+        if (isNaN(n)) {
+            return Number.NaN
+        }
+        return n * scaleValue
     }
     readonly property real progressFraction: {
         if (isNaN(numericValue)) {
             return 0
+        }
+        if (!isNaN(maxNumericValue) && maxNumericValue > 0) {
+            return Math.max(0, Math.min(1, numericValue / maxNumericValue))
         }
         var span = maxValue - minValue
         if (span <= 0) {
@@ -49,6 +77,20 @@ Rectangle {
             decimals = (unit === "%" || unit === "W" || unit === "VA") ? 0 : 1
         }
         return numericValue.toFixed(decimals) + " " + unit
+    }
+    function _formattedMaxValue() {
+        if (isNaN(maxNumericValue)) {
+            return ""
+        }
+        var decimals = control.decimals !== undefined ? Number(control.decimals) : -1
+        var unit = control.unit || ""
+        if (unit.length === 0) {
+            return String(maxNumericValue)
+        }
+        if (decimals < 0) {
+            decimals = (unit === "%" || unit === "W" || unit === "VA") ? 0 : 1
+        }
+        return maxNumericValue.toFixed(decimals) + " " + unit
     }
 
     implicitWidth: 160
@@ -75,7 +117,13 @@ Rectangle {
                 Layout.fillWidth: true
             }
             Text {
-                text: root._formattedValue()
+                text: {
+                    var maxText = root._formattedMaxValue()
+                    if (maxText.length > 0) {
+                        return root._formattedValue() + " / " + maxText
+                    }
+                    return root._formattedValue()
+                }
                 color: "#f8fafc"
                 font.pixelSize: 14
                 font.bold: true

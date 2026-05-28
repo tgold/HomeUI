@@ -752,8 +752,8 @@
           "tilesPerRow": 2,
           "controls": [
             { "kind": "progress", "label": "NAS Volume",
-              "accentColor": "#fbbf24", "item": "nasVolumeUsed",
-              "min": 0, "max": 1000000000000, "unit": "B", "decimals": 0 },
+              "accentColor": "#fbbf24", "item": "nasVolumeUsed", "maxItem": "nasVolumeSize",
+              "scale": 0.000003814697265625, "unit": "GB", "decimals": 2 },
             { "kind": "progress", "label": "NAS CPU Idle",
               "accentColor": "#22c55e", "item": "nasCpuIdle",
               "min": 0, "max": 100, "unit": "%", "decimals": 0 }
