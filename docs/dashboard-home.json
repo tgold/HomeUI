@@ -556,19 +556,6 @@
         },
         {
           "type": "controls",
-          "title": "Modi",
-          "tilesPerRow": 2,
-          "controls": [
-            { "label": "Heizen",      "iconText": "H", "accentColor": "#ef4444", "item": "thz_heizen" },
-            { "label": "Warmwasser",  "iconText": "W", "accentColor": "#38bdf8", "item": "thz_warmwasserbereitung" },
-            { "label": "Verdichter",  "iconText": "V", "accentColor": "#a855f7", "item": "thz_verdichter" },
-            { "label": "Heizkreis",   "iconText": "P", "accentColor": "#fbbf24", "item": "thz_heizkreispumpe" },
-            { "label": "Filter",      "iconText": "F", "accentColor": "#fbbf24", "item": "thz_filterwechsel" },
-            { "label": "Abtauen",     "iconText": "A", "accentColor": "#38bdf8", "item": "thz_abtauen_ll_wt" }
-          ]
-        },
-        {
-          "type": "controls",
           "title": "Ist-Temperaturen",
           "tilesPerRow": 3,
           "controls": [
@@ -631,10 +618,12 @@
                 { "label": "Abwesenheit", "value": 4 }
               ]
             },
-            { "label": "Heizen",        "iconText": "H", "accentColor": "#ef4444", "item": "thz_heizen" },
-            { "label": "Warmwasser",    "iconText": "W", "accentColor": "#38bdf8", "item": "thz_warmwasserbereitung" },
-            { "label": "Verdichter",    "iconText": "V", "accentColor": "#a855f7", "item": "thz_verdichter" },
-            { "label": "Heizkreispumpe","iconText": "P", "accentColor": "#fbbf24", "item": "thz_heizkreispumpe" },
+            { "label": "Heizen",      "iconText": "H", "accentColor": "#ef4444", "item": "thz_heizen" },
+            { "label": "Warmwasser",  "iconText": "W", "accentColor": "#38bdf8", "item": "thz_warmwasserbereitung" },
+            { "label": "Verdichter",  "iconText": "V", "accentColor": "#a855f7", "item": "thz_verdichter" },
+            { "label": "Heizkreis",   "iconText": "P", "accentColor": "#fbbf24", "item": "thz_heizkreispumpe" },
+            { "label": "Filter",      "iconText": "F", "accentColor": "#fbbf24", "item": "thz_filterwechsel" },
+            { "label": "Abtauen",     "iconText": "A", "accentColor": "#38bdf8", "item": "thz_abtauen_ll_wt" },
             { "kind": "value", "format": "temperature", "label": "Raum Ist",       "iconText": "I", "accentColor": "#f97316", "item": "thz_raumisttemp_hk1" },
             { "kind": "value", "format": "temperature", "label": "Raum Soll",      "iconText": "S", "accentColor": "#f97316", "item": "thz_raumsolltemp_hk1" },
             { "kind": "value", "format": "temperature", "label": "HK1 Ist",        "iconText": "I", "accentColor": "#f97316", "item": "thz_istwert_hk1" },
@@ -661,13 +650,28 @@
         {
           "type": "controls",
           "title": "Waermepumpe - Energie",
-          "tilesPerRow": 5,
+          "tilesPerRow": 3,
           "controls": [
             { "kind": "value", "label": "WM Heizen Tag",     "iconText": "H", "accentColor": "#ef4444", "item": "thz_wm_heizen_tag",  "unit": "kWh" },
             { "kind": "value", "label": "WM Warmwasser Tag", "iconText": "W", "accentColor": "#38bdf8", "item": "thz_wm_ww_tag",      "unit": "kWh" },
             { "kind": "value", "label": "WM WRG Tag",        "iconText": "R", "accentColor": "#22c55e", "item": "thz_wm_wrg_tag",     "unit": "kWh" },
             { "kind": "value", "label": "Energie Heizen Tag","iconText": "H", "accentColor": "#ef4444", "item": "thz_p_heizung_tag",  "unit": "kWh" },
             { "kind": "value", "label": "Energie WW Tag",    "iconText": "W", "accentColor": "#38bdf8", "item": "thz_p_ww_tag",       "unit": "kWh" }
+          ]
+        },
+        {
+          "type": "controls",
+          "title": "Verbrauchszaehler",
+          "tilesPerRow": 4,
+          "controls": [
+            { "label": "Haushaltsstrom HT",  "iconText": "H", "accentColor": "#ef4444", "item": "haushaltsstrom_ht" },
+            { "label": "Haushaltsstrom NT",  "iconText": "N", "accentColor": "#ef4444", "item": "haushaltsstrom_nt" },
+            { "label": "Waermestrom HT",  "iconText": "H", "accentColor": "#ef4444", "item": "waermestrom_ht" },
+            { "label": "Waermestrom NT",  "iconText": "N", "accentColor": "#ef4444", "item": "waermestrom_nt" },
+            { "label": "Einspeisung",     "iconText": "E", "accentColor": "#22c55e", "item": "waermestrom_einspeisung" },
+            { "label": "Haus Einspeisung","iconText": "S", "accentColor": "#22c55e", "item": "haushaltsstrom_einspeisung" },
+            { "label": "Wasserverbauch gesamt","iconText": "W", "accentColor": "#38bdf8", "item": "water_total" },
+            { "label": "Wasserverbauch heute","iconText": "W", "accentColor": "#38bdf8", "item": "water_total" }
           ]
         },
         {
@@ -699,161 +703,6 @@
             { "kind": "progress", "label": "NAS CPU Usage",
               "accentColor": "#22c55e", "item": "nasCpuIdle", "invert": true, "invertBase": 100,
               "min": 0, "max": 100, "unit": "%", "decimals": 2 }
-          ]
-        }
-      ]
-    },
-
-    {
-      "id": "rollaeden",
-      "title": "ROLLAEDEN",
-      "layout": "columns",
-      "columns": [
-        {
-          "fillWidth": true,
-          "panels": [
-            {
-              "type": "controls",
-              "title": "Szene Alle Rollaeden",
-              "controls": [
-                { "kind": "scene", "label": "Hoch",   "iconText": "U", "accentColor": "#22c55e", "item": "GF_Shutter_Scene", "command": "FULLUP" },
-                { "kind": "scene", "label": "Halb",   "iconText": "M", "accentColor": "#fbbf24", "item": "GF_Shutter_Scene", "command": "HALFDOWN" },
-                { "kind": "scene", "label": "Runter", "iconText": "D", "accentColor": "#38bdf8", "item": "GF_Shutter_Scene", "command": "FULLDOWN" }
-              ]
-            },
-            {
-              "type": "controls",
-              "title": "Szene Esszimmer + Terrasse",
-              "controls": [
-                { "kind": "scene", "label": "Hoch",   "iconText": "U", "accentColor": "#22c55e", "item": "GF_Shutter_Scene_DiningAndTerrace", "command": "FULLUP" },
-                { "kind": "scene", "label": "Halb",   "iconText": "M", "accentColor": "#fbbf24", "item": "GF_Shutter_Scene_DiningAndTerrace", "command": "HALFDOWN" },
-                { "kind": "scene", "label": "Runter", "iconText": "D", "accentColor": "#38bdf8", "item": "GF_Shutter_Scene_DiningAndTerrace", "command": "FULLDOWN" }
-              ]
-            },
-            {
-              "type": "controls",
-              "title": "Regeln",
-              "controls": [
-                { "kind": "scene", "label": "Rollos runter", "iconText": "R", "accentColor": "#a855f7", "item": "rule_rollosRunter", "command": "ON" },
-                { "label": "Sommermodus",        "iconText": "S", "accentColor": "#fbbf24", "item": "rule_sommermodus" },
-                { "label": "Abwesenheit Simul.", "iconText": "A", "accentColor": "#a855f7", "item": "rule_abwesenheitssimulation" }
-              ]
-            }
-          ]
-        },
-        {
-          "fillWidth": true,
-          "panels": [
-            {
-              "type": "controls",
-              "title": "Alle Rollaeden",
-              "tilesPerRow": 2,
-              "controls": [
-                { "kind": "shutter", "label": "Wohnzimmer",    "item": "GF_LivingRoom_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
-                { "kind": "shutter", "label": "Esszimmer",     "item": "GF_Dining_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
-                { "kind": "shutter", "label": "Terrasse",      "item": "GF_Terrace_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
-                { "kind": "shutter", "label": "Schlafzimmer",  "item": "FF_Bedroom_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
-                { "kind": "shutter", "label": "Bad 1",         "item": "FF_Bathroom_Shutter1",  "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
-                { "kind": "shutter", "label": "Bad 2",         "item": "FF_Bathroom_Shutter2",  "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
-                { "kind": "shutter", "label": "Buero",         "item": "FF_Office_Shutter",     "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
-                { "kind": "shutter", "label": "Schreibtisch",  "item": "FF_Office_Desk_Shutter","upCommand": "ON", "downCommand": "OFF", "hideStop": true }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-
-    {
-      "id": "energie",
-      "title": "ENERGIE",
-      "layout": "columns",
-      "columns": [
-        {
-          "width": 292,
-          "panels": [
-            {
-              "type": "energy",
-              "title": "Live",
-              "items": {
-                "pv": "evcc_pvPower",
-                "grid": "evcc_gridPower",
-                "consumption": "evcc_homePower",
-                "battery": "evcc_batterySoC"
-              }
-            },
-            {
-              "type": "energy",
-              "title": "PV Prognose",
-              "items": {
-                "pv": "ForecastSolarHome_Actual_Power",
-                "grid": "ForecastSolarHome_Today",
-                "consumption": "ForecastSolarHome_Remaining",
-                "battery": "ForecastSolarHome_Tomorrow"
-              }
-            }
-          ]
-        },
-        {
-          "width": 292,
-          "panels": [
-            {
-              "type": "controls",
-              "title": "EVCC",
-              "tilesPerRow": 2,
-              "controls": [
-                {
-                  "kind": "selector", "label": "Modus",
-                  "item": "evcc_loadpoint0_mode", "accentColor": "#f59e0b",
-                  "options": [
-                    { "label": "Off",  "value": "off" },
-                    { "label": "PV",   "value": "pv" },
-                    { "label": "Min",  "value": "minpv" },
-                    { "label": "Now",  "value": "now" }
-                  ]
-                },
-                { "label": "Freigabe", "iconText": "E", "accentColor": "#22c55e", "item": "evcc_loadpoint0_enabled" },
-                { "label": "Fahrzeug", "iconText": "V", "accentColor": "#38bdf8", "item": "evcc_loadpoint0_vehicleConnected" },
-                { "label": "Laden",    "iconText": "C", "accentColor": "#fbbf24", "item": "evcc_loadpoint0_charging" },
-                { "kind": "progress", "label": "Fahrzeug SoC",
-                  "accentColor": "#38bdf8", "item": "evcc_loadpoint0_vehicleSoC",
-                  "unit": "%", "decimals": 0 },
-                { "kind": "progress", "label": "Batterie",
-                  "accentColor": "#22c55e", "item": "evcc_batterySoC",
-                  "unit": "%", "decimals": 0 }
-              ]
-            }
-          ]
-        },
-        {
-          "fillWidth": true,
-          "panels": [
-            {
-              "type": "controls",
-              "title": "Strom & Batterie",
-              "tilesPerRow": 4,
-              "controls": [
-                { "label": "PV",            "iconText": "P", "accentColor": "#fbbf24", "item": "evcc_pvPower" },
-                { "label": "Netz",          "iconText": "N", "accentColor": "#38bdf8", "item": "evcc_gridPower" },
-                { "label": "Haus",          "iconText": "H", "accentColor": "#a855f7", "item": "evcc_homePower" },
-                { "label": "Waermepumpe",   "iconText": "W", "accentColor": "#ef4444", "item": "waermepumpe_power" },
-                { "label": "Batt. Leistung","iconText": "L", "accentColor": "#fbbf24", "item": "evcc_batteryPower" },
-                { "label": "Fahrzeug SoC",  "iconText": "F", "accentColor": "#38bdf8", "item": "evcc_loadpoint0_vehicleSoC" },
-                { "label": "Ladeleistung",  "iconText": "C", "accentColor": "#a855f7", "item": "evcc_loadpoint0_chargePower" },
-                { "label": "Ladedauer",     "iconText": "D", "accentColor": "#fbbf24", "item": "evcc_loadpoint0_chargeDuration" }
-              ]
-            },
-            {
-              "type": "controls",
-              "title": "Verbrauchszaehler",
-              "tilesPerRow": 4,
-              "controls": [
-                { "label": "Waermestrom HT",  "iconText": "H", "accentColor": "#ef4444", "item": "waermestrom_ht" },
-                { "label": "Waermestrom NT",  "iconText": "N", "accentColor": "#38bdf8", "item": "waermestrom_nt" },
-                { "label": "Einspeisung",     "iconText": "E", "accentColor": "#22c55e", "item": "waermestrom_einspeisung" },
-                { "label": "Haus Einspeisung","iconText": "S", "accentColor": "#22c55e", "item": "haushaltsstrom_einspeisung" }
-              ]
-            }
           ]
         }
       ]

@@ -74,6 +74,49 @@ Rectangle {
         return !isNaN(number) && number > 0
     }
 
+    // Maps common textual status values to semantic colors so value-like tiles
+    // can still communicate health (e.g. CONNECTED vs DISCONNECTED).
+    function statusAccentColor(control, state) {
+        var normalized = String(state || "").trim().toUpperCase()
+        if (normalized.length === 0) {
+            return ""
+        }
+
+        // Optional per-control override map:
+        // statusColors: { "CONNECTED": "#22c55e", "DISCONNECTED": "#ef4444" }
+        if (control && control.statusColors) {
+            for (var key in control.statusColors) {
+                if (!control.statusColors.hasOwnProperty(key)) {
+                    continue
+                }
+                if (String(key).trim().toUpperCase() === normalized) {
+                    return String(control.statusColors[key])
+                }
+            }
+        }
+
+        switch (normalized) {
+        case "CONNECTED":
+        case "ONLINE":
+        case "OK":
+        case "READY":
+        case "RUNNING":
+            return "#22c55e"
+        case "DISCONNECTED":
+        case "OFFLINE":
+        case "ERROR":
+        case "FAILED":
+        case "DOWN":
+            return "#ef4444"
+        case "WARNING":
+        case "WARN":
+        case "DEGRADED":
+            return "#f59e0b"
+        default:
+            return ""
+        }
+    }
+
     // Generic dispatch used by every tile kind. Sends an arbitrary command
     // either to MQTT (preferred when mqttTopic is set) or to OpenHAB.
     //
@@ -232,13 +275,14 @@ Rectangle {
         ControlTile {
             readonly property var control: parent.control
             readonly property string rawValue: parent.rawValue
+            readonly property string statusAccent: root.statusAccentColor(control, rawValue)
             label: control.label || "Control"
             value: Fmt.smart(rawValue)
             secondary: parent.currentValue
             iconText: control.iconText || ""
-            active: root.isOnState(rawValue)
+            active: statusAccent.length > 0 ? true : root.isOnState(rawValue)
             interactive: !!(control.item || control.mqttTopic)
-            accentColor: control.accentColor || "#f59e0b"
+            accentColor: statusAccent.length > 0 ? statusAccent : (control.accentColor || "#f59e0b")
             onClicked: root.toggleSwitch(control)
         }
     }
@@ -331,6 +375,7 @@ Rectangle {
         ControlTile {
             readonly property var control: parent.control
             readonly property string rawValue: parent.rawValue
+            readonly property string statusAccent: root.statusAccentColor(control, rawValue)
             label: control.label || "Wert"
             value: Fmt.apply(rawValue, {
                 format: control.format,
@@ -341,9 +386,9 @@ Rectangle {
             })
             secondary: parent.currentValue
             iconText: control.iconText || ""
-            active: false
+            active: statusAccent.length > 0
             interactive: false
-            accentColor: control.accentColor || "#94a3b8"
+            accentColor: statusAccent.length > 0 ? statusAccent : (control.accentColor || "#94a3b8")
         }
     }
 }
