@@ -336,7 +336,8 @@ Rectangle {
                 format: control.format,
                 unit: control.unit,
                 decimals: control.decimals,
-                scale: control.scale
+                scale: control.scale,
+                valueMap: control.valueMap
             })
             secondary: parent.currentValue
             iconText: control.iconText || ""

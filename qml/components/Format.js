@@ -32,6 +32,132 @@ function _passThrough(state) {
     return (state === null || state === undefined) ? "" : String(state)
 }
 
+function _twoDigits(value) {
+    var n = Math.floor(Math.abs(value))
+    return n < 10 ? ("0" + n) : String(n)
+}
+
+function _hoursMinutes(totalMinutes) {
+    if (!isFinite(totalMinutes)) {
+        return ""
+    }
+    var minutes = Math.max(0, Math.floor(totalMinutes))
+    var hoursPart = Math.floor(minutes / 60)
+    var minsPart = minutes % 60
+    return _twoDigits(hoursPart) + ":" + _twoDigits(minsPart)
+}
+
+function _parseDurationMinutes(raw) {
+    var text = String(raw).trim().toLowerCase()
+    if (text.length === 0) {
+        return NaN
+    }
+
+    var colon = text.match(/^(\d{1,3}):(\d{1,2})(?::\d{1,2})?$/)
+    if (colon) {
+        return Number(colon[1]) * 60 + Number(colon[2])
+    }
+
+    var compact = text.match(/^(\d+(?:\.\d+)?)\s*(s|sec|secs|second|seconds|min|mins|minute|minutes|h|hr|hrs|hour|hours)$/)
+    if (compact) {
+        var amount = Number(compact[1])
+        var unit = compact[2]
+        if (unit.indexOf("h") === 0) {
+            return amount * 60
+        }
+        if (unit.indexOf("s") === 0) {
+            return amount / 60
+        }
+        return amount
+    }
+
+    var spaced = text.match(/(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|min|mins|minute|minutes|s|sec|secs|second|seconds)/g)
+    if (spaced && spaced.length > 0) {
+        var minutes = 0
+        for (var i = 0; i < spaced.length; ++i) {
+            var chunk = spaced[i].match(/(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|min|mins|minute|minutes|s|sec|secs|second|seconds)/)
+            if (!chunk) {
+                continue
+            }
+            var value = Number(chunk[1])
+            var chunkUnit = chunk[2]
+            if (chunkUnit.indexOf("h") === 0) {
+                minutes += value * 60
+            } else if (chunkUnit.indexOf("s") === 0) {
+                minutes += value / 60
+            } else {
+                minutes += value
+            }
+        }
+        return minutes
+    }
+
+    var parsed = _split(text)
+    if (!parsed) {
+        return NaN
+    }
+    if (parsed.unit === "s") {
+        return parsed.number / 60
+    }
+    if (parsed.unit === "h") {
+        return parsed.number * 60
+    }
+    if (parsed.unit === "min" || parsed.unit === "m") {
+        return parsed.number
+    }
+    if (parsed.unit.length === 0) {
+        return parsed.number
+    }
+    return NaN
+}
+
+function hhmm(state) {
+    if (state === null || state === undefined) {
+        return ""
+    }
+    var raw = String(state).trim()
+    if (raw.length === 0) {
+        return ""
+    }
+
+    var date = new Date(raw)
+    if (!isNaN(date.getTime()) && (raw.indexOf("T") >= 0 || raw.indexOf("-") >= 0 || raw.indexOf("/") >= 0)) {
+        return _twoDigits(date.getHours()) + ":" + _twoDigits(date.getMinutes())
+    }
+
+    var hm = raw.match(/^(\d{1,3}):(\d{1,2})(?::\d{1,2})?$/)
+    if (hm) {
+        return _twoDigits(Number(hm[1])) + ":" + _twoDigits(Number(hm[2]))
+    }
+
+    var durationMinutes = _parseDurationMinutes(raw)
+    if (isFinite(durationMinutes)) {
+        return _hoursMinutes(durationMinutes)
+    }
+
+    return _passThrough(state)
+}
+
+function mapValue(state, mapping) {
+    var text = _passThrough(state)
+    if (!mapping || typeof mapping !== "object") {
+        return text
+    }
+    if (mapping[text] !== undefined) {
+        return String(mapping[text])
+    }
+    var lowered = text.toLowerCase()
+    for (var key in mapping) {
+        if (!mapping.hasOwnProperty(key)) {
+            continue
+        }
+        if (String(key).toLowerCase() === lowered) {
+            return String(mapping[key])
+        }
+    }
+    return text
+}
+
 // Generic numeric formatter. Preserves any unit found in the state, otherwise
 // falls back to opts.unit. Supports an optional `scale` multiplier.
 //
@@ -97,26 +223,31 @@ function fraction(state, decimals) {
 function apply(state, opts) {
     opts = opts || {}
     var named = opts.format
+    var mapped = opts.valueMap !== undefined ? mapValue(state, opts.valueMap) : state
     if (named) {
         switch (String(named).toLowerCase()) {
-        case "temperature": return temperature(state, opts.decimals)
-        case "humidity":    return humidity(state, opts.decimals)
-        case "power":       return power(state, opts.decimals)
-        case "energy":      return energy(state, opts.decimals)
-        case "fraction":    return fraction(state, opts.decimals)
+        case "temperature": return temperature(mapped, opts.decimals)
+        case "humidity":    return humidity(mapped, opts.decimals)
+        case "power":       return power(mapped, opts.decimals)
+        case "energy":      return energy(mapped, opts.decimals)
+        case "fraction":    return fraction(mapped, opts.decimals)
+        case "hhmm":        return hhmm(mapped)
         }
     }
     if (opts.unit !== undefined && opts.unit !== null) {
-        return format(state, {
+        return format(mapped, {
             unit: String(opts.unit),
             decimals: opts.decimals !== undefined ? Number(opts.decimals) : 1,
             scale: opts.scale
         })
     }
     if (opts.decimals !== undefined && opts.decimals !== null) {
-        return format(state, { decimals: Number(opts.decimals), scale: opts.scale })
+        return format(mapped, { decimals: Number(opts.decimals), scale: opts.scale })
     }
-    return smart(state)
+    if (opts.valueMap !== undefined) {
+        return _passThrough(mapped)
+    }
+    return smart(mapped)
 }
 
 // Best-effort formatter for the generic ControlsPanel. Leaves strings like

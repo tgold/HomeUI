@@ -1000,57 +1000,10 @@
       "columns": 3,
       "panels": [
         {
-          "type": "controls",
-          "title": "Aussen",
-          "tilesPerRow": 2,
-          "controls": [
-            { "kind": "value",    "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "thz_aussentemp" },
-            { "kind": "value",    "label": "Aktuell",    "iconText": "W", "accentColor": "#0ea5e9", "item": "localCurrentCondition" },
-            { "kind": "value",    "format": "temperature", "label": "Temp lokal", "iconText": "L", "accentColor": "#f97316", "item": "localCurrentTemperature" }
-          ]
-        },
-        {
-          "type": "controls",
-          "title": "Hochbeet",
-          "tilesPerRow": 2,
-          "controls": [
-            { "kind": "value",    "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "hochbeet_bodentemperatur" },
-            { "kind": "progress", "label": "Feuchte",
-              "accentColor": "#38bdf8", "item": "hochbeet_feuchte",
-              "unit": "%", "decimals": 0 },
-            { "kind": "value",    "label": "Batterie",   "iconText": "B", "accentColor": "#22c55e", "item": "hochbeet_batterie" }
-          ]
-        },
-        {
-          "type": "controls",
-          "title": "Rasen",
-          "tilesPerRow": 2,
-          "controls": [
-            { "kind": "value",    "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "rasen_bodentemperatur" },
-            { "kind": "progress", "label": "Feuchte",
-              "accentColor": "#38bdf8", "item": "rasen_feuchte",
-              "unit": "%", "decimals": 0 },
-            { "kind": "value",    "label": "Batterie",   "iconText": "B", "accentColor": "#22c55e", "item": "rasen_batterie" }
-          ]
-        },
-        {
-          "type": "controls",
-          "title": "Zisterne",
-          "columnSpan": 3,
-          "tilesPerRow": 4,
-          "controls": [
-            { "kind": "progress", "label": "Fuellstand",
-              "accentColor": "#22c55e", "item": "zisterne_fuellstand",
-              "unit": "%", "decimals": 0 },
-            { "kind": "value",    "label": "Abstand", "iconText": "A", "accentColor": "#38bdf8", "item": "zisterne_abstand" },
-            { "kind": "value",    "label": "Status",  "iconText": "S", "accentColor": "#fbbf24", "item": "zisterne_fuellstand_status" },
-            { "label": "Pumpe",  "iconText": "P", "accentColor": "#38bdf8", "item": "zisterne_pumpe" }
-          ]
-        },
-        {
           "type": "irrigationFloorplan",
-          "title": "Bewaesserung Uebersicht",
+          "title": "Bewässerung Übersicht",
           "columnSpan": 3,
+          "height": 600,
           "imageSource": "../assets/irrigation-floorplan.png",
           "programItem": "gardena_start_irrigation_switch",
           "useCisternItem": "gardena_use_cistern_switch",
@@ -1059,7 +1012,7 @@
           "zones": [
             {
               "id": "v1",
-              "label": "V1 Top Lawn",
+              "label": "V1 Rasen Carport",
               "x": 0.52,
               "y": 0.12,
               "activityItem": "gardena_ventil1_activity",
@@ -1070,9 +1023,9 @@
             },
             {
               "id": "v2",
-              "label": "V2 Left Lawn",
+              "label": "V2 Rasen Hinten",
               "x": 0.16,
-              "y": 0.52,
+              "y": 0.65,
               "activityItem": "gardena_ventil2_activity",
               "startItem": "gardena_ventil2_cmd_openwithduration",
               "startCommand": "ON",
@@ -1081,9 +1034,9 @@
             },
             {
               "id": "v3",
-              "label": "V3 Right Lawn",
-              "x": 0.78,
-              "y": 0.84,
+              "label": "V3 Rasen Vorne/Seite",
+              "x": 0.85,
+              "y": 0.9,
               "activityItem": "gardena_ventil3_activity",
               "startItem": "gardena_ventil3_cmd_openwithduration",
               "startCommand": "ON",
@@ -1092,11 +1045,14 @@
             }
           ],
           "sensors": [
-            { "label": "Aussen Temp", "item": "thz_aussentemp", "format": "temperature", "x": 0.08, "y": 0.16, "accentColor": "#f97316" },
-            { "label": "Top Lawn Feuchte", "item": "rasen_feuchte", "unit": "%", "decimals": 0, "x": 0.84, "y": 0.12, "accentColor": "#38bdf8" },
-            { "label": "Left Lawn Feuchte", "item": "hochbeet_feuchte", "unit": "%", "decimals": 0, "x": 0.11, "y": 0.74, "accentColor": "#38bdf8" },
-            { "label": "Zisterne", "item": "zisterne_fuellstand", "unit": "%", "decimals": 0, "x": 0.63, "y": 0.56, "accentColor": "#22c55e" },
-            { "label": "Pumpe", "item": "gardena_pumpe_activity", "x": 0.56, "y": 0.86, "accentColor": "#22c55e" }
+            { "label": "Aktuell", "item": "localCurrentCondition", "x": 0.1, "y": 0.1, "accentColor": "#0ea5e9" },
+            { "label": "THZ Temp", "item": "thz_aussentemp", "format": "temperature", "x": 0.7, "y": 0.5, "accentColor": "#f97316" },
+            { "label": "Rasen Feuchte", "item": "rasen_feuchte", "unit": "%", "decimals": 0, "x": 0.1, "y": 0.8, "accentColor": "#38bdf8" },
+            { "label": "Rasen Temp", "item": "rasen_bodentemperatur", "format": "temperature", "x": 0.1, "y": 0.9, "accentColor": "#f97316" },
+            { "label": "Hochbeet Feuchte", "item": "hochbeet_feuchte", "unit": "%", "decimals": 0, "x": 0.1, "y": 0.4, "accentColor": "#38bdf8" },
+            { "label": "Hochbeet Temp", "item": "hochbeet_bodentemperatur", "format": "temperature", "x": 0.1, "y": 0.5, "accentColor": "#f97316" },
+            { "label": "Zisterne", "item": "zisterne_fuellstand", "unit": "%", "decimals": 0, "x": 0.7, "y": 0.3, "accentColor": "#22c55e" },
+            { "label": "Pumpe", "item": "gardena_pumpe_activity", "x": 0.4, "y": 0.3, "accentColor": "#22c55e" }
           ]
         },
         {
@@ -1117,10 +1073,10 @@
           "columnSpan": 3,
           "tilesPerRow": 4,
           "controls": [
-            { "kind": "value", "label": "Sonnenaufgang",  "iconText": "U", "accentColor": "#fbbf24", "item": "Sunrise_Time" },
-            { "kind": "value", "label": "Sonnenuntergang","iconText": "D", "accentColor": "#f97316", "item": "Sunset_Time" },
-            { "kind": "value", "label": "Tageslicht",     "iconText": "L", "accentColor": "#22c55e", "item": "Daylight_Duration" },
-            { "kind": "value", "label": "Mondphase",      "iconText": "M", "accentColor": "#a855f7", "item": "astro_MoonPhase" }
+            { "kind": "value", "label": "Sonnenaufgang",  "format": "hhmm", "iconText": "U", "accentColor": "#fbbf24", "item": "Sunrise_Time" },
+            { "kind": "value", "label": "Sonnenuntergang","format": "hhmm", "iconText": "D", "accentColor": "#f97316", "item": "Sunset_Time" },
+            { "kind": "value", "label": "Tageslicht",     "format": "hhmm", "iconText": "L", "accentColor": "#22c55e", "item": "Daylight_Duration" },
+            { "kind": "value", "label": "Mondphase",      "iconText": "M", "accentColor": "#a855f7", "item": "astro_MoonPhase", "valueMap": { "new moon": "🌑 Neumond", "waxing crescent": "🌒 zunehmend", "first quarter": "🌓 erstes Viertel", "waxing gibbous": "🌔 zunehmend", "full moon": "🌕 Vollmond", "waning gibbous": "🌖 abnehmend", "last quarter": "🌗 letztes Viertel", "third quarter": "🌗 letztes Viertel", "waning crescent": "🌘 abnehmend", "neumond": "🌑 Neumond", "zunehmender mond": "🌒 zunehmend", "erstes viertel": "🌓 erstes Viertel", "zunehmender dreiviertelmond": "🌔 zunehmend", "vollmond": "🌕 Vollmond", "abnehmender dreiviertelmond": "🌖 abnehmend", "letztes viertel": "🌗 letztes Viertel", "abnehmender mond": "🌘 abnehmend" } }
           ]
         }
       ]
@@ -1135,7 +1091,7 @@
         {
           "type": "sonos",
           "title": "Sonos Kueche",
-          "host": "sonos-kitchen.local",
+          "host": "192.168.0.13",
           "accentColor": "#f59e0b",
           "items": {
             "controller": "Sonos_Kitchen_Controller",
@@ -1161,7 +1117,7 @@
         {
           "type": "sonos",
           "title": "Sonos TV",
-          "host": "sonos-tv.local",
+          "host": "192.168.0.22",
           "accentColor": "#38bdf8",
           "items": {
             "controller": "Sonos_TV_Controller",
