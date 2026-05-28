@@ -733,10 +733,10 @@
           "title": "Fritzbox",
           "tilesPerRow": 6,
           "controls": [
-            { "kind": "value", "label": "Fritzbox Uptime",     "iconText": "U", "accentColor": "#38bdf8", "item": "fb_uptime",                "unit": "s" },
-            { "kind": "value", "label": "Max Downstream",      "iconText": "D", "accentColor": "#22c55e", "item": "fb_wan_downstream",        "unit": "MBit/s" },
-            { "kind": "value", "label": "Max Upstream",        "iconText": "U", "accentColor": "#ef4444", "item": "fb_wan_upstream",          "unit": "MBit/s" },
-            { "kind": "value", "label": "Connection Uptime",   "iconText": "C", "accentColor": "#38bdf8", "item": "fb_wan_connection_uptime", "unit": "s" },
+            { "kind": "value", "label": "Fritzbox Uptime",     "iconText": "U", "accentColor": "#38bdf8", "item": "fb_uptime",                "format": "hhmm" },
+            { "kind": "value", "label": "Max Downstream",      "iconText": "D", "accentColor": "#22c55e", "item": "fb_wan_downstream",        "scale": 0.000001, "unit": "MBit/s", "decimals": 1 },
+            { "kind": "value", "label": "Max Upstream",        "iconText": "U", "accentColor": "#ef4444", "item": "fb_wan_upstream",          "scale": 0.000001, "unit": "MBit/s", "decimals": 1 },
+            { "kind": "value", "label": "Connection Uptime",   "iconText": "C", "accentColor": "#38bdf8", "item": "fb_wan_connection_uptime", "format": "hhmm" },
             { "kind": "value", "label": "Status",              "iconText": "S", "accentColor": "#fbbf24", "item": "fb_wan_connection_status" },
             { "kind": "value", "label": "Thomas Phone",        "iconText": "T", "accentColor": "#a855f7", "item": "fb_devices_thomasphone_online" },
             { "label": "WLAN 2.4GHz", "iconText": "2", "accentColor": "#38bdf8", "item": "fb_wlan_24ghz_enabled" },
@@ -754,9 +754,9 @@
             { "kind": "progress", "label": "NAS Volume",
               "accentColor": "#fbbf24", "item": "nasVolumeUsed", "maxItem": "nasVolumeSize",
               "scale": 0.000003814697265625, "unit": "GB", "decimals": 2 },
-            { "kind": "progress", "label": "NAS CPU Idle",
-              "accentColor": "#22c55e", "item": "nasCpuIdle",
-              "min": 0, "max": 100, "unit": "%", "decimals": 0 }
+            { "kind": "progress", "label": "NAS CPU Usage",
+              "accentColor": "#22c55e", "item": "nasCpuIdle", "invert": true, "invertBase": 100,
+              "min": 0, "max": 100, "unit": "%", "decimals": 2 }
           ]
         }
       ]

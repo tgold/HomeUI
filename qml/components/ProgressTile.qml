@@ -15,6 +15,16 @@ Rectangle {
         return ""
     }
     readonly property real scaleValue: control.scale !== undefined ? Number(control.scale) : 1
+    readonly property bool invertValue: control.invert === true
+    readonly property real invertBaseValue: {
+        if (control.invertBase !== undefined) {
+            return Number(control.invertBase)
+        }
+        if (control.max !== undefined) {
+            return Number(control.max)
+        }
+        return 100
+    }
 
     readonly property real minValue: control.min !== undefined ? Number(control.min) : 0
     readonly property real maxValue: control.max !== undefined ? Number(control.max) : 100
@@ -31,7 +41,11 @@ Rectangle {
         if (isNaN(n)) {
             return Number.NaN
         }
-        return n * scaleValue
+        var value = n * scaleValue
+        if (invertValue) {
+            value = invertBaseValue - value
+        }
+        return value
     }
     readonly property real maxNumericValue: {
         var raw = String(maxRawValue).trim()
