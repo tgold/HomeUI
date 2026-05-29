@@ -670,8 +670,8 @@
             { "label": "Waermestrom NT",  "iconText": "N", "accentColor": "#ef4444", "item": "waermestrom_nt" },
             { "label": "Einspeisung",     "iconText": "E", "accentColor": "#22c55e", "item": "waermestrom_einspeisung" },
             { "label": "Haus Einspeisung","iconText": "S", "accentColor": "#22c55e", "item": "haushaltsstrom_einspeisung" },
-            { "label": "Wasserverbauch gesamt","iconText": "W", "accentColor": "#38bdf8", "item": "water_total" },
-            { "label": "Wasserverbauch heute","iconText": "W", "accentColor": "#38bdf8", "item": "water_total" }
+            { "label": "Wasserverbauch gesamt","iconText": "W", "accentColor": "#38bdf8", "item": "water_total", "decimals": 3, "unit": "m3" },
+            { "label": "Wasserverbauch heute","iconText": "W", "accentColor": "#38bdf8", "item": "water_daily", "decimals": 0, "unit": "L", "scale": 1000 }
           ]
         },
         {

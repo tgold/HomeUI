@@ -296,6 +296,26 @@ ApplicationWindow {
                 }
 
                 Rectangle {
+                    width: 92
+                    height: 30
+                    radius: 8
+                    color: "#7f1d1d"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Quit app"
+                        color: "#fee2e2"
+                        font.pixelSize: 12
+                        font.bold: true
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: Qt.quit()
+                    }
+                }
+
+                Rectangle {
                     width: 88
                     height: 30
                     radius: 8
