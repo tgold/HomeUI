@@ -131,6 +131,11 @@ int main(int argc, char *argv[])
     QGuiApplication::setOrganizationName(QStringLiteral("HomeUI"));
 
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    // Avoid Qt6CT / desktop system palettes bleeding into Quick Controls (invisible
+    // ComboBox text on dark tiles). Respect an explicit user override.
+    if (!env.contains(QStringLiteral("QT_QUICK_CONTROLS_STYLE"))) {
+        qputenv("QT_QUICK_CONTROLS_STYLE", "Basic");
+    }
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QStringLiteral("Native OpenHAB touchscreen dashboard"));

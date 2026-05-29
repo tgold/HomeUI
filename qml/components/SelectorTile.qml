@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "Format.js" as Fmt
 
 Rectangle {
     id: root
@@ -8,7 +9,7 @@ Rectangle {
     property var panel: null
     property string rawValue: ""
 
-    readonly property var options: Array.isArray(control.options) ? control.options : []
+    readonly property var options: Fmt.asArray(control.options)
     readonly property color accent: control.accentColor || "#38bdf8"
     readonly property string currentValue: String(rawValue).trim()
 

@@ -305,3 +305,22 @@ function smart(state) {
     }
     return _toFixed(value, decimals) + " " + unit
 }
+
+// Dashboard JSON arrays arrive from C++ as QVariantList: array-like in QML but
+// Array.isArray() is false, so always normalize before using as a Repeater model.
+function asArray(value) {
+    if (value === undefined || value === null) {
+        return []
+    }
+    if (Array.isArray(value)) {
+        return value
+    }
+    if (typeof value === "object" && typeof value.length === "number") {
+        var out = []
+        for (var i = 0; i < value.length; ++i) {
+            out.push(value[i])
+        }
+        return out
+    }
+    return []
+}

@@ -95,7 +95,7 @@ Rectangle {
                     case "warn":   return { bg: "#2a2230", border: "#f59e0b", text: "#fbbf24" }
                     case "active": return { bg: "#0f2740", border: "#38bdf8", text: "#7dd3fc" }
                     case "idle":
-                    default:       return { bg: "#141a25", border: "#243043", text: "#52617a" }
+                    default:       return { bg: "#141a25", border: "#334155", text: "#64748b" }
                     }
                 }
 

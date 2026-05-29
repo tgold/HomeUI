@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "Format.js" as Fmt
 
 Rectangle {
     id: root
@@ -9,7 +10,7 @@ Rectangle {
     property var panel: null
     property string rawValue: ""
 
-    readonly property var options: Array.isArray(control.options) ? control.options : []
+    readonly property var options: Fmt.asArray(control.options)
     readonly property color accent: control.accentColor || "#fbbf24"
     readonly property bool hasBinding: !!(control.item || control.mqttTopic)
 
@@ -83,6 +84,30 @@ Rectangle {
             textRole: "label"
             valueRole: "value"
             displayText: root.currentLabel.length > 0 ? root.currentLabel : "—"
+
+            background: Rectangle {
+                radius: 6
+                color: "#0f1726"
+                border.color: "#304158"
+            }
+
+            contentItem: Text {
+                leftPadding: 8
+                rightPadding: comboBox.indicator.width + comboBox.spacing
+                text: comboBox.displayText
+                color: "#f8fafc"
+                font.pixelSize: 12
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+
+            indicator: Text {
+                x: comboBox.width - width - 8
+                y: comboBox.topPadding + (comboBox.availableHeight - height) / 2
+                text: "▾"
+                color: "#94a3b8"
+                font.pixelSize: 10
+            }
 
             // Keep the popup selection in sync with the live OpenHAB / MQTT
             // state, but only while the popup is closed so a slow round-trip
