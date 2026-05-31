@@ -92,6 +92,7 @@ case "${MODE}" in
 #HOMEUI_MQTT_USERNAME=panel
 #HOMEUI_MQTT_PASSWORD=
 #HOMEUI_MQTT_PANEL_ID=wallpanel-eg
+# Set HOMEUI_BRIGHTNESS_PATH=none to force display power commands.
 #HOMEUI_BRIGHTNESS_PATH=/sys/class/backlight/10-0045/brightness
 #HOMEUI_DISPLAY_OFF_COMMAND=vcgencmd display_power 0
 #HOMEUI_DISPLAY_ON_COMMAND=vcgencmd display_power 1
@@ -131,6 +132,7 @@ EOF
 #HOMEUI_MQTT_USERNAME=panel
 #HOMEUI_MQTT_PASSWORD=
 #HOMEUI_MQTT_PANEL_ID=wallpanel-eg
+# Set HOMEUI_BRIGHTNESS_PATH=none to force display power commands.
 #HOMEUI_BRIGHTNESS_PATH=/sys/class/backlight/10-0045/brightness
 #HOMEUI_DISPLAY_OFF_COMMAND=vcgencmd display_power 0
 #HOMEUI_DISPLAY_ON_COMMAND=vcgencmd display_power 1

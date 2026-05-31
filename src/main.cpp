@@ -93,7 +93,12 @@ QTime parseClockTime(const QString &raw, const QTime &fallback, const QString &l
 QString findBacklightPath()
 {
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    const QString configured = env.value(QStringLiteral("HOMEUI_BRIGHTNESS_PATH"));
+    const QString configured = env.value(QStringLiteral("HOMEUI_BRIGHTNESS_PATH")).trimmed();
+    const QString configuredLower = configured.toLower();
+    if (configuredLower == QStringLiteral("none") || configuredLower == QStringLiteral("off")
+        || configuredLower == QStringLiteral("disabled")) {
+        return {};
+    }
     if (!configured.isEmpty() && QFile::exists(configured)) {
         return configured;
     }
