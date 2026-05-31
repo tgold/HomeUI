@@ -29,7 +29,7 @@ Rectangle {
     ColumnLayout {
         id: contentColumn
         anchors.fill: parent
-        anchors.margins: 10
+        anchors.margins: Fmt.tileMargin
         spacing: 6
 
         Text {

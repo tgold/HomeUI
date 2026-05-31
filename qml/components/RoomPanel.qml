@@ -76,8 +76,8 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: 12
+        anchors.margins: Fmt.panelMargin
+        spacing: Fmt.panelSpacing
 
         RowLayout {
             Layout.fillWidth: true
@@ -126,8 +126,8 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             columns: 2
-            columnSpacing: 10
-            rowSpacing: 10
+            columnSpacing: Fmt.gridSpacing
+            rowSpacing: Fmt.gridSpacing
 
             ControlTile {
                 label: "Licht"

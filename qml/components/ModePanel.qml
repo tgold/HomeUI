@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "Format.js" as Fmt
 
 Rectangle {
     id: root
@@ -13,8 +14,8 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: 12
+        anchors.margins: Fmt.panelMargin
+        spacing: Fmt.panelSpacing
 
         Text {
             text: "Betrieb"
@@ -25,7 +26,7 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 10
+            spacing: Fmt.gridSpacing
 
             ControlTile {
                 label: "Auto"
@@ -49,7 +50,7 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 8
+            spacing: Fmt.gridSpacing
 
             Repeater {
                 model: ["PV", "Auto", "Fast"]
@@ -74,7 +75,7 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 8
+            spacing: Fmt.gridSpacing
 
             Repeater {
                 model: ["Clean", "Home"]

@@ -64,6 +64,8 @@ scripts/
   install-service.sh
 packaging/
   autostart/homeui.desktop
+  autostart/homeui-wayland.desktop
+  desktop/homeui.desktop
   systemd/homeui.service
   systemd/homeui-system.service
 docs/

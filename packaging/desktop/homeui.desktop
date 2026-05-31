@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=HomeUI
+Comment=Native OpenHAB touchscreen dashboard
+Exec=/usr/local/bin/homeui --config /etc/homeui/dashboard.json
+Terminal=false
+Categories=Utility;
+StartupNotify=false

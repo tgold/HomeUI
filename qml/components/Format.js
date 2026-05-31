@@ -1,5 +1,13 @@
 .pragma library
 
+// Touchscreen layout density (1280x800). Import as `Fmt` in QML.
+var pageMargin = 12
+var pageSpacing = 10
+var panelMargin = 10
+var panelSpacing = 8
+var gridSpacing = 8
+var tileMargin = 8
+
 // Internal: split a raw OpenHAB state into { number, unit } when possible.
 // Returns null when the state cannot be parsed as a leading number.
 function _split(state) {

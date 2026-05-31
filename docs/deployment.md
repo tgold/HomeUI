@@ -29,6 +29,7 @@ By default (no flags), the script:
 Flags:
 
 - `--system`: install a system-level unit at `/etc/systemd/system/homeui.service` instead. Useful for headless EGLFS / KMS kiosk images that do not start a desktop session.
+- `--desktop`: install `~/.local/share/applications/homeui.desktop` plus a Wayland-only autostart entry (`homeui-wayland.desktop` with `QT_QPA_PLATFORM=wayland`). Use this for labwc / wayfire kiosk images instead of the systemd user service.
 - `--autostart`: drop a `~/.config/autostart/homeui.desktop` for desktop environments that ignore user systemd services (legacy LXDE setups).
 - `--no-build-install`: skip the `cmake --install` step (use when you have already deployed the binary by other means, e.g. a fleet image).
 - `--build-dir <dir>`: override the CMake build directory if you do not use `build-gcc`.
@@ -134,7 +135,7 @@ Re-login (or reboot) for the group change to apply.
 ## Wayland vs. X11 vs. EGLFS
 
 - **Raspberry Pi OS Bookworm (default X11)**: nothing to do, the user service inherits the session.
-- **Wayland (labwc / wayfire)**: install `qt6-wayland` so the QPA plugin is available; the rest works unchanged.
+- **Wayland (labwc / wayfire)**: install `qt6-wayland` so the QPA plugin is available, then deploy with `./scripts/install-service.sh --desktop` so the launcher and session autostart are installed. `cmake --install` also drops `/usr/local/share/applications/homeui.desktop` for system-wide menus.
 - **Headless kiosk (no desktop session)**: use `--system` to install `homeui-system.service`, which already sets `QT_QPA_PLATFORM=eglfs` and an explicit `XDG_RUNTIME_DIR`. You will also need `sudo apt install qt6-base-private-dev libgles2-mesa libinput-bin` and the touchscreen device exposed to the service user.
 
 ## Updating in place

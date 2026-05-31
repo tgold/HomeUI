@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "Format.js" as Fmt
 
 Item {
     id: root
@@ -44,8 +45,8 @@ Item {
 
         RowLayout {
             anchors.fill: parent
-            anchors.margins: 20
-            spacing: 16
+            anchors.margins: Fmt.pageMargin
+            spacing: Fmt.pageSpacing
 
             Repeater {
                 model: root.layoutValue(root.page, "columns", [])
@@ -54,7 +55,7 @@ Item {
                     Layout.preferredWidth: root.layoutValue(modelData, "width", 292)
                     Layout.fillWidth: root.layoutValue(modelData, "fillWidth", false)
                     Layout.fillHeight: true
-                    spacing: 16
+                    spacing: Fmt.pageSpacing
 
                     Repeater {
                         model: root.layoutValue(modelData, "panels", [])
@@ -79,10 +80,10 @@ Item {
 
         GridLayout {
             anchors.fill: parent
-            anchors.margins: 20
+            anchors.margins: Fmt.pageMargin
             columns: root.layoutValue(root.page, "columns", 3)
-            columnSpacing: 16
-            rowSpacing: 16
+            columnSpacing: Fmt.pageSpacing
+            rowSpacing: Fmt.pageSpacing
 
             Repeater {
                 model: root.layoutValue(root.page, "panels", [])
@@ -112,9 +113,9 @@ Item {
             id: masonryRoot
             anchors.fill: parent
 
-            readonly property int margins: 20
-            readonly property int hspacing: 16
-            readonly property int vspacing: 16
+            readonly property int margins: Fmt.pageMargin
+            readonly property int hspacing: Fmt.pageSpacing
+            readonly property int vspacing: Fmt.pageSpacing
             readonly property int minColumnWidth: root.layoutValue(root.page, "columnWidth", 320)
 
             readonly property int columnsCount: {

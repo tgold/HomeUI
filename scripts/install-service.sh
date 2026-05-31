@@ -4,7 +4,8 @@
 #
 # Default: install the user-level systemd service that auto-starts whenever
 # the user logs in to a graphical session. Pass --system for a system-level
-# service (KMS/EGLFS deployments) or --autostart for the XDG desktop entry.
+# service (KMS/EGLFS deployments), --desktop for a Wayland/XDG launcher +
+# autostart, or --autostart for the legacy X11 autostart entry only.
 #
 set -euo pipefail
 
@@ -14,12 +15,16 @@ BUILD_DIR="build-gcc"
 
 usage() {
     cat <<EOF
-Usage: $0 [--user|--system|--autostart] [--no-build-install] [--build-dir <dir>]
+Usage: $0 [--user|--system|--desktop|--autostart] [--no-build-install] [--build-dir <dir>]
 
   --user            (default) install ~/.config/systemd/user/homeui.service
                     and enable it via systemctl --user.
   --system          install /etc/systemd/system/homeui.service for a
                     headless KMS/EGLFS kiosk image (runs as User=thomas).
+  --desktop         install ~/.local/share/applications/homeui.desktop and
+                    ~/.config/autostart/homeui-wayland.desktop for labwc,
+                    wayfire, and other Wayland sessions (also installs the
+                    system .desktop via cmake --install).
   --autostart       install an XDG ~/.config/autostart/homeui.desktop entry
                     for desktop environments without a systemd graphical
                     user session (e.g. classic LXDE).
@@ -35,6 +40,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --user)            MODE="user"; shift ;;
         --system)          MODE="system"; shift ;;
+        --desktop)         MODE="desktop"; shift ;;
         --autostart)       MODE="autostart"; shift ;;
         --no-build-install) SKIP_BUILD_INSTALL=1; shift ;;
         --build-dir)       BUILD_DIR="$2"; shift 2 ;;
@@ -134,6 +140,26 @@ EOF
         echo "System service installed and enabled. Start it now with:"
         echo "  sudo systemctl start homeui.service"
         echo "  journalctl -u homeui -f"
+        ;;
+
+    desktop)
+        APP_DEST="${HOME}/.local/share/applications"
+        mkdir -p "${APP_DEST}"
+        cp "${REPO_ROOT}/packaging/desktop/homeui.desktop" "${APP_DEST}/homeui.desktop"
+        echo "Installed ${APP_DEST}/homeui.desktop"
+
+        AUTOSTART_DEST="${HOME}/.config/autostart"
+        mkdir -p "${AUTOSTART_DEST}"
+        cp "${REPO_ROOT}/packaging/autostart/homeui-wayland.desktop" \
+                "${AUTOSTART_DEST}/homeui-wayland.desktop"
+        echo "Installed ${AUTOSTART_DEST}/homeui-wayland.desktop"
+
+        echo
+        echo "Wayland desktop entry installed. Ensure qt6-wayland is installed, then"
+        echo "log out and back in (or reboot) so HomeUI auto-starts and appears in the"
+        echo "application menu. Launch manually with:"
+        echo "  gtk-launch homeui.desktop"
+        echo "  # or: env QT_QPA_PLATFORM=wayland /usr/local/bin/homeui"
         ;;
 
     autostart)

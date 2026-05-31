@@ -114,8 +114,8 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: 10
+        anchors.margins: Fmt.panelMargin
+        spacing: Fmt.panelSpacing
 
         RowLayout {
             Layout.fillWidth: true
@@ -300,7 +300,7 @@ Rectangle {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                anchors.margins: 10
+                anchors.margins: Fmt.panelMargin
                 height: 54
                 radius: 10
                 color: "#d20f1726"
@@ -311,8 +311,8 @@ Rectangle {
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.margins: 8
-                    spacing: 8
+                    anchors.margins: Fmt.tileMargin
+                    spacing: Fmt.gridSpacing
 
                     Text {
                         Layout.fillWidth: true

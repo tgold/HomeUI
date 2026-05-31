@@ -27,8 +27,8 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: 10
+        anchors.margins: Fmt.panelMargin
+        spacing: Fmt.panelSpacing
 
         RowLayout {
             Layout.fillWidth: true

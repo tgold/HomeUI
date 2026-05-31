@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "Format.js" as Fmt
 
 Rectangle {
     id: root
@@ -77,7 +78,7 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 10
+        anchors.margins: Fmt.tileMargin
         spacing: 8
 
         RowLayout {

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "Format.js" as Fmt
 import QtQuick.Window
 
 Rectangle {
@@ -129,8 +130,8 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: 8
+        anchors.margins: Fmt.panelMargin
+        spacing: Fmt.panelSpacing
 
         RowLayout {
             Layout.fillWidth: true
@@ -199,7 +200,7 @@ Rectangle {
 
                 ColumnLayout {
                     anchors.fill: parent
-                    anchors.margins: 18
+                    anchors.margins: Fmt.panelMargin
                     spacing: 8
 
                     Text {
@@ -236,8 +237,8 @@ Rectangle {
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 10
-                    anchors.rightMargin: 10
+                    anchors.leftMargin: Fmt.tileMargin
+                    anchors.rightMargin: Fmt.tileMargin
                     spacing: 8
 
                     Rectangle {

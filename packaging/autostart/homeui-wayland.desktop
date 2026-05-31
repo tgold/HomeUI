@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=HomeUI
+Comment=Native OpenHAB touchscreen dashboard
+Exec=env QT_QPA_PLATFORM=wayland /usr/local/bin/homeui --config /etc/homeui/dashboard.json
+Terminal=false
+X-GNOME-Autostart-enabled=true
+NoDisplay=true
+OnlyShowIn=Wayland;
+Categories=Utility;

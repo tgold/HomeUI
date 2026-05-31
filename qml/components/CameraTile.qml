@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import HomeUI 1.0
+import "Format.js" as Fmt
 
 Rectangle {
     id: root
@@ -36,8 +37,8 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: 10
+        anchors.margins: Fmt.panelMargin
+        spacing: Fmt.panelSpacing
 
         RowLayout {
             Layout.fillWidth: true
@@ -163,8 +164,8 @@ Rectangle {
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 10
-                    anchors.rightMargin: 10
+                    anchors.leftMargin: Fmt.tileMargin
+                    anchors.rightMargin: Fmt.tileMargin
                     spacing: 8
 
                     Rectangle {

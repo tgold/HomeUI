@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "Format.js" as Fmt
 
 Rectangle {
     id: root
@@ -17,9 +18,9 @@ Rectangle {
 
     RowLayout {
         anchors.fill: parent
-        anchors.leftMargin: 10
-        anchors.rightMargin: 10
-        spacing: 10
+        anchors.leftMargin: Fmt.tileMargin
+        anchors.rightMargin: Fmt.tileMargin
+        spacing: Fmt.gridSpacing
 
         ColumnLayout {
             Layout.fillWidth: true

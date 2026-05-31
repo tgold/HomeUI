@@ -134,3 +134,7 @@ install(FILES config/dashboard.json
 install(FILES assets/irrigation-floorplan.png
     DESTINATION ${CMAKE_INSTALL_DATADIR}/homeui/assets
 )
+
+install(FILES packaging/desktop/homeui.desktop
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/applications
+)

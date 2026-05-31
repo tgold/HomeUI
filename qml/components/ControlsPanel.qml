@@ -208,8 +208,8 @@ Rectangle {
     ColumnLayout {
         id: contentColumn
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: 10
+        anchors.margins: Fmt.panelMargin
+        spacing: Fmt.panelSpacing
 
         Text {
             text: root.title
@@ -223,8 +223,8 @@ Rectangle {
         GridLayout {
             id: controlsGrid
             Layout.fillWidth: true
-            columnSpacing: 10
-            rowSpacing: 10
+            columnSpacing: Fmt.gridSpacing
+            rowSpacing: Fmt.gridSpacing
             columns: root.effectiveColumns
 
             Repeater {

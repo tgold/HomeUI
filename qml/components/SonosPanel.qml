@@ -193,10 +193,10 @@ Rectangle {
     GridLayout {
         id: contentLayout
         anchors.fill: parent
-        anchors.margins: 14
+        anchors.margins: Fmt.panelMargin
         columns: root.compactLayout ? 2 : 1
-        columnSpacing: 14
-        rowSpacing: 12
+        columnSpacing: Fmt.gridSpacing
+        rowSpacing: Fmt.gridSpacing
 
         RowLayout {
             Layout.fillWidth: true
