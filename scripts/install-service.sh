@@ -92,8 +92,14 @@ case "${MODE}" in
 #HOMEUI_MQTT_USERNAME=panel
 #HOMEUI_MQTT_PASSWORD=
 #HOMEUI_MQTT_PANEL_ID=wallpanel-eg
+# Set HOMEUI_BRIGHTNESS_PATH=none to force display power commands.
 #HOMEUI_BRIGHTNESS_PATH=/sys/class/backlight/10-0045/brightness
+#HOMEUI_DISPLAY_OFF_COMMAND=vcgencmd display_power 0
+#HOMEUI_DISPLAY_ON_COMMAND=vcgencmd display_power 1
 #HOMEUI_IDLE_TIMEOUT_MS=600000
+#HOMEUI_NIGHT_MODE_ENABLED=true
+#HOMEUI_NIGHT_MODE_START=00:00
+#HOMEUI_NIGHT_MODE_END=06:30
 #HOMEUI_LOG_LEVEL=info
 EOF
             echo "Created ${HOME}/.config/homeui/env (edit to set OpenHAB/MQTT URLs etc.)"
@@ -126,8 +132,14 @@ EOF
 #HOMEUI_MQTT_USERNAME=panel
 #HOMEUI_MQTT_PASSWORD=
 #HOMEUI_MQTT_PANEL_ID=wallpanel-eg
+# Set HOMEUI_BRIGHTNESS_PATH=none to force display power commands.
 #HOMEUI_BRIGHTNESS_PATH=/sys/class/backlight/10-0045/brightness
+#HOMEUI_DISPLAY_OFF_COMMAND=vcgencmd display_power 0
+#HOMEUI_DISPLAY_ON_COMMAND=vcgencmd display_power 1
 #HOMEUI_IDLE_TIMEOUT_MS=600000
+#HOMEUI_NIGHT_MODE_ENABLED=true
+#HOMEUI_NIGHT_MODE_START=00:00
+#HOMEUI_NIGHT_MODE_END=06:30
 #HOMEUI_LOG_LEVEL=info
 EOF
             echo "Created /etc/homeui/env (edit to set OpenHAB/MQTT URLs etc.)"

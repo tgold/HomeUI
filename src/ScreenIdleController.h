@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QString>
 #include <QTimer>
+#include <QTime>
 
 class QEvent;
 
@@ -37,11 +38,18 @@ public:
     void setIdleBrightness(int idleBrightness);
     bool enabled() const;
     void setEnabled(bool enabled);
+    bool nightModeEnabled() const;
+    void setNightModeEnabled(bool enabled);
+    QTime nightModeStartTime() const;
+    void setNightModeStartTime(const QTime &time);
+    QTime nightModeEndTime() const;
+    void setNightModeEndTime(const QTime &time);
 
     bool eventFilter(QObject *watched, QEvent *event) override;
 
     Q_INVOKABLE void wake();
     Q_INVOKABLE void sleep();
+    Q_INVOKABLE void refreshNightMode();
 
 signals:
     void idleTimeoutMsChanged();
@@ -54,12 +62,19 @@ signals:
 private:
     void resetIdleTimer();
     void setIdle(bool idle);
+    bool isWithinNightMode(const QTime &time) const;
+    void scheduleNightModeTimer();
 
     QTimer m_idleTimer;
+    QTimer m_nightModeTimer;
     int m_idleTimeoutMs = 600000;
     int m_activeBrightness = 80;
     int m_idleBrightness = 0;
+    QTime m_nightModeStartTime = QTime(0, 0);
+    QTime m_nightModeEndTime = QTime(6, 30);
     bool m_idle = false;
     bool m_enabled = true;
+    bool m_nightModeEnabled = true;
+    bool m_nightModeActive = false;
     bool m_filterInstalled = false;
 };
