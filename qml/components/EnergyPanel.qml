@@ -11,7 +11,11 @@ Rectangle {
     property string gridItem: ""
     property string consumptionItem: ""
     property string batteryItem: ""
+    property string pvDayItem: ""
+    property string consumptionDayItem: ""
     property int stateRevision: openhab ? openhab.stateRevision : 0
+
+    readonly property bool hasDayMetrics: pvDayItem.length > 0 || consumptionDayItem.length > 0
 
     function itemState(itemName, fallback) {
         stateRevision
@@ -22,13 +26,14 @@ Rectangle {
     }
 
     implicitWidth: 292
-    implicitHeight: 250
+    implicitHeight: contentLayout.implicitHeight + 2 * Fmt.panelMargin
     radius: 18
     color: "#0f1726"
     border.color: "#26364d"
     border.width: 1
 
     ColumnLayout {
+        id: contentLayout
         anchors.fill: parent
         anchors.margins: Fmt.panelMargin
         spacing: Fmt.panelSpacing
@@ -61,32 +66,66 @@ Rectangle {
             }
         }
 
-        MetricRow {
-            label: "PV Erzeugung"
-            value: Fmt.power(root.itemState(root.pvItem, "2313.5 W"))
-            detail: "solar"
+        GridLayout {
             Layout.fillWidth: true
-        }
+            columns: 2
+            columnSpacing: Fmt.gridSpacing
+            rowSpacing: Fmt.gridSpacing
 
-        MetricRow {
-            label: "Netz"
-            value: Fmt.power(root.itemState(root.gridItem, "-1833.2 W"))
-            detail: "export"
-            Layout.fillWidth: true
-        }
+            MetricRow {
+                label: "PV Erzeugung"
+                value: Fmt.power(root.itemState(root.pvItem, "2313.5 W"))
+                detail: "live"
+                Layout.fillWidth: true
+            }
 
-        MetricRow {
-            label: "Verbrauch"
-            value: Fmt.power(root.itemState(root.consumptionItem, "469.9 W"))
-            detail: "house"
-            Layout.fillWidth: true
-        }
+            MetricRow {
+                label: "Netz"
+                value: Fmt.power(root.itemState(root.gridItem, "-1833.2 W"))
+                detail: "live"
+                Layout.fillWidth: true
+            }
 
-        MetricRow {
-            label: "Batterie"
-            value: Fmt.fraction(root.itemState(root.batteryItem, "100.0 %"))
-            detail: "+0.0 kW"
-            Layout.fillWidth: true
+            MetricRow {
+                label: "Verbrauch"
+                value: Fmt.power(root.itemState(root.consumptionItem, "469.9 W"))
+                detail: "live"
+                Layout.fillWidth: true
+            }
+
+            MetricRow {
+                label: "Batterie"
+                value: Fmt.fraction(root.itemState(root.batteryItem, "100.0 %"))
+                detail: "live"
+                Layout.fillWidth: true
+            }
+
+            Text {
+                visible: root.hasDayMetrics
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                Layout.topMargin: 2
+                text: "Tagesertrag"
+                color: "#64748b"
+                font.pixelSize: 10
+                font.bold: true
+            }
+
+            MetricRow {
+                visible: root.pvDayItem.length > 0
+                label: "PV heute"
+                value: Fmt.energy(root.itemState(root.pvDayItem, "12.3 kWh"))
+                detail: "today"
+                Layout.fillWidth: true
+            }
+
+            MetricRow {
+                visible: root.consumptionDayItem.length > 0
+                label: "Verbrauch heute"
+                value: Fmt.energy(root.itemState(root.consumptionDayItem, "18.4 kWh"))
+                detail: "today"
+                Layout.fillWidth: true
+            }
         }
     }
 }

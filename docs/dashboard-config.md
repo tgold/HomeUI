@@ -132,10 +132,14 @@ Grid pages also accept `columnSpan` / `rowSpan` on any panel to make it stretch 
     "pv": "PV_Power",
     "grid": "Grid_Power",
     "consumption": "House_Power",
-    "battery": "Battery_Level"
+    "battery": "Battery_Level",
+    "pvDay": "SE10K_Day_Production",
+    "consumptionDay": "SE10K_Day_Consumption"
   }
 }
 ```
+
+Live power metrics fill the first two rows (2 columns). Optional `pvDay` and `consumptionDay` add a **Tagesertrag** row pair below, formatted as `kWh`. Omit either key to hide that tile.
 
 ### Camera panel
 

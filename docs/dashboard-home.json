@@ -205,7 +205,9 @@
             "pv": "evcc_pvPower",
             "grid": "evcc_gridPower",
             "consumption": "evcc_homePower",
-            "battery": "SE10K_Live_Level"
+            "battery": "SE10K_Live_Level",
+            "pvDay": "SE10K_Day_Production",
+            "consumptionDay": "SE10K_Day_Consumption"
           }
         },
         {
@@ -217,27 +219,6 @@
           "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22",
           "snapshotUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.SnapShot&version=1&method=TakeSnapshot&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22",
           "refreshInterval": 1000
-        },
-        {
-          "type": "controls",
-          "title": "Tagesertrag",
-          "tilesPerRow": 2,
-          "controls": [
-            {
-              "kind": "value",
-              "label": "PV heute",
-              "iconText": "P",
-              "accentColor": "#fbbf24",
-              "item": "SE10K_Day_Production"
-            },
-            {
-              "kind": "value",
-              "label": "Verbrauch heute",
-              "iconText": "H",
-              "accentColor": "#a855f7",
-              "item": "SE10K_Day_Consumption"
-            }
-          ]
         },
         {
           "type": "sonos",

@@ -87,6 +87,8 @@ Item {
             gridItem: root.value(["items", "grid"], "")
             consumptionItem: root.value(["items", "consumption"], "")
             batteryItem: root.value(["items", "battery"], "")
+            pvDayItem: root.value(["items", "pvDay"], "")
+            consumptionDayItem: root.value(["items", "consumptionDay"], "")
         }
     }
 
