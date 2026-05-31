@@ -438,6 +438,8 @@ Renders a read-only horizontal progress bar with a numeric value on the right. U
 - `min` / `max` (default `0` / `100`) define the bar range.
 - `unit` overrides the displayed unit; when empty the unit baked into the OpenHAB state is preserved.
 - `decimals` controls the displayed precision (defaults: `0` for `%`/`W`, `1` otherwise).
+- With `unit: "%"`, unitless OpenHAB states in `0..1` are shown as percent (`1` → `100 %`, `0.85` → `85 %`). This matches evcc SoC items like `evcc_loadpoint0_vehicleSoC`. States already at `0..100` or with a `%` suffix are unchanged.
+- `format: "fraction"` forces `0..1` scaling even when a unit is present.
 
 #### Selector (`kind: "selector"`)
 

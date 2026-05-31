@@ -221,15 +221,32 @@ function fraction(state, decimals) {
     if (decimals === undefined) {
         decimals = 1
     }
-    var value = parsed.number
+    var value = asPercentValue(parsed.number, state, false)
     var unit = parsed.unit
-    if (unit.length === 0 && value >= 0 && value <= 1) {
-        value *= 100
-        unit = "%"
-    } else if (unit.length === 0) {
+    if (unit.length === 0) {
         unit = "%"
     }
     return _toFixed(value, decimals) + " " + unit
+}
+
+// Normalise OpenHAB/evcc style 0..1 fractions to 0..100 percent display.
+// "1" / "1.0" -> 100, "0.85" -> 85, "100" / "100 %" stay unchanged.
+function asPercentValue(number, raw, forceFraction) {
+    if (number === null || number === undefined || isNaN(number)) {
+        return number
+    }
+    var parsed = _split(raw)
+    var unit = parsed ? parsed.unit : ""
+    if (forceFraction) {
+        return number * 100
+    }
+    if (unit === "%") {
+        return number
+    }
+    if (unit.length === 0 && number >= 0 && number <= 1) {
+        return number * 100
+    }
+    return number
 }
 
 // Applies a named formatter ("temperature", "humidity", "power", "energy",

@@ -252,6 +252,10 @@ Rectangle {
 
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
+                    Layout.preferredHeight: status === Loader.Ready && item
+                            ? item.implicitHeight
+                            : 0
+                    Layout.minimumHeight: Layout.preferredHeight
 
                     sourceComponent: {
                         switch (kind) {

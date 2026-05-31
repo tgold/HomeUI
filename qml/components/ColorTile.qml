@@ -84,16 +84,18 @@ Rectangle {
     }
 
     implicitWidth: 200
-    implicitHeight: 96
+    implicitHeight: contentLayout.implicitHeight + 2 * Fmt.tileMargin
     radius: 12
     color: powerOn ? "#26364d" : "#172235"
     border.color: powerOn ? currentColor : "#304158"
     border.width: 1
+    clip: true
 
     ColumnLayout {
+        id: contentLayout
         anchors.fill: parent
         anchors.margins: Fmt.tileMargin
-        spacing: 4
+        spacing: 6
 
         RowLayout {
             Layout.fillWidth: true

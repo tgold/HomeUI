@@ -50,7 +50,7 @@ Rectangle {
     readonly property string downCommand: control.downCommand || "DOWN"
     readonly property bool stopVisible: control.hideStop !== true
     readonly property string sceneState: String(sceneValue).trim()
-    readonly property int buttonHeight: 26
+    readonly property int buttonHeight: 28
 
     function positionLabel() {
         var pos = currentPosition
@@ -84,20 +84,22 @@ Rectangle {
     }
 
     implicitWidth: 160
-    implicitHeight: hasSceneButtons ? 56 : 50
+    implicitHeight: contentLayout.implicitHeight + 2 * Fmt.tileMargin
     radius: 12
     color: isClosed ? "#26364d" : "#172235"
     border.color: isClosed ? accent : "#304158"
     border.width: 1
+    clip: true
 
     ColumnLayout {
+        id: contentLayout
         anchors.fill: parent
         anchors.margins: Fmt.tileMargin
-        spacing: 4
+        spacing: 6
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 4
+            spacing: 6
 
             Text {
                 text: root.control.label || "Rollo"
@@ -112,58 +114,62 @@ Rectangle {
                 text: root.positionLabel()
                 color: "#94a3b8"
                 font.pixelSize: 10
-            }
-
-            RowLayout {
-                spacing: 3
-
-                Repeater {
-                    model: root.stopVisible
-                           ? [
-                               { icon: "\u25B2", cmd: root.upCommand },
-                               { icon: "\u25A0", cmd: root.stopCommand },
-                               { icon: "\u25BC", cmd: root.downCommand }
-                             ]
-                           : [
-                               { icon: "\u25B2", cmd: root.upCommand },
-                               { icon: "\u25BC", cmd: root.downCommand }
-                             ]
-
-                    Rectangle {
-                        Layout.preferredWidth: root.buttonHeight
-                        Layout.preferredHeight: root.buttonHeight
-                        radius: 6
-                        color: movePress.pressed ? root.accent : "#1f2d44"
-                        border.color: "#304158"
-                        border.width: 1
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: modelData.icon
-                            color: movePress.pressed ? "#111827" : "#e2e8f0"
-                            font.pixelSize: 11
-                            font.bold: true
-                        }
-
-                        MouseArea {
-                            id: movePress
-                            anchors.fill: parent
-                            enabled: root.hasBinding
-                            onClicked: {
-                                if (root.panel) {
-                                    root.panel.dispatchCommand(root.control, modelData.cmd)
-                                }
-                            }
-                        }
-                    }
-                }
+                Layout.alignment: Qt.AlignVCenter
             }
         }
 
         RowLayout {
             Layout.fillWidth: true
+            spacing: 4
+
+            Repeater {
+                model: root.stopVisible
+                       ? [
+                           { icon: "\u25B2", cmd: root.upCommand },
+                           { icon: "\u25A0", cmd: root.stopCommand },
+                           { icon: "\u25BC", cmd: root.downCommand }
+                         ]
+                       : [
+                           { icon: "\u25B2", cmd: root.upCommand },
+                           { icon: "\u25BC", cmd: root.downCommand }
+                         ]
+
+                Rectangle {
+                    Layout.preferredWidth: root.buttonHeight
+                    Layout.preferredHeight: root.buttonHeight
+                    radius: 6
+                    color: movePress.pressed ? root.accent : "#1f2d44"
+                    border.color: "#304158"
+                    border.width: 1
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: modelData.icon
+                        color: movePress.pressed ? "#111827" : "#e2e8f0"
+                        font.pixelSize: 11
+                        font.bold: true
+                    }
+
+                    MouseArea {
+                        id: movePress
+                        anchors.fill: parent
+                        enabled: root.hasBinding
+                        onClicked: {
+                            if (root.panel) {
+                                root.panel.dispatchCommand(root.control, modelData.cmd)
+                            }
+                        }
+                    }
+                }
+            }
+
+            Item { Layout.fillWidth: true }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
             visible: root.hasSceneButtons
-            spacing: 3
+            spacing: 4
 
             Repeater {
                 model: root.sceneOptions
@@ -181,7 +187,7 @@ Rectangle {
 
                     Text {
                         anchors.centerIn: parent
-                        width: parent.width - 4
+                        width: parent.width - 6
                         text: parent.opt && parent.opt.label !== undefined
                               ? parent.opt.label
                               : (parent.opt ? parent.opt.value : "")

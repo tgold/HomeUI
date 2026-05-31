@@ -42,6 +42,11 @@ Rectangle {
             return Number.NaN
         }
         var value = n * scaleValue
+        var unit = control.unit ? String(control.unit) : ""
+        var format = control.format ? String(control.format).toLowerCase() : ""
+        if (format === "fraction" || unit === "%") {
+            value = Fmt.asPercentValue(value, rawValue, format === "fraction")
+        }
         if (invertValue) {
             value = invertBaseValue - value
         }
