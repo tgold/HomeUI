@@ -28,40 +28,29 @@
               "item": "thz_aussentemp"
             },
             {
+              "kind": "color",
               "label": "Licht",
               "iconText": "L",
               "accentColor": "#fbbf24",
-              "item": "GF_LivingRoom_Light"
+              "item": "GF_LivingRoom_Light_Color",
+              "powerItem": "GF_LivingRoom_Light"
             },
             {
               "kind": "color",
-              "label": "Licht Hue",
-              "iconText": "H",
-              "accentColor": "#fbbf24",
-              "item": "GF_LivingRoom_Light_Color"
-            },
-            {
               "label": "Stehlampe",
               "iconText": "S",
               "accentColor": "#fbbf24",
-              "item": "GF_LivingRoom_StandLight_Toggle"
-            },
-            {
-              "kind": "color",
-              "label": "Stehlampe Hue",
-              "iconText": "H",
-              "accentColor": "#fbbf24",
-              "item": "GF_LivingRoom_StandLight_Color"
+              "item": "GF_LivingRoom_StandLight_Color",
+              "powerItem": "GF_LivingRoom_StandLight_Toggle"
             },
             {
               "kind": "shutter",
               "label": "Rollo",
-              "item": "GF_LivingRoom_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true
-            },
-            {
-              "kind": "selector",
-              "label": "Rollo Szene",
-              "item": "GF_LivingRoom_Shutter_Scene",
+              "item": "GF_LivingRoom_Shutter",
+              "sceneItem": "GF_LivingRoom_Shutter_Scene",
+              "upCommand": "ON",
+              "downCommand": "OFF",
+              "hideStop": true,
               "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch", "value": "FULLUP" },
@@ -72,12 +61,11 @@
             {
               "kind": "shutter",
               "label": "Rollo Terrasse",
-              "item": "GF_Terrace_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true
-            },
-            {
-              "kind": "selector",
-              "label": "Rollo Terrasse Szene",
-              "item": "GF_Terrace_Shutter_Scene",
+              "item": "GF_Terrace_Shutter",
+              "sceneItem": "GF_Terrace_Shutter_Scene",
+              "upCommand": "ON",
+              "downCommand": "OFF",
+              "hideStop": true,
               "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch", "value": "FULLUP" },
@@ -123,12 +111,11 @@
             {
               "kind": "shutter",
               "label": "Rollo",
-              "item": "GF_Dining_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true
-            },
-            {
-              "kind": "selector",
-              "label": "Rollo Szene",
-              "item": "GF_Dining_Shutter_Scene",
+              "item": "GF_Dining_Shutter",
+              "sceneItem": "GF_Dining_Shutter_Scene",
+              "upCommand": "ON",
+              "downCommand": "OFF",
+              "hideStop": true,
               "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch", "value": "FULLUP" },
@@ -281,14 +268,12 @@
           "tilesPerRow": 2,
           "controls": [
             { "kind": "value",  "format": "temperature", "label": "Temperatur",    "iconText": "T", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
-            { "label": "Licht",         "iconText": "L", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light" },
-            { "kind": "color",  "label": "Licht Hue",     "iconText": "H", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light_Color" },
-            { "label": "Stehlampe",     "iconText": "S", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Toggle" },
-            { "kind": "color",  "label": "Stehlampe Hue", "iconText": "H", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Color" },
-            { "kind": "shutter","label": "Rollo",         "item": "GF_LivingRoom_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
+            { "kind": "color",  "label": "Licht",         "iconText": "L", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light_Color", "powerItem": "GF_LivingRoom_Light" },
+            { "kind": "color",  "label": "Stehlampe",     "iconText": "S", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Color", "powerItem": "GF_LivingRoom_StandLight_Toggle" },
             {
-              "kind": "selector", "label": "Rollo Szene",
-              "item": "GF_LivingRoom_Shutter_Scene", "accentColor": "#38bdf8",
+              "kind": "shutter", "label": "Rollo",
+              "item": "GF_LivingRoom_Shutter", "sceneItem": "GF_LivingRoom_Shutter_Scene",
+              "upCommand": "ON", "downCommand": "OFF", "hideStop": true, "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch",   "value": "FULLUP" },
                 { "label": "Halb",   "value": "HALFDOWN" },
@@ -305,10 +290,10 @@
             { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
             { "kind": "dimmer", "label": "Licht",      "iconText": "%", "accentColor": "#fbbf24", "item": "GF_DiningRoom_Light_Dimmer" },
             { "kind": "dimmer", "label": "Licht Hue",  "iconText": "%", "accentColor": "#fbbf24", "item": "GF_DiningRoom_Light_Temperature" },
-            { "kind": "shutter","label": "Rollo Essen","item": "GF_Dining_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
             {
-              "kind": "selector", "label": "Rollo Szene",
-              "item": "GF_Dining_Shutter_Scene", "accentColor": "#38bdf8",
+              "kind": "shutter", "label": "Rollo",
+              "item": "GF_Dining_Shutter", "sceneItem": "GF_Dining_Shutter_Scene",
+              "upCommand": "ON", "downCommand": "OFF", "hideStop": true, "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch",   "value": "FULLUP" },
                 { "label": "Halb",   "value": "HALFDOWN" },
@@ -324,10 +309,10 @@
           "controls": [
             { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "thz_aussentemp" },
             { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "GF_Terrace_Light" },
-            { "kind": "shutter","label": "Rollo",      "item": "GF_Terrace_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
             {
-              "kind": "selector", "label": "Rollo Szene",
-              "item": "GF_Terrace_Shutter_Scene", "accentColor": "#38bdf8",
+              "kind": "shutter", "label": "Rollo",
+              "item": "GF_Terrace_Shutter", "sceneItem": "GF_Terrace_Shutter_Scene",
+              "upCommand": "ON", "downCommand": "OFF", "hideStop": true, "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch",   "value": "FULLUP" },
                 { "label": "Halb",   "value": "HALFDOWN" },

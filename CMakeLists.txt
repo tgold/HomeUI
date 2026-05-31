@@ -45,6 +45,10 @@ endif()
 
 qt_standard_project_setup(REQUIRES 6.4)
 
+# Skip qmlcachegen (QML -> C++ AOT). Required for arm64 Docker builds on x86_64
+# hosts: g++ often segfaults under QEMU when compiling large generated QML files.
+option(HOMEUI_NO_QML_CACHEGEN "Do not AOT-compile QML to C++ (use for QEMU/docker cross-builds)" OFF)
+
 qt_add_executable(homeui
     src/DashboardConfig.cpp
     src/DashboardConfig.h
@@ -67,7 +71,7 @@ if(HOMEUI_HAS_MQTT)
     target_compile_definitions(homeui PRIVATE HOMEUI_HAS_MQTT)
 endif()
 
-qt_add_qml_module(homeui
+set(_homeui_qml_module_args
     URI HomeUI
     VERSION 1.0
     QML_FILES
@@ -99,6 +103,10 @@ qt_add_qml_module(homeui
     RESOURCES
         assets/irrigation-floorplan.png
 )
+if(HOMEUI_NO_QML_CACHEGEN)
+    list(APPEND _homeui_qml_module_args NO_CACHEGEN)
+endif()
+qt_add_qml_module(homeui ${_homeui_qml_module_args})
 
 target_include_directories(homeui
     PRIVATE

@@ -299,21 +299,25 @@ Renders a slider 0..100 plus a power icon that toggles between `0` and `onLevel`
 
 - `min` / `max` (defaults `0` / `100`) - slider range.
 - `onLevel` (default `max`) - value sent when the icon is tapped to turn the dimmer on.
+- `powerItem` (optional) - separate `Switch` item for the icon; hue/level still use `item`.
 - The slider sends the new integer value as a numeric command when released.
 
 #### Color (`kind: "color"`)
 
-Hue + brightness picker for OpenHAB `Color` items. Renders a horizontal hue gradient strip with a draggable marker, a brightness slider, and a circular power button whose fill reflects the current colour.
+Hue + brightness picker for OpenHAB `Color` items: power icon, label, hue strip, and brightness slider in one compact tile.
 
 ```json
 {
   "kind": "color",
-  "label": "Wohnzimmer Hue",
-  "iconText": "H",
+  "label": "Licht",
+  "iconText": "L",
   "accentColor": "#fbbf24",
-  "item": "GF_LivingRoom_Light_Color"
+  "item": "GF_LivingRoom_Light_Color",
+  "powerItem": "GF_LivingRoom_Light"
 }
 ```
+
+Set `powerItem` when on/off is a separate `Switch` item from the `Color` item (replaces a side-by-side switch + hue tile pair). The icon toggles `ON`/`OFF` on `powerItem`; hue and brightness still use `item`.
 
 State / command encoding:
 
@@ -324,7 +328,7 @@ State / command encoding:
 
 #### Shutter (`kind: "shutter"`)
 
-Renders three press buttons (UP / STOP / DOWN) plus a textual position readout. Reads the rollershutter state to detect open/closed.
+Compact up/stop/down controls plus position readout. Optional preset scene buttons (`options` + `sceneItem`) merge the old separate `selector` tile into the same row.
 
 ```json
 {
@@ -354,6 +358,28 @@ If the visible state lives on a different OpenHAB item than the one that accepts
 ```
 
 `commandItem` works the same way for any other control kind — its presence routes the OpenHAB `POST` to that item instead of `item`. For MQTT-backed tiles the equivalent is `commandTopic`.
+
+Combined shutter + scene presets (replaces a `shutter` + `selector` pair):
+
+```json
+{
+  "kind": "shutter",
+  "label": "Rollo",
+  "item": "GF_LivingRoom_Shutter",
+  "sceneItem": "GF_LivingRoom_Shutter_Scene",
+  "upCommand": "ON",
+  "downCommand": "OFF",
+  "hideStop": true,
+  "accentColor": "#38bdf8",
+  "options": [
+    { "label": "Hoch", "value": "FULLUP" },
+    { "label": "Halb", "value": "HALFDOWN" },
+    { "label": "Runter", "value": "FULLDOWN" }
+  ]
+}
+```
+
+`sceneItem` receives the `options` values; `item` is used for up/down commands and position display.
 
 #### Thermostat (`kind: "thermostat"`)
 

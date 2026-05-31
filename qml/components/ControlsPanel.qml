@@ -58,6 +58,13 @@ Rectangle {
         return itemState(control.item || "", fallback)
     }
 
+    function valueForItem(itemName, fallback) {
+        if (!itemName || itemName.length === 0) {
+            return fallback || ""
+        }
+        return itemState(itemName, fallback || "")
+    }
+
     function controlSecondary(control) {
         if (control.currentItem && control.currentItem.length > 0) {
             return itemState(control.currentItem, control.secondary || "")
@@ -236,6 +243,12 @@ Rectangle {
                     readonly property string kind: root.controlKind(modelData)
                     readonly property string rawValue: root.controlValue(modelData)
                     readonly property string currentValue: root.controlSecondary(modelData)
+                    readonly property string powerValue: modelData.powerItem
+                            ? root.valueForItem(modelData.powerItem, "")
+                            : ""
+                    readonly property string sceneValue: modelData.sceneItem
+                            ? root.valueForItem(modelData.sceneItem, "")
+                            : ""
 
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
@@ -294,6 +307,7 @@ Rectangle {
             control: parent.control
             panel: root
             rawValue: parent.rawValue
+            powerValue: parent.powerValue
         }
     }
 
@@ -304,6 +318,7 @@ Rectangle {
             control: parent.control
             panel: root
             rawValue: parent.rawValue
+            powerValue: parent.powerValue
         }
     }
 
@@ -314,6 +329,7 @@ Rectangle {
             control: parent.control
             panel: root
             rawValue: parent.rawValue
+            sceneValue: parent.sceneValue
         }
     }
 

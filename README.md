@@ -61,8 +61,13 @@ qml/
     StatusBar.qml
     ThermostatTile.qml
 scripts/
+  build-pi-docker.sh
   install-pi-deps.sh
   install-service.sh
+docker/
+  Dockerfile.pi-build
+  install-build-deps.sh
+  build-in-container.sh
 packaging/
   autostart/homeui.desktop
   autostart/homeui-wayland.desktop
@@ -99,6 +104,67 @@ HOMEUI_OPENHAB_URL=http://openhabian:8080 ./build-gcc/homeui
 ```
 
 The app opens fullscreen by default for kiosk-style touchscreen use.
+
+### Cross-build for Raspberry Pi (Docker)
+
+Build on your Mac or Linux workstation for **Debian 13 (trixie) arm64** without installing Qt locally. The builder image uses `debian:trixie` with the same apt Qt packages as your panel.
+
+**Requirements:** Docker CLI + a container runtime. The first run builds the image and may take several minutes (Qt + optional qtmqtt compile).
+
+**macOS Ventura 13 (and older):** Current Docker Desktop requires Sonoma 14+. Use [Colima](https://colima.run) instead:
+
+```sh
+brew install colima docker
+colima start
+docker version    # should show Client and Server
+```
+
+Then run `./scripts/build-pi-docker.sh` as usual. Alternatively, install an older Docker Desktop from the [release notes](https://docs.docker.com/desktop/release-notes/) (pick a build from when Ventura was still listed as supported).
+
+**macOS Sonoma 14+:** `brew install --cask docker`, then open Docker Desktop from Applications.
+
+```sh
+./scripts/build-pi-docker.sh
+```
+
+Output: `build-pi-docker/homeui` (aarch64 ELF). Copy to the panel and replace `/usr/local/bin/homeui`, or run `sudo cmake --install` on the Pi after copying the build tree.
+
+```sh
+scp build-pi-docker/homeui pi@your-panel:/tmp/homeui
+ssh pi@your-panel 'sudo install -m 755 /tmp/homeui /usr/local/bin/homeui'
+```
+
+Useful flags:
+
+| Flag | Purpose |
+|------|---------|
+| `--image` | Build or refresh the `homeui-pi-builder` image only |
+| `--rebuild-image` | Force a clean image rebuild (no cache) |
+| `--shell` | Interactive shell inside the builder (debugging) |
+| `--build-dir <dir>` | Custom output directory |
+
+On Intel Macs / x86_64 Linux, Docker runs the arm64 image via QEMU (slower but correct). Apple Silicon runs arm64 natively. The Docker build disables QML ahead-of-time compilation (`HOMEUI_NO_QML_CACHEGEN`) because `g++` often crashes under QEMU on large generated files; the panel loads QML from the binary resources at runtime instead.
+
+If the build still fails, retry with a single job: `HOMEUI_BUILD_JOBS=1 ./scripts/build-pi-docker.sh`
+
+**Parallelism:** Docker builds default to **2 compile jobs** (`HOMEUI_BUILD_JOBS=2`) because `g++` often crashes under QEMU on Intel Macs. Ninja still looks mostly sequential in the log (one `[n/72]` line per finished step). To use more cores:
+
+```sh
+HOMEUI_BUILD_JOBS=4 ./scripts/build-pi-docker.sh
+```
+
+Give Colima enough CPUs/RAM, then restart it:
+
+```sh
+colima stop
+colima start --cpu 4 --memory 8
+```
+
+On **Intel Mac + arm64 image**, extra jobs help only a little — QEMU emulation is the bottleneck. Fastest path: build natively on the panel (`./scripts/install-pi-deps.sh` + `build-gcc`). **Apple Silicon** can usually set `HOMEUI_BUILD_JOBS=$(sysctl -n hw.ncpu)`.
+
+After changing CMake options, wipe the output dir once: `rm -rf build-pi-docker`.
+
+The binary links against system Qt on the panel — deploy to **Debian 13 (trixie)** with the same `qt6-*` packages from `install-pi-deps.sh`.
 
 ## Dashboard configuration
 

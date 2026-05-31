@@ -159,3 +159,15 @@ systemctl --user restart homeui.service
 ```
 
 The `install-service.sh` script only needs to be re-run when the service file itself changes (very rarely).
+
+### Building on a workstation (Docker)
+
+From a Mac or Linux machine with Docker, cross-build for Debian 13 (trixie) arm64 without a native Qt toolchain:
+
+```sh
+./scripts/build-pi-docker.sh
+scp build-pi-docker/homeui pi@your-panel:/tmp/homeui
+ssh pi@your-panel 'sudo install -m 755 /tmp/homeui /usr/local/bin/homeui && systemctl --user restart homeui.service'
+```
+
+See `README.md` for image rebuild and debug shell options.

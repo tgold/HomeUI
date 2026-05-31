@@ -8,13 +8,13 @@ Rectangle {
     property var control: ({})
     property var panel: null
     property string rawValue: ""
+    property string sceneValue: ""
+
+    readonly property var sceneOptions: Fmt.asArray(control.options)
+    readonly property bool hasSceneButtons: sceneOptions.length > 0 && !!(control.sceneItem || control.commandItem)
 
     readonly property real currentPosition: {
         var raw = String(rawValue).trim().toUpperCase()
-        // For plain Switch shutters this codebase treats ON as "open / up" and
-        // OFF as "closed / down" to match the KNX rules in this installation.
-        // If your binding is wired the other way around, set `invertSwitch`
-        // on the control – or just swap upCommand/downCommand.
         switch (raw) {
         case "UP":
         case "OPEN":
@@ -49,6 +49,8 @@ Rectangle {
     readonly property string stopCommand: control.stopCommand || "STOP"
     readonly property string downCommand: control.downCommand || "DOWN"
     readonly property bool stopVisible: control.hideStop !== true
+    readonly property string sceneState: String(sceneValue).trim()
+    readonly property int buttonHeight: 26
 
     function positionLabel() {
         var pos = currentPosition
@@ -65,8 +67,24 @@ Rectangle {
         return Math.round(pos) + " %"
     }
 
+    function sceneControl() {
+        return {
+            item: control.sceneItem || control.commandItem || "",
+            mqttTopic: control.sceneMqttTopic || control.commandTopic || "",
+            commandTopic: control.commandTopic || ""
+        }
+    }
+
+    function _isSceneActive(opt) {
+        if (!opt) {
+            return false
+        }
+        var value = opt.value !== undefined ? String(opt.value) : ""
+        return value.length > 0 && value.toUpperCase() === sceneState.toUpperCase()
+    }
+
     implicitWidth: 160
-    implicitHeight: 104
+    implicitHeight: hasSceneButtons ? 56 : 50
     radius: 12
     color: isClosed ? "#26364d" : "#172235"
     border.color: isClosed ? accent : "#304158"
@@ -75,68 +93,112 @@ Rectangle {
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: Fmt.tileMargin
-        spacing: 6
+        spacing: 4
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 6
+            spacing: 4
 
             Text {
                 text: root.control.label || "Rollo"
                 color: "#cbd5e1"
-                font.pixelSize: 12
+                font.pixelSize: 11
+                font.bold: true
                 elide: Text.ElideRight
                 Layout.fillWidth: true
             }
 
             Text {
                 text: root.positionLabel()
-                color: "#f8fafc"
-                font.pixelSize: 13
-                font.bold: true
+                color: "#94a3b8"
+                font.pixelSize: 10
+            }
+
+            RowLayout {
+                spacing: 3
+
+                Repeater {
+                    model: root.stopVisible
+                           ? [
+                               { icon: "\u25B2", cmd: root.upCommand },
+                               { icon: "\u25A0", cmd: root.stopCommand },
+                               { icon: "\u25BC", cmd: root.downCommand }
+                             ]
+                           : [
+                               { icon: "\u25B2", cmd: root.upCommand },
+                               { icon: "\u25BC", cmd: root.downCommand }
+                             ]
+
+                    Rectangle {
+                        Layout.preferredWidth: root.buttonHeight
+                        Layout.preferredHeight: root.buttonHeight
+                        radius: 6
+                        color: movePress.pressed ? root.accent : "#1f2d44"
+                        border.color: "#304158"
+                        border.width: 1
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData.icon
+                            color: movePress.pressed ? "#111827" : "#e2e8f0"
+                            font.pixelSize: 11
+                            font.bold: true
+                        }
+
+                        MouseArea {
+                            id: movePress
+                            anchors.fill: parent
+                            enabled: root.hasBinding
+                            onClicked: {
+                                if (root.panel) {
+                                    root.panel.dispatchCommand(root.control, modelData.cmd)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 6
+            visible: root.hasSceneButtons
+            spacing: 3
 
             Repeater {
-                model: root.stopVisible
-                       ? [
-                           { id: "up",   icon: "\u25B2", cmd: root.upCommand },
-                           { id: "stop", icon: "\u25A0", cmd: root.stopCommand },
-                           { id: "down", icon: "\u25BC", cmd: root.downCommand }
-                         ]
-                       : [
-                           { id: "up",   icon: "\u25B2", cmd: root.upCommand },
-                           { id: "down", icon: "\u25BC", cmd: root.downCommand }
-                         ]
+                model: root.sceneOptions
 
                 Rectangle {
+                    readonly property var opt: modelData
+                    readonly property bool sceneActive: root._isSceneActive(modelData)
+
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    Layout.preferredWidth: 1
-                    radius: 8
-                    color: pressArea.pressed ? root.accent : "#1f2d44"
-                    border.color: "#304158"
+                    Layout.preferredHeight: root.buttonHeight
+                    radius: 6
+                    color: sceneActive ? root.accent : "#0f1726"
+                    border.color: sceneActive ? root.accent : "#304158"
                     border.width: 1
 
                     Text {
                         anchors.centerIn: parent
-                        text: modelData.icon
-                        color: pressArea.pressed ? "#111827" : "#e2e8f0"
-                        font.pixelSize: 14
+                        width: parent.width - 4
+                        text: parent.opt && parent.opt.label !== undefined
+                              ? parent.opt.label
+                              : (parent.opt ? parent.opt.value : "")
+                        color: parent.sceneActive ? "#111827" : "#cbd5e1"
+                        font.pixelSize: 10
                         font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        elide: Text.ElideRight
                     }
 
                     MouseArea {
-                        id: pressArea
                         anchors.fill: parent
-                        enabled: root.hasBinding
+                        enabled: root.hasSceneButtons && root.panel
                         onClicked: {
-                            if (root.panel) {
-                                root.panel.dispatchCommand(root.control, modelData.cmd)
+                            if (root.panel && parent.opt && parent.opt.value !== undefined) {
+                                root.panel.dispatchCommand(root.sceneControl(),
+                                                           String(parent.opt.value))
                             }
                         }
                     }

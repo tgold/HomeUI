@@ -19,7 +19,7 @@ Rectangle {
         return value.length > 0 && value.toUpperCase() === currentValue.toUpperCase()
     }
 
-    implicitWidth: Math.max(160, options.length * 78 + 24)
+    implicitWidth: Math.max(140, options.length * 72 + 20)
     implicitHeight: contentColumn.implicitHeight + 2 * contentColumn.anchors.margins
     radius: 12
     color: "#172235"
@@ -30,12 +30,13 @@ Rectangle {
         id: contentColumn
         anchors.fill: parent
         anchors.margins: Fmt.tileMargin
-        spacing: 6
+        spacing: 4
 
         Text {
             text: root.control.label || "Auswahl"
             color: "#cbd5e1"
-            font.pixelSize: 12
+            font.pixelSize: 11
+            font.bold: true
             elide: Text.ElideRight
             Layout.fillWidth: true
         }
@@ -53,7 +54,7 @@ Rectangle {
                     readonly property bool active: root._isActive(modelData)
 
                     Layout.fillWidth: true
-                    implicitHeight: 28
+                    implicitHeight: 26
                     radius: 6
                     color: active ? root.accent : "#0f1726"
                     border.color: active ? root.accent : "#304158"

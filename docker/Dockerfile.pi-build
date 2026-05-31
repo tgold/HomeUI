@@ -1,0 +1,16 @@
+# Debian 13 (trixie) arm64 builder — matches the panel's Qt/apt packages.
+# Build the image:  ./scripts/build-pi-docker.sh --image
+# Build HomeUI:     ./scripts/build-pi-docker.sh
+
+FROM debian:trixie
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+COPY docker/install-build-deps.sh /tmp/install-build-deps.sh
+RUN chmod +x /tmp/install-build-deps.sh && /tmp/install-build-deps.sh && rm /tmp/install-build-deps.sh
+
+COPY docker/build-in-container.sh /usr/local/bin/build-homeui.sh
+RUN chmod +x /usr/local/bin/build-homeui.sh
+
+WORKDIR /src
+ENTRYPOINT ["/usr/local/bin/build-homeui.sh"]

@@ -9,10 +9,8 @@ Rectangle {
     property var control: ({})
     property var panel: null
     property string rawValue: ""
+    property string powerValue: ""
 
-    // Parses the OpenHAB Color state, which is encoded as a comma-separated
-    // "H,S,B" triple (degrees / percent / percent). Falls back to a plain
-    // brightness percentage or ON/OFF tokens.
     readonly property var hsb: {
         var raw = String(rawValue).trim()
         if (raw.length === 0) {
@@ -38,11 +36,15 @@ Rectangle {
     readonly property real hue: hsb.h
     readonly property real saturation: hsb.s
     readonly property real brightness: hsb.b
-    readonly property bool isOn: brightness > 0
+    readonly property bool hasPowerItem: !!(control.powerItem && control.powerItem.length > 0)
+    readonly property bool powerOn: {
+        if (hasPowerItem && panel) {
+            return panel.isOnState(powerValue)
+        }
+        return brightness > 0
+    }
     readonly property bool hasBinding: !!(control.item || control.mqttTopic)
-
-    // The preview always shows a vivid colour even at low brightness so the
-    // hue indicator stays visible.
+    readonly property color accent: control.accentColor || "#fbbf24"
     readonly property color currentColor: Qt.hsva(
         Math.max(0, Math.min(1, hue / 360)),
         Math.max(0.2, Math.min(1, saturation / 100)),
@@ -62,41 +64,77 @@ Rectangle {
         panel.dispatchCommand(control, String(Math.max(0, Math.min(100, Math.round(b)))))
     }
 
+    function powerControl() {
+        return {
+            item: control.powerItem || "",
+            mqttTopic: control.powerMqttTopic || "",
+            commandTopic: control.powerCommandTopic || ""
+        }
+    }
+
     function togglePower() {
         if (!panel) { return }
-        // Color items in OpenHAB accept ON/OFF directly. Sending ON restores
-        // the last non-zero brightness, OFF sets brightness to 0.
-        panel.dispatchCommand(control, isOn ? "OFF" : "ON")
+        if (hasPowerItem) {
+            var on = control.onCommand || control.mqttOnPayload || "ON"
+            var off = control.offCommand || control.mqttOffPayload || "OFF"
+            panel.dispatchCommand(powerControl(), powerOn ? off : on)
+            return
+        }
+        panel.dispatchCommand(control, powerOn ? "OFF" : "ON")
     }
 
     implicitWidth: 200
-    implicitHeight: 130
+    implicitHeight: 96
     radius: 12
-    color: isOn ? "#26364d" : "#172235"
-    border.color: isOn ? currentColor : "#304158"
+    color: powerOn ? "#26364d" : "#172235"
+    border.color: powerOn ? currentColor : "#304158"
     border.width: 1
 
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: Fmt.tileMargin
-        spacing: 8
+        spacing: 4
 
         RowLayout {
             Layout.fillWidth: true
             spacing: 6
 
+            Rectangle {
+                Layout.preferredWidth: 28
+                Layout.preferredHeight: 28
+                radius: 8
+                color: root.powerOn ? (root.hasPowerItem ? root.accent : root.currentColor) : "#263449"
+                border.color: root.powerOn ? "#f8fafc" : "#304158"
+                border.width: 1
+
+                Text {
+                    anchors.centerIn: parent
+                    text: root.control.iconText || (root.powerOn ? "ON" : "OFF")
+                    color: root.powerOn ? "#111827" : "#cbd5e1"
+                    font.pixelSize: 11
+                    font.bold: true
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.hasBinding || root.hasPowerItem
+                    onClicked: root.togglePower()
+                }
+            }
+
             Text {
                 text: root.control.label || "Licht"
                 color: "#cbd5e1"
-                font.pixelSize: 12
+                font.pixelSize: 11
+                font.bold: true
                 elide: Text.ElideRight
                 Layout.fillWidth: true
             }
 
             Text {
-                text: Math.round(root.brightness) + " %"
+                text: Math.round(root.brightness) + "%"
                 color: "#f8fafc"
-                font.pixelSize: 14
+                font.pixelSize: 11
                 font.bold: true
             }
         }
@@ -104,11 +142,12 @@ Rectangle {
         Rectangle {
             id: hueStrip
             Layout.fillWidth: true
-            Layout.preferredHeight: 22
-            radius: 11
+            Layout.preferredHeight: 18
+            radius: 9
             border.color: "#304158"
             border.width: 1
             clip: true
+            opacity: root.hasBinding ? 1 : 0.5
 
             gradient: Gradient {
                 orientation: Gradient.Horizontal
@@ -123,8 +162,8 @@ Rectangle {
 
             Rectangle {
                 id: hueMarker
-                width: 8
-                height: parent.height + 6
+                width: 6
+                height: parent.height + 4
                 anchors.verticalCenter: parent.verticalCenter
                 x: Math.max(-width / 2,
                             Math.min(parent.width - width / 2,
@@ -132,7 +171,7 @@ Rectangle {
                 color: "transparent"
                 border.color: "#f8fafc"
                 border.width: 2
-                radius: 4
+                radius: 3
             }
 
             MouseArea {
@@ -148,7 +187,6 @@ Rectangle {
                 onCanceled: dragging = false
 
                 function updateLocal(mouse) {
-                    // Move the marker live for snappy feedback.
                     var x = Math.max(0, Math.min(width, mouse.x))
                     hueMarker.x = x - hueMarker.width / 2
                 }
@@ -163,47 +201,19 @@ Rectangle {
             }
         }
 
-        RowLayout {
+        Slider {
+            id: brightnessSlider
             Layout.fillWidth: true
-            spacing: 8
-
-            Rectangle {
-                Layout.preferredWidth: 32
-                Layout.preferredHeight: 32
-                radius: 16
-                color: root.isOn ? root.currentColor : "#263449"
-                border.color: root.isOn ? "#f8fafc" : "#304158"
-                border.width: 1
-
-                Text {
-                    anchors.centerIn: parent
-                    text: root.control.iconText || (root.isOn ? "ON" : "OFF")
-                    color: root.isOn ? "#111827" : "#cbd5e1"
-                    font.pixelSize: 10
-                    font.bold: true
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    enabled: root.hasBinding
-                    onClicked: root.togglePower()
-                }
-            }
-
-            Slider {
-                id: brightnessSlider
-                Layout.fillWidth: true
-                Layout.preferredHeight: 30
-                from: 0
-                to: 100
-                stepSize: 1
-                value: Math.max(0, Math.min(100, root.brightness))
-                enabled: root.hasBinding
-                live: false
-                onPressedChanged: {
-                    if (!pressed) {
-                        root.sendBrightness(value)
-                    }
+            Layout.preferredHeight: 22
+            from: 0
+            to: 100
+            stepSize: 1
+            value: Math.max(0, Math.min(100, root.brightness))
+            enabled: root.hasBinding
+            live: false
+            onPressedChanged: {
+                if (!pressed) {
+                    root.sendBrightness(value)
                 }
             }
         }
