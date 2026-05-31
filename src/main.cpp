@@ -15,9 +15,11 @@
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QLoggingCategory>
+#include <QProcess>
 #include <QProcessEnvironment>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QStandardPaths>
 #include <QStringList>
 #include <QTime>
 #include <QUrl>
@@ -123,12 +125,72 @@ int readMaxBrightness(const QString &brightnessPath)
     return (ok && value > 0) ? value : 255;
 }
 
+QString displayPowerCommand(bool powerOn)
+{
+    const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    const QString configured = env.value(powerOn
+            ? QStringLiteral("HOMEUI_DISPLAY_ON_COMMAND")
+            : QStringLiteral("HOMEUI_DISPLAY_OFF_COMMAND"))
+        .trimmed();
+    if (!configured.isEmpty()) {
+        return configured;
+    }
+
+    const QString vcgencmd = QStandardPaths::findExecutable(QStringLiteral("vcgencmd"));
+    if (!vcgencmd.isEmpty()) {
+        return QStringLiteral("%1 display_power %2").arg(vcgencmd, powerOn ? QStringLiteral("1") : QStringLiteral("0"));
+    }
+
+    const QString xset = QStandardPaths::findExecutable(QStringLiteral("xset"));
+    if (!xset.isEmpty()) {
+        return QStringLiteral("%1 dpms force %2").arg(xset, powerOn ? QStringLiteral("on") : QStringLiteral("off"));
+    }
+
+    return {};
+}
+
+bool applyDisplayPower(bool powerOn, const QString &reason)
+{
+    static int lastRequestedPowerState = -1;
+    const int requestedPowerState = powerOn ? 1 : 0;
+    if (lastRequestedPowerState == requestedPowerState) {
+        return true;
+    }
+
+    const QString command = displayPowerCommand(powerOn);
+    if (command.isEmpty()) {
+        qCWarning(lcBrightness,
+                  "Display power %s skipped: no backlight control and no display power command configured (%s)",
+                  powerOn ? "on" : "off",
+                  qPrintable(reason));
+        return false;
+    }
+
+    const bool started = QProcess::startDetached(QStringLiteral("/bin/sh"), {QStringLiteral("-c"), command});
+    if (!started) {
+        qCWarning(lcBrightness,
+                  "Unable to start display power %s command '%s' (%s)",
+                  powerOn ? "on" : "off",
+                  qPrintable(command),
+                  qPrintable(reason));
+        return false;
+    }
+
+    lastRequestedPowerState = requestedPowerState;
+    qCInfo(lcBrightness,
+           "Requested display power %s via '%s' (%s)",
+           powerOn ? "on" : "off",
+           qPrintable(command),
+           qPrintable(reason));
+    return true;
+}
+
 void applyBrightnessPercent(int percent)
 {
     const int clamped = qBound(0, percent, 100);
     const QString brightnessPath = findBacklightPath();
     if (brightnessPath.isEmpty()) {
-        qCWarning(lcBrightness, "Brightness request ignored: no /sys/class/backlight device found (requested %d%%)", clamped);
+        applyDisplayPower(clamped > 0, QStringLiteral("no /sys/class/backlight device found, requested %1%").arg(clamped));
         return;
     }
     const int maxValue = readMaxBrightness(brightnessPath);
@@ -137,6 +199,7 @@ void applyBrightnessPercent(int percent)
     QFile file(brightnessPath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         qCWarning(lcBrightness, "Unable to write %s: %s", qPrintable(brightnessPath), qPrintable(file.errorString()));
+        applyDisplayPower(clamped > 0, QStringLiteral("unable to write %1, requested %2%").arg(brightnessPath).arg(clamped));
         return;
     }
     file.write(QByteArray::number(raw));

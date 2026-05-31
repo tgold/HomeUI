@@ -68,6 +68,8 @@ The relevant env vars are:
 | `HOMEUI_MQTT_CLIENT_ID`        | Override the auto-generated client id.                                  | `homeui-<host>-<pid>`             |
 | `HOMEUI_MQTT_PANEL_ID`         | Panel id used in `home/panel/<id>/...` topics.                          | `main`                            |
 | `HOMEUI_BRIGHTNESS_PATH`       | Backlight `brightness` sysfs node (auto-detected when unset).           | first `/sys/class/backlight/*`    |
+| `HOMEUI_DISPLAY_OFF_COMMAND`   | Command to turn the display fully off when brightness control is unavailable. | auto-detect `vcgencmd`/`xset` |
+| `HOMEUI_DISPLAY_ON_COMMAND`    | Command to turn the display back on when brightness control is unavailable. | auto-detect `vcgencmd`/`xset`  |
 | `HOMEUI_IDLE_TIMEOUT_MS`       | Idle timeout before the screen dims. `0` disables inactivity dimming.   | `600000` (10 min)                 |
 | `HOMEUI_ACTIVE_BRIGHTNESS`     | Brightness percent restored on touch.                                   | `80`                              |
 | `HOMEUI_IDLE_BRIGHTNESS`       | Brightness percent applied when idle.                                   | `0`                               |
@@ -122,6 +124,7 @@ Settings:
 - `HOMEUI_IDLE_BRIGHTNESS=5` - keep the screen lit at a low level instead of fully off (useful if the LCD does not like being driven to 0).
 - `HOMEUI_NIGHT_MODE_ENABLED=false` or `--no-night-mode` - disable the overnight screen-off window.
 - `HOMEUI_NIGHT_MODE_START=23:00` and `HOMEUI_NIGHT_MODE_END=06:30` - customize the quiet-hours window.
+- `HOMEUI_DISPLAY_OFF_COMMAND='vcgencmd display_power 0'` and `HOMEUI_DISPLAY_ON_COMMAND='vcgencmd display_power 1'` - force full display power switching on hardware without `/sys/class/backlight` brightness control. When unset, HomeUI tries `vcgencmd` first and then `xset dpms force off/on`.
 - MQTT topic `home/panel/<id>/brightness/set` (0..100) overrides `activeBrightness` for the rest of the session - useful for ambient-light or scene automation in OpenHAB.
 
 For the kiosk to actually be able to write to `/sys/class/backlight/*/brightness`, your user needs write access to that file. On standard Raspberry Pi OS the `video` group already has it; if your distribution doesn't, add a udev rule:
