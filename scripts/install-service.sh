@@ -94,6 +94,9 @@ case "${MODE}" in
 #HOMEUI_MQTT_PANEL_ID=wallpanel-eg
 #HOMEUI_BRIGHTNESS_PATH=/sys/class/backlight/10-0045/brightness
 #HOMEUI_IDLE_TIMEOUT_MS=600000
+#HOMEUI_NIGHT_MODE_ENABLED=true
+#HOMEUI_NIGHT_MODE_START=00:00
+#HOMEUI_NIGHT_MODE_END=06:30
 #HOMEUI_LOG_LEVEL=info
 EOF
             echo "Created ${HOME}/.config/homeui/env (edit to set OpenHAB/MQTT URLs etc.)"
@@ -128,6 +131,9 @@ EOF
 #HOMEUI_MQTT_PANEL_ID=wallpanel-eg
 #HOMEUI_BRIGHTNESS_PATH=/sys/class/backlight/10-0045/brightness
 #HOMEUI_IDLE_TIMEOUT_MS=600000
+#HOMEUI_NIGHT_MODE_ENABLED=true
+#HOMEUI_NIGHT_MODE_START=00:00
+#HOMEUI_NIGHT_MODE_END=06:30
 #HOMEUI_LOG_LEVEL=info
 EOF
             echo "Created /etc/homeui/env (edit to set OpenHAB/MQTT URLs etc.)"

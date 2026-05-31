@@ -1,8 +1,12 @@
 #include "ScreenIdleController.h"
 
 #include <QCoreApplication>
+#include <QDate>
+#include <QDateTime>
 #include <QEvent>
 #include <QLoggingCategory>
+
+#include <limits>
 
 namespace {
 Q_LOGGING_CATEGORY(lcIdle, "homeui.idle")
@@ -17,12 +21,15 @@ ScreenIdleController::ScreenIdleController(QObject *parent)
             setIdle(true);
         }
     });
+    m_nightModeTimer.setSingleShot(true);
+    connect(&m_nightModeTimer, &QTimer::timeout, this, &ScreenIdleController::refreshNightMode);
 
     if (QCoreApplication::instance()) {
         QCoreApplication::instance()->installEventFilter(this);
         m_filterInstalled = true;
     }
     resetIdleTimer();
+    QTimer::singleShot(0, this, &ScreenIdleController::refreshNightMode);
 }
 
 ScreenIdleController::~ScreenIdleController()
@@ -39,7 +46,7 @@ int ScreenIdleController::idleTimeoutMs() const
 
 void ScreenIdleController::setIdleTimeoutMs(int idleTimeoutMs)
 {
-    const int clamped = qMax(1000, idleTimeoutMs);
+    const int clamped = idleTimeoutMs <= 0 ? 0 : qMax(1000, idleTimeoutMs);
     if (m_idleTimeoutMs == clamped) {
         return;
     }
@@ -106,13 +113,58 @@ void ScreenIdleController::setEnabled(bool enabled)
     emit enabledChanged();
     if (!m_enabled) {
         m_idleTimer.stop();
+        m_nightModeTimer.stop();
+        m_nightModeActive = false;
         if (m_idle) {
             setIdle(false);
             emit brightnessRequested(m_activeBrightness);
         }
     } else {
+        refreshNightMode();
         resetIdleTimer();
     }
+}
+
+bool ScreenIdleController::nightModeEnabled() const
+{
+    return m_nightModeEnabled;
+}
+
+void ScreenIdleController::setNightModeEnabled(bool enabled)
+{
+    if (m_nightModeEnabled == enabled) {
+        return;
+    }
+    m_nightModeEnabled = enabled;
+    refreshNightMode();
+}
+
+QTime ScreenIdleController::nightModeStartTime() const
+{
+    return m_nightModeStartTime;
+}
+
+void ScreenIdleController::setNightModeStartTime(const QTime &time)
+{
+    if (!time.isValid() || m_nightModeStartTime == time) {
+        return;
+    }
+    m_nightModeStartTime = time;
+    refreshNightMode();
+}
+
+QTime ScreenIdleController::nightModeEndTime() const
+{
+    return m_nightModeEndTime;
+}
+
+void ScreenIdleController::setNightModeEndTime(const QTime &time)
+{
+    if (!time.isValid() || m_nightModeEndTime == time) {
+        return;
+    }
+    m_nightModeEndTime = time;
+    refreshNightMode();
 }
 
 bool ScreenIdleController::eventFilter(QObject *watched, QEvent *event)
@@ -147,6 +199,9 @@ void ScreenIdleController::wake()
     if (!m_enabled) {
         return;
     }
+    if (m_nightModeActive) {
+        return;
+    }
     if (m_idle) {
         qCInfo(lcIdle, "Waking from idle (active brightness %d%%)", m_activeBrightness);
         setIdle(false);
@@ -166,7 +221,8 @@ void ScreenIdleController::sleep()
 
 void ScreenIdleController::resetIdleTimer()
 {
-    if (!m_enabled) {
+    if (!m_enabled || m_nightModeActive || m_idleTimeoutMs <= 0) {
+        m_idleTimer.stop();
         return;
     }
     m_idleTimer.start(m_idleTimeoutMs);
@@ -183,4 +239,89 @@ void ScreenIdleController::setIdle(bool idle)
         qCInfo(lcIdle, "Going idle (idle brightness %d%%)", m_idleBrightness);
         emit brightnessRequested(m_idleBrightness);
     }
+}
+
+bool ScreenIdleController::isWithinNightMode(const QTime &time) const
+{
+    if (!m_nightModeStartTime.isValid() || !m_nightModeEndTime.isValid()
+        || m_nightModeStartTime == m_nightModeEndTime) {
+        return false;
+    }
+
+    if (m_nightModeStartTime < m_nightModeEndTime) {
+        return time >= m_nightModeStartTime && time < m_nightModeEndTime;
+    }
+    return time >= m_nightModeStartTime || time < m_nightModeEndTime;
+}
+
+void ScreenIdleController::refreshNightMode()
+{
+    if (!m_enabled) {
+        m_nightModeTimer.stop();
+        m_nightModeActive = false;
+        return;
+    }
+
+    const bool wasNightModeActive = m_nightModeActive;
+    const bool shouldBeNightModeActive = m_nightModeEnabled && isWithinNightMode(QTime::currentTime());
+    m_nightModeActive = shouldBeNightModeActive;
+
+    if (shouldBeNightModeActive) {
+        m_idleTimer.stop();
+        if (!m_idle) {
+            qCInfo(lcIdle,
+                   "Entering scheduled night screen-off until %s",
+                   qPrintable(m_nightModeEndTime.toString(QStringLiteral("HH:mm"))));
+            setIdle(true);
+        }
+    } else if (wasNightModeActive) {
+        qCInfo(lcIdle,
+               "Leaving scheduled night screen-off at %s",
+               qPrintable(m_nightModeEndTime.toString(QStringLiteral("HH:mm"))));
+        if (m_idle) {
+            setIdle(false);
+            emit brightnessRequested(m_activeBrightness);
+        }
+        resetIdleTimer();
+    }
+
+    scheduleNightModeTimer();
+}
+
+void ScreenIdleController::scheduleNightModeTimer()
+{
+    if (!m_enabled || !m_nightModeEnabled || !m_nightModeStartTime.isValid()
+        || !m_nightModeEndTime.isValid() || m_nightModeStartTime == m_nightModeEndTime) {
+        m_nightModeTimer.stop();
+        return;
+    }
+
+    const QDateTime now = QDateTime::currentDateTime();
+    const QDate today = now.date();
+    QDateTime nextTransition;
+
+    for (int dayOffset = 0; dayOffset < 3; ++dayOffset) {
+        const QDate date = today.addDays(dayOffset);
+        const QDateTime startCandidate(date, m_nightModeStartTime);
+        const QDateTime endCandidate(date, m_nightModeEndTime);
+
+        if (startCandidate > now
+            && (!nextTransition.isValid() || startCandidate < nextTransition)) {
+            nextTransition = startCandidate;
+        }
+        if (endCandidate > now
+            && (!nextTransition.isValid() || endCandidate < nextTransition)) {
+            nextTransition = endCandidate;
+        }
+    }
+
+    if (!nextTransition.isValid()) {
+        m_nightModeTimer.stop();
+        return;
+    }
+
+    const qint64 delayMs = qMax<qint64>(1, now.msecsTo(nextTransition));
+    m_nightModeTimer.start(static_cast<int>(qMin<qint64>(
+        delayMs,
+        std::numeric_limits<int>::max())));
 }

@@ -18,6 +18,7 @@ This repository currently contains the Milestone 6 production shell:
 - Home-automation widget catalogue: switch, dimmer (slider), roller shutter (up/stop/down), thermostat (+/- setpoint), and scene push button tiles, addressable per control via `kind`.
 - Built-in live camera tile: MJPEG (Synology Surveillance Station, axis, motion, etc.) decoded directly in QML via a small `MjpegView` C++ component; JPEG snapshot polling as a low-bandwidth fallback.
 - Raspberry Pi production deployment: systemd user / system service templates, XDG autostart fallback, idle screen dimming with touch-wake, live `dashboard.json` reloading on disk changes, and a structured `--log-level` controllable journal log.
+- Scheduled overnight screen-off: the panel turns the backlight off from 00:00 until 06:30 by default, then restores the active brightness.
 
 See `docs/deployment.md` for the production kiosk install guide.
 

@@ -68,9 +68,12 @@ The relevant env vars are:
 | `HOMEUI_MQTT_CLIENT_ID`        | Override the auto-generated client id.                                  | `homeui-<host>-<pid>`             |
 | `HOMEUI_MQTT_PANEL_ID`         | Panel id used in `home/panel/<id>/...` topics.                          | `main`                            |
 | `HOMEUI_BRIGHTNESS_PATH`       | Backlight `brightness` sysfs node (auto-detected when unset).           | first `/sys/class/backlight/*`    |
-| `HOMEUI_IDLE_TIMEOUT_MS`       | Idle timeout before the screen dims. `0` disables.                      | `600000` (10 min)                 |
+| `HOMEUI_IDLE_TIMEOUT_MS`       | Idle timeout before the screen dims. `0` disables inactivity dimming.   | `600000` (10 min)                 |
 | `HOMEUI_ACTIVE_BRIGHTNESS`     | Brightness percent restored on touch.                                   | `80`                              |
 | `HOMEUI_IDLE_BRIGHTNESS`       | Brightness percent applied when idle.                                   | `0`                               |
+| `HOMEUI_NIGHT_MODE_ENABLED`    | Enable the daily overnight screen-off window.                           | `true`                            |
+| `HOMEUI_NIGHT_MODE_START`      | Time when the overnight screen-off starts.                              | `00:00`                           |
+| `HOMEUI_NIGHT_MODE_END`        | Time when the screen turns back on.                                     | `06:30`                           |
 | `HOMEUI_LOG_LEVEL`             | One of `debug`, `info`, `warning`, `error`.                             | `info`                            |
 
 ## Logging
@@ -110,11 +113,15 @@ The visible UI is rebuilt automatically when `pages` changes (the `Repeater` in 
 
 The `ScreenIdleController` installs a Qt event filter that resets a single-shot timer on every mouse / touch / wheel / key / tablet event. When the timer fires (`idle-timeout` / `HOMEUI_IDLE_TIMEOUT_MS` milliseconds of inactivity), it emits `brightnessRequested(idleBrightness)`, which the same backlight helper that handles MQTT writes consumes. The first event after going idle wakes the screen back to `activeBrightness`.
 
+It also enforces a daily overnight screen-off window. By default the panel switches to `idleBrightness` at `00:00` and restores `activeBrightness` at `06:30`. Touch input does not wake the panel during this scheduled window.
+
 Settings:
 
-- `HOMEUI_IDLE_TIMEOUT_MS=0` - disable the idle timer entirely (panel stays on indefinitely).
+- `HOMEUI_IDLE_TIMEOUT_MS=0` - disable inactivity dimming while keeping the scheduled night window.
 - `HOMEUI_ACTIVE_BRIGHTNESS=70` - dim the wake-up brightness.
 - `HOMEUI_IDLE_BRIGHTNESS=5` - keep the screen lit at a low level instead of fully off (useful if the LCD does not like being driven to 0).
+- `HOMEUI_NIGHT_MODE_ENABLED=false` or `--no-night-mode` - disable the overnight screen-off window.
+- `HOMEUI_NIGHT_MODE_START=23:00` and `HOMEUI_NIGHT_MODE_END=06:30` - customize the quiet-hours window.
 - MQTT topic `home/panel/<id>/brightness/set` (0..100) overrides `activeBrightness` for the rest of the session - useful for ambient-light or scene automation in OpenHAB.
 
 For the kiosk to actually be able to write to `/sys/class/backlight/*/brightness`, your user needs write access to that file. On standard Raspberry Pi OS the `video` group already has it; if your distribution doesn't, add a udev rule:
