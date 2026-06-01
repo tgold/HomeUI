@@ -21,6 +21,9 @@ Rectangle {
     ]
     property bool showDebugButton: false
     property bool debugActive: false
+    property bool showPageNav: false
+    property int pageCount: 0
+    property int pageIndex: 0
 
     signal debugClicked()
 
@@ -113,6 +116,25 @@ Rectangle {
                     font.pixelSize: 11
                     font.bold: true
                 }
+            }
+        }
+
+        ColumnLayout {
+            visible: root.showPageNav && root.pageCount > 1
+            spacing: 4
+
+            PageDots {
+                Layout.alignment: Qt.AlignHCenter
+                count: root.pageCount
+                currentIndex: root.pageIndex
+            }
+
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                text: (root.pageIndex + 1) + " / " + root.pageCount
+                color: "#93a4ba"
+                font.pixelSize: 11
+                font.bold: true
             }
         }
 

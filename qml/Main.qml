@@ -236,6 +236,9 @@ ApplicationWindow {
         ]
         showDebugButton: true
         debugActive: debugModal.visible
+        showPageNav: dashboardConfig.valid && dashboardConfig.pages.length > 1
+        pageCount: dashboardConfig.valid ? dashboardConfig.pages.length : 0
+        pageIndex: swipeView.currentIndex
         onDebugClicked: debugModal.open()
     }
 
@@ -460,7 +463,7 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: statusBar.bottom
-        anchors.bottom: footer.top
+        anchors.bottom: parent.bottom
         clip: true
         interactive: dashboardConfig.valid && dashboardConfig.pages.length > 1
         visible: dashboardConfig.valid
@@ -485,7 +488,7 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: statusBar.bottom
-        anchors.bottom: footer.top
+        anchors.bottom: parent.bottom
         visible: !dashboardConfig.valid
         color: "#070d18"
 
@@ -542,41 +545,4 @@ ApplicationWindow {
         }
     }
 
-    Rectangle {
-        id: footer
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        height: 56
-        color: "#0b1220"
-        border.color: "#1f2b3d"
-
-        RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: 24
-            anchors.rightMargin: 24
-
-            Text {
-                text: "Config: " + dashboardConfig.sourcePath + " · OpenHAB " + openhabClient.baseUrl
-                color: dashboardConfig.valid ? "#64748b" : "#fbbf24"
-                font.pixelSize: 12
-                elide: Text.ElideMiddle
-                Layout.fillWidth: true
-            }
-
-            PageDots {
-                visible: dashboardConfig.valid
-                count: swipeView.count
-                currentIndex: swipeView.currentIndex
-            }
-
-            Text {
-                text: dashboardConfig.valid ? (swipeView.currentIndex + 1) + " / " + swipeView.count : "invalid config"
-                color: dashboardConfig.valid ? "#93a4ba" : "#fbbf24"
-                font.pixelSize: 12
-                horizontalAlignment: Text.AlignRight
-                Layout.fillWidth: true
-            }
-        }
-    }
 }
