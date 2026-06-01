@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <QVector>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QLoggingCategory>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -170,8 +171,8 @@ QVariantList InfluxHistoryClient::parseAnnotatedCsv(const QByteArray &body, QStr
     };
     QVector<Point> points;
 
-    timeIndex = -1;
-    valueIndex = -1;
+    int timeIndex = -1;
+    int valueIndex = -1;
     for (int i = 0; i < lines.size(); ++i) {
         const QString line = lines.at(i).trimmed();
         if (line.isEmpty() || line.startsWith(QLatin1Char('#'))) {
@@ -264,7 +265,7 @@ void InfluxHistoryClient::fetchDailyMeans(const QString &itemName,
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/vnd.flux"));
     request.setRawHeader("Authorization", QByteArray("Token ") + m_token.toUtf8());
-    request.setHeader(QNetworkRequest::AcceptHeader, QStringLiteral("application/csv"));
+    request.setRawHeader("Accept", "application/csv");
 
     const QByteArray flux = buildFluxQuery(item, measurement, days, filterByItemTag).toUtf8();
     qCDebug(lcInflux, "POST %s (item=%s)", qUtf8Printable(url.toString()), qUtf8Printable(item));
