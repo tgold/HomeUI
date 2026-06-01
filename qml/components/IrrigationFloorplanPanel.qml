@@ -20,11 +20,25 @@ Rectangle {
     property int stateRevision: openhab ? openhab.stateRevision : 0
 
     readonly property var influx: typeof influxHistoryClient !== "undefined" ? influxHistoryClient : null
+    readonly property bool historyRequested: history && history.enabled === true
     readonly property bool historyEnabled: {
-        if (!history || history.enabled !== true) {
+        if (!historyRequested) {
             return false
         }
-        return influx && influx.configured
+        if (!influx) {
+            return false
+        }
+        applyHistoryConfig()
+        return influx.configured
+    }
+    readonly property string historyConfigHint: {
+        if (!influx) {
+            return "Influx-Client nicht verfügbar"
+        }
+        if (influx.usesInfluxV2) {
+            return "HOMEUI_INFLUX_URL, TOKEN, ORG; Bucket in history.bucket"
+        }
+        return "HOMEUI_INFLUX_URL, USER, PASSWORD; DB in history.bucket"
     }
     readonly property int historyDays: {
         if (history && history.days !== undefined && history.days !== null) {
@@ -217,7 +231,11 @@ Rectangle {
         return normY * mapHost.height
     }
 
-    Component.onCompleted: refreshHistory()
+    Component.onCompleted: {
+        applyHistoryConfig()
+        refreshHistory()
+    }
+    onHistoryChanged: applyHistoryConfig()
     onHistoryEnabledChanged: {
         if (historyEnabled) {
             refreshHistory()
@@ -439,8 +457,29 @@ Rectangle {
             }
         }
 
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 28
+            visible: root.historyRequested && !root.historyEnabled && root.chartableSensors.length > 0
+            radius: 8
+            color: "#1a2438"
+            border.color: "#f59e0b"
+            border.width: 1
+
+            Text {
+                anchors.fill: parent
+                anchors.margins: 8
+                text: "5-Tage-Verlauf: " + root.historyConfigHint
+                color: "#fcd34d"
+                font.pixelSize: 10
+                wrapMode: Text.Wrap
+                verticalAlignment: Text.AlignVCenter
+            }
+        }
+
         Flow {
             Layout.fillWidth: true
+            Layout.minimumHeight: visible ? 58 : 0
             visible: root.historyEnabled && root.chartableSensors.length > 0
             spacing: 6
 
