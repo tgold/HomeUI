@@ -10,6 +10,7 @@ Q_LOGGING_CATEGORY(lcMjpeg, "homeui.mjpeg")
 
 constexpr int FpsWindowMs = 2000;
 constexpr int MaxBufferBytes = 32 * 1024 * 1024;
+constexpr int MinRepaintIntervalMs = 66; // cap repaint rate (~15 fps) to keep swipes smooth
 
 QByteArray boundaryFromContentType(const QByteArray &contentType)
 {
@@ -47,6 +48,12 @@ MjpegView::MjpegView(QQuickItem *parent)
 
     m_fpsTimer.setInterval(FpsWindowMs);
     connect(&m_fpsTimer, &QTimer::timeout, this, &MjpegView::updateFrameRate);
+
+    m_repaintTimer.setSingleShot(true);
+    connect(&m_repaintTimer, &QTimer::timeout, this, [this]() {
+        m_repaintPending = false;
+        update();
+    });
 }
 
 MjpegView::~MjpegView()
@@ -197,6 +204,8 @@ void MjpegView::stop()
 {
     m_fpsTimer.stop();
     m_reconnectTimer.stop();
+    m_repaintTimer.stop();
+    m_repaintPending = false;
     if (m_reply) {
         QNetworkReply *reply = m_reply;
         m_reply = nullptr;
@@ -328,7 +337,7 @@ void MjpegView::parseBuffer()
             ++m_recentFrames;
             setLastError({});
             emit frameCountChanged();
-            update();
+            scheduleRepaint();
         }
 
         if (frameEnd <= 0 || frameEnd > m_buffer.size()) {
@@ -336,6 +345,29 @@ void MjpegView::parseBuffer()
             return;
         }
         m_buffer.remove(0, frameEnd);
+    }
+}
+
+void MjpegView::scheduleRepaint()
+{
+    if (!m_repaintClock.isValid()) {
+        m_repaintClock.start();
+        update();
+        return;
+    }
+
+    const qint64 elapsed = m_repaintClock.elapsed();
+    if (elapsed >= MinRepaintIntervalMs) {
+        m_repaintClock.restart();
+        m_repaintTimer.stop();
+        m_repaintPending = false;
+        update();
+        return;
+    }
+
+    if (!m_repaintPending) {
+        m_repaintPending = true;
+        m_repaintTimer.start(MinRepaintIntervalMs - static_cast<int>(elapsed));
     }
 }
 

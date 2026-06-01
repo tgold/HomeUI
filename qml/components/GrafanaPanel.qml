@@ -20,8 +20,10 @@ Rectangle {
     property int refreshInterval: 60      // seconds between PNG refreshes
     property real renderScale: 1.0        // upscale factor for Hi-DPI panels (Grafana ?scale=)
     property var extraParams: ({})        // arbitrary additional ?key=value query parameters
+    property bool active: true            // false when SwipeView page is off-screen
 
     // ---- Internal state ----------------------------------------------------
+    property string _heldSource: ""
     property int _cacheBuster: 0
     property int _renderWidth: 0
     property int _renderHeight: 0
@@ -100,15 +102,26 @@ Rectangle {
     border.width: 1
     clip: true
 
-    onWidthChanged: resizeDebounce.restart()
-    onHeightChanged: resizeDebounce.restart()
-    Component.onCompleted: resizeDebounce.restart()
+    onWidthChanged: if (root.active) resizeDebounce.restart()
+    onHeightChanged: if (root.active) resizeDebounce.restart()
+    Component.onCompleted: if (root.active) resizeDebounce.restart()
+
+    onActiveChanged: {
+        if (root.active) {
+            resizeDebounce.restart()
+        } else if (rendered.source.length > 0) {
+            root._heldSource = rendered.source
+        }
+    }
 
     Timer {
         id: resizeDebounce
         interval: 500
         repeat: false
         onTriggered: {
+            if (!root.active) {
+                return
+            }
             // Subtract the title bar / margins area from the available render box.
             var w = imageHost.width
             var h = imageHost.height
@@ -122,7 +135,7 @@ Rectangle {
 
     Timer {
         id: refreshTimer
-        running: !root._missingConfig && root.refreshInterval > 0
+        running: root.active && !root._missingConfig && root.refreshInterval > 0
         repeat: true
         interval: Math.max(5, root.refreshInterval) * 1000
         onTriggered: root.refresh()
@@ -161,8 +174,8 @@ Rectangle {
             color: "#0b1220"
             clip: true
 
-            onWidthChanged: resizeDebounce.restart()
-            onHeightChanged: resizeDebounce.restart()
+            onWidthChanged: if (root.active) resizeDebounce.restart()
+            onHeightChanged: if (root.active) resizeDebounce.restart()
 
             Image {
                 id: rendered
@@ -172,7 +185,7 @@ Rectangle {
                 asynchronous: true
                 cache: false
                 smooth: true
-                source: root._computeUrl()
+                source: root.active ? root._computeUrl() : root._heldSource
             }
 
             // Loading overlay

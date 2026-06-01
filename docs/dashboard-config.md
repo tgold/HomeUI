@@ -257,9 +257,11 @@ Fields:
   "enabled": true,
   "days": 5,
   "bucket": "openhab",
-  "org": "openhab"
+  "retentionPolicy": "autogen"
 }
 ```
+
+For InfluxDB 1.x, `bucket` is the **database** name (`db=` in `influxdb.cfg`) and `retentionPolicy` must match OpenHAB’s `retentionPolicy=` (often `autogen`). If queries return empty series, check both on the server.
 
 Set these environment variables on the panel host (secrets stay out of `dashboard.json`):
 
@@ -268,6 +270,8 @@ Set these environment variables on the panel host (secrets stay out of `dashboar
 - `HOMEUI_INFLUX_URL` — e.g. `http://192.168.0.95:8086`
 - `HOMEUI_INFLUX_USER` / `HOMEUI_INFLUX_PASSWORD`
 - Panel `history.bucket` (or `HOMEUI_INFLUX_BUCKET` / `HOMEUI_INFLUX_DATABASE`) — database name, e.g. `openhab`
+- Panel `history.retentionPolicy` (or `HOMEUI_INFLUX_RETENTION_POLICY`) — must match OpenHAB `retentionPolicy=` (e.g. `autogen`)
+- Panel `history.measurement` — if items share one Influx measurement via metadata, set this and use per-sensor `influxMeasurement` overrides as needed
 
 Do **not** set `HOMEUI_INFLUX_TOKEN` on 1.x; HomeUI selects the API from whether a token is present.
 

@@ -67,6 +67,7 @@ The relevant env vars are:
 | `HOMEUI_INFLUX_USER`           | InfluxDB **1.x** username (same as OpenHAB `influxdb.cfg` `user=`). Used when no token is set. | unset |
 | `HOMEUI_INFLUX_PASSWORD`       | InfluxDB **1.x** password.                                              | unset                             |
 | `HOMEUI_INFLUX_DATABASE`       | InfluxDB **1.x** database name (same as OpenHAB `db=`). If unset, `HOMEUI_INFLUX_BUCKET` or panel `history.bucket` is used. | unset |
+| `HOMEUI_INFLUX_RETENTION_POLICY` | InfluxDB **1.x** retention policy (same as OpenHAB `retentionPolicy=`). Panel `history.retentionPolicy` overrides when set. | unset |
 | `HOMEUI_INFLUX_ORG`            | InfluxDB **2.x** org (overrides panel `history.org` when set).          | unset                             |
 | `HOMEUI_INFLUX_BUCKET`         | InfluxDB **2.x** bucket, or **1.x** database when no `HOMEUI_INFLUX_DATABASE`. | unset                      |
 | `HOMEUI_MQTT_BROKER`           | `mqtt://host:port` (omit to disable).                                   | unset                             |

@@ -6,6 +6,7 @@ Rectangle {
     id: root
 
     property var openhab: null
+    property bool active: true
     property string title: "Bewaesserung"
     property string imageSource: ""
     property var zones: []
@@ -183,10 +184,13 @@ Rectangle {
         if (history && history.org) {
             influx.org = String(history.org)
         }
+        if (history && history.retentionPolicy) {
+            influx.retentionPolicy = String(history.retentionPolicy)
+        }
     }
 
     function refreshHistory() {
-        if (!historyEnabled || !influx) {
+        if (!root.active || !historyEnabled || !influx) {
             return
         }
         applyHistoryConfig()
@@ -200,9 +204,10 @@ Rectangle {
             return
         }
         var item = String(sensor.item)
+        var defaultMeasurement = history && history.measurement ? String(history.measurement) : ""
         var measurement = sensor.influxMeasurement !== undefined && sensor.influxMeasurement !== null
                 ? String(sensor.influxMeasurement)
-                : item
+                : (defaultMeasurement.length > 0 ? defaultMeasurement : item)
         var filterByTag = measurement.length > 0 && measurement !== item
         var loading = {}
         for (var key in historyLoading) {
@@ -233,18 +238,25 @@ Rectangle {
 
     Component.onCompleted: {
         applyHistoryConfig()
-        refreshHistory()
+        if (root.active) {
+            refreshHistory()
+        }
     }
     onHistoryChanged: applyHistoryConfig()
     onHistoryEnabledChanged: {
-        if (historyEnabled) {
+        if (historyEnabled && root.active) {
+            refreshHistory()
+        }
+    }
+    onActiveChanged: {
+        if (root.active && root.historyEnabled) {
             refreshHistory()
         }
     }
 
     Timer {
         interval: 30 * 60 * 1000
-        running: root.historyEnabled
+        running: root.active && root.historyEnabled
         repeat: true
         onTriggered: root.refreshHistory()
     }

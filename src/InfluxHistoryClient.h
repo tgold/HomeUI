@@ -16,6 +16,7 @@ class InfluxHistoryClient : public QObject
     Q_PROPERTY(QString org READ org WRITE setOrg NOTIFY orgChanged)
     Q_PROPERTY(QString bucket READ bucket WRITE setBucket NOTIFY bucketChanged)
     Q_PROPERTY(QString database READ database WRITE setDatabase NOTIFY databaseChanged)
+    Q_PROPERTY(QString retentionPolicy READ retentionPolicy WRITE setRetentionPolicy NOTIFY retentionPolicyChanged)
     Q_PROPERTY(bool configured READ configured NOTIFY configuredChanged)
     Q_PROPERTY(bool usesInfluxV2 READ usesInfluxV2 NOTIFY configuredChanged)
 
@@ -43,6 +44,9 @@ public:
     QString database() const;
     void setDatabase(const QString &database);
 
+    QString retentionPolicy() const;
+    void setRetentionPolicy(const QString &retentionPolicy);
+
     bool configured() const;
     bool usesInfluxV2() const;
 
@@ -59,6 +63,7 @@ signals:
     void orgChanged();
     void bucketChanged();
     void databaseChanged();
+    void retentionPolicyChanged();
     void configuredChanged();
     void dailyMeansReady(const QString &itemName, const QVariantList &values, const QString &error);
 
@@ -76,6 +81,7 @@ private:
     static QString escapeInfluxQlIdent(const QString &value);
     static QString escapeInfluxQlString(const QString &value);
     static QVariantList parseAnnotatedCsv(const QByteArray &body, QString *errorOut);
+    static bool parseInfluxTimestamp(const QJsonValue &value, QDateTime *out);
     static QVariantList parseInfluxQlJson(const QByteArray &body, QString *errorOut);
     void finishRequest(const QString &itemName, QNetworkReply *reply, bool influxV1);
 
@@ -87,5 +93,6 @@ private:
     QString m_org;
     QString m_bucket;
     QString m_database;
+    QString m_retentionPolicy;
     QSet<QString> m_inFlight;
 };

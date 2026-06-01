@@ -10,6 +10,13 @@ Item {
     property var sonos: null
     property var mqtt: null
 
+    // SwipeView keeps every page instantiated; gate heavy work to the visible page
+    // (and immediate neighbours while the gesture is in flight).
+    readonly property bool pageCurrent: SwipeView.isCurrentItem
+    readonly property bool pageNear: SwipeView.isCurrentItem
+            || SwipeView.isNextItem
+            || SwipeView.isPreviousItem
+
     function layoutValue(object, key, fallback) {
         if (!object || object[key] === undefined || object[key] === null) {
             return fallback
@@ -65,6 +72,8 @@ Item {
                             openhab: root.openhab
                             sonos: root.sonos
                             mqtt: root.mqtt
+                            pageCurrent: root.pageCurrent
+                            pageNear: root.pageNear
                             Layout.fillWidth: true
                             Layout.fillHeight: root.layoutValue(modelData, "fillHeight", false)
                             Layout.preferredHeight: root.panelHeight(modelData)
@@ -93,6 +102,8 @@ Item {
                     openhab: root.openhab
                     sonos: root.sonos
                     mqtt: root.mqtt
+                    pageCurrent: root.pageCurrent
+                    pageNear: root.pageNear
                     Layout.fillWidth: true
                     Layout.fillHeight: root.layoutValue(modelData, "fillHeight", false)
                     Layout.preferredHeight: root.panelHeight(modelData)
@@ -219,9 +230,30 @@ Item {
 
             Connections {
                 target: masonryRoot
-                function onWidthChanged()        { Qt.callLater(masonryRoot.relayout) }
-                function onColumnsCountChanged() { Qt.callLater(masonryRoot.relayout) }
-                function onColumnWidthChanged()  { Qt.callLater(masonryRoot.relayout) }
+                function onWidthChanged() {
+                    if (root.pageNear) {
+                        Qt.callLater(masonryRoot.relayout)
+                    }
+                }
+                function onColumnsCountChanged() {
+                    if (root.pageNear) {
+                        Qt.callLater(masonryRoot.relayout)
+                    }
+                }
+                function onColumnWidthChanged() {
+                    if (root.pageNear) {
+                        Qt.callLater(masonryRoot.relayout)
+                    }
+                }
+            }
+
+            Connections {
+                target: root
+                function onPageNearChanged() {
+                    if (root.pageNear) {
+                        Qt.callLater(masonryRoot.relayout)
+                    }
+                }
             }
 
             Repeater {
@@ -233,7 +265,13 @@ Item {
                     openhab: root.openhab
                     sonos: root.sonos
                     mqtt: root.mqtt
-                    onImplicitHeightChanged: Qt.callLater(masonryRoot.relayout)
+                    pageCurrent: root.pageCurrent
+                    pageNear: root.pageNear
+                    onImplicitHeightChanged: {
+                        if (root.pageNear) {
+                            Qt.callLater(masonryRoot.relayout)
+                        }
+                    }
                     Component.onCompleted: Qt.callLater(masonryRoot.relayout)
                 }
             }

@@ -6,6 +6,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
+#include <QNetworkProxy>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcessEnvironment>
@@ -25,6 +26,8 @@ QString trimmedEnv(const QProcessEnvironment &env, const QString &name, const QS
 InfluxHistoryClient::InfluxHistoryClient(QObject *parent)
     : QObject(parent)
 {
+    m_network.setProxy(QNetworkProxy::NoProxy);
+
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     setBaseUrl(trimmedEnv(env, QStringLiteral("HOMEUI_INFLUX_URL")));
     setToken(trimmedEnv(env, QStringLiteral("HOMEUI_INFLUX_TOKEN")));
@@ -33,6 +36,7 @@ InfluxHistoryClient::InfluxHistoryClient(QObject *parent)
     setOrg(trimmedEnv(env, QStringLiteral("HOMEUI_INFLUX_ORG")));
     setBucket(trimmedEnv(env, QStringLiteral("HOMEUI_INFLUX_BUCKET")));
     setDatabase(trimmedEnv(env, QStringLiteral("HOMEUI_INFLUX_DATABASE")));
+    setRetentionPolicy(trimmedEnv(env, QStringLiteral("HOMEUI_INFLUX_RETENTION_POLICY")));
 }
 
 QString InfluxHistoryClient::baseUrl() const
@@ -159,6 +163,22 @@ void InfluxHistoryClient::setDatabase(const QString &database)
     m_database = trimmed;
     emit databaseChanged();
     emit configuredChanged();
+}
+
+QString InfluxHistoryClient::retentionPolicy() const
+{
+    return m_retentionPolicy;
+}
+
+void InfluxHistoryClient::setRetentionPolicy(const QString &retentionPolicy)
+{
+    const QString trimmed = retentionPolicy.trimmed();
+    if (m_retentionPolicy == trimmed) {
+        return;
+    }
+
+    m_retentionPolicy = trimmed;
+    emit retentionPolicyChanged();
 }
 
 bool InfluxHistoryClient::usesInfluxV2() const
@@ -339,6 +359,56 @@ QVariantList InfluxHistoryClient::parseAnnotatedCsv(const QByteArray &body, QStr
     return values;
 }
 
+bool InfluxHistoryClient::parseInfluxTimestamp(const QJsonValue &value, QDateTime *out)
+{
+    if (!out) {
+        return false;
+    }
+
+    qint64 raw = 0;
+    if (value.isString()) {
+        const QString timeText = value.toString();
+        QDateTime timestamp = QDateTime::fromString(timeText, Qt::RFC3339Date);
+        if (!timestamp.isValid()) {
+            timestamp = QDateTime::fromString(timeText, Qt::ISODateWithMs);
+        }
+        if (!timestamp.isValid()) {
+            timestamp = QDateTime::fromString(timeText, Qt::ISODate);
+        }
+        if (!timestamp.isValid()) {
+            timestamp = QDateTime::fromString(timeText, QStringLiteral("yyyy-MM-ddTHH:mm:ssZ"));
+        }
+        if (!timestamp.isValid()) {
+            timestamp = QDateTime::fromString(timeText, QStringLiteral("yyyy-MM-ddTHH:mm:ss.zzzZ"));
+        }
+        if (timestamp.isValid()) {
+            *out = timestamp.toUTC();
+            return true;
+        }
+
+        bool ok = false;
+        raw = timeText.toLongLong(&ok);
+        if (!ok) {
+            return false;
+        }
+    } else if (value.isDouble()) {
+        raw = static_cast<qint64>(value.toDouble());
+    } else {
+        return false;
+    }
+
+    qint64 epochMs = raw;
+    const qint64 absRaw = raw < 0 ? -raw : raw;
+    if (absRaw >= 100000000000000000LL) {
+        epochMs = raw / 1000000;
+    } else if (absRaw < 10000000000LL) {
+        epochMs = raw * 1000;
+    }
+
+    *out = QDateTime::fromMSecsSinceEpoch(epochMs, Qt::UTC);
+    return out->isValid();
+}
+
 QVariantList InfluxHistoryClient::parseInfluxQlJson(const QByteArray &body, QString *errorOut)
 {
     if (errorOut) {
@@ -356,7 +426,16 @@ QVariantList InfluxHistoryClient::parseInfluxQlJson(const QByteArray &body, QStr
         return {};
     }
 
-    const QJsonArray results = doc.object().value(QStringLiteral("results")).toArray();
+    const QJsonObject root = doc.object();
+    const QString topLevelError = root.value(QStringLiteral("error")).toString();
+    if (!topLevelError.isEmpty()) {
+        if (errorOut) {
+            *errorOut = topLevelError;
+        }
+        return {};
+    }
+
+    const QJsonArray results = root.value(QStringLiteral("results")).toArray();
     if (results.isEmpty()) {
         return {};
     }
@@ -375,43 +454,73 @@ QVariantList InfluxHistoryClient::parseInfluxQlJson(const QByteArray &body, QStr
         return {};
     }
 
-    const QJsonArray values = series.at(0).toObject().value(QStringLiteral("values")).toArray();
-    if (values.isEmpty()) {
-        return {};
-    }
-
     struct Point {
         qint64 epochMs = 0;
         double value = 0.0;
     };
     QVector<Point> points;
-    points.reserve(values.size());
 
-    for (const QJsonValue &rowValue : values) {
-        const QJsonArray row = rowValue.toArray();
-        if (row.size() < 2 || row.at(1).isNull()) {
+    for (const QJsonValue &seriesValue : series) {
+        const QJsonObject seriesObj = seriesValue.toObject();
+        const QJsonArray columns = seriesObj.value(QStringLiteral("columns")).toArray();
+        const QJsonArray values = seriesObj.value(QStringLiteral("values")).toArray();
+        if (columns.isEmpty() || values.isEmpty()) {
             continue;
         }
 
-        const QString timeText = row.at(0).toString();
-        QDateTime timestamp = QDateTime::fromString(timeText, Qt::ISODateWithMs);
-        if (!timestamp.isValid()) {
-            timestamp = QDateTime::fromString(timeText, Qt::ISODate);
+        int timeIndex = -1;
+        int valueIndex = -1;
+        for (int c = 0; c < columns.size(); ++c) {
+            const QString column = columns.at(c).toString();
+            if (column == QStringLiteral("time")) {
+                timeIndex = c;
+            } else if (column == QStringLiteral("mean") || column == QStringLiteral("value")
+                       || column == QStringLiteral("median")) {
+                valueIndex = c;
+            }
         }
-        if (!timestamp.isValid()) {
+        if (timeIndex < 0) {
+            timeIndex = 0;
+        }
+        if (valueIndex < 0) {
+            for (int c = 0; c < columns.size(); ++c) {
+                if (c != timeIndex) {
+                    valueIndex = c;
+                    break;
+                }
+            }
+        }
+        if (valueIndex < 0) {
             continue;
         }
 
-        bool ok = false;
-        const double value = row.at(1).toDouble(ok);
-        if (!ok) {
-            continue;
-        }
+        for (const QJsonValue &rowValue : values) {
+            const QJsonArray row = rowValue.toArray();
+            if (row.size() <= qMax(timeIndex, valueIndex) || row.at(valueIndex).isNull()) {
+                continue;
+            }
 
-        Point point;
-        point.epochMs = timestamp.toMSecsSinceEpoch();
-        point.value = value;
-        points.append(point);
+            QDateTime timestamp;
+            if (!parseInfluxTimestamp(row.at(timeIndex), &timestamp)) {
+                continue;
+            }
+
+            const QVariant valueVariant = row.at(valueIndex).toVariant();
+            bool ok = false;
+            double value = valueVariant.toDouble(&ok);
+            if (!ok) {
+                continue;
+            }
+
+            Point point;
+            point.epochMs = timestamp.toMSecsSinceEpoch();
+            point.value = value;
+            points.append(point);
+        }
+    }
+
+    if (points.isEmpty()) {
+        return {};
     }
 
     std::sort(points.begin(), points.end(), [](const Point &a, const Point &b) {
@@ -454,17 +563,38 @@ void InfluxHistoryClient::fetchDailyMeans(const QString &itemName,
 
     QNetworkReply *reply = nullptr;
     if (influxV1) {
+        const QString influxQuery = buildInfluxQlQuery(item, measurement, days, filterByItemTag);
+
         url.setPath(QStringLiteral("/query"));
-        QUrlQuery query;
-        query.addQueryItem(QStringLiteral("db"), databaseName());
-        query.addQueryItem(QStringLiteral("u"), m_user);
-        query.addQueryItem(QStringLiteral("p"), m_password);
-        query.addQueryItem(QStringLiteral("q"), buildInfluxQlQuery(item, measurement, days, filterByItemTag));
-        url.setQuery(query);
+        QUrlQuery urlParams;
+        urlParams.addQueryItem(QStringLiteral("db"), databaseName());
+        if (!m_retentionPolicy.isEmpty()) {
+            urlParams.addQueryItem(QStringLiteral("rp"), m_retentionPolicy);
+        }
+        urlParams.addQueryItem(QStringLiteral("u"), m_user);
+        urlParams.addQueryItem(QStringLiteral("p"), m_password);
+        url.setQuery(urlParams);
+
+        QUrlQuery bodyParams;
+        bodyParams.addQueryItem(QStringLiteral("q"), influxQuery);
+        const QByteArray body = bodyParams.query(QUrl::FullyEncoded).toUtf8();
+
         request.setUrl(url);
-        qCDebug(lcInflux, "GET %s (item=%s, db=%s)", qUtf8Printable(url.toString(QUrl::RemovePassword)),
-                qUtf8Printable(item), qUtf8Printable(databaseName()));
-        reply = m_network.get(request);
+        request.setHeader(QNetworkRequest::ContentTypeHeader,
+                          QStringLiteral("application/x-www-form-urlencoded"));
+
+        QUrl logUrl(url);
+        QUrlQuery logQuery(logUrl.query());
+        logQuery.removeQueryItem(QStringLiteral("p"));
+        logUrl.setQuery(logQuery);
+        qCDebug(lcInflux,
+                "POST %s (item=%s, db=%s, rp=%s) q=%s",
+                qUtf8Printable(logUrl.toString()),
+                qUtf8Printable(item),
+                qUtf8Printable(databaseName()),
+                m_retentionPolicy.isEmpty() ? "(default)" : qUtf8Printable(m_retentionPolicy),
+                qUtf8Printable(influxQuery));
+        reply = m_network.post(request, body);
     } else {
         url.setPath(QStringLiteral("/api/v2/query"));
         QUrlQuery query;
@@ -512,6 +642,23 @@ void InfluxHistoryClient::finishRequest(const QString &itemName, QNetworkReply *
         return;
     }
 
-    qCDebug(lcInflux, "Influx daily means for %s: %d points", qUtf8Printable(itemName), values.size());
+    if (values.isEmpty()) {
+        const QString snippet = QString::fromUtf8(body.left(320)).trimmed();
+        const bool hasSeriesValues = body.contains("\"values\"");
+        qCWarning(lcInflux,
+                  "Influx query for %s returned no daily points (HTTP %d, hasValues=%s). Response: %s",
+                  qUtf8Printable(itemName),
+                  status,
+                  hasSeriesValues ? "yes" : "no",
+                  qUtf8Printable(snippet));
+        if (hasSeriesValues && parseError.isEmpty()) {
+            emit dailyMeansReady(itemName,
+                                 {},
+                                 QStringLiteral("failed to parse InfluxQL response"));
+            return;
+        }
+    } else {
+        qCDebug(lcInflux, "Influx daily means for %s: %d points", qUtf8Printable(itemName), values.size());
+    }
     emit dailyMeansReady(itemName, values, {});
 }

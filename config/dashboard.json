@@ -738,8 +738,7 @@
           "history": {
             "enabled": true,
             "days": 5,
-            "bucket": "openhab",
-            "org": "openhab"
+            "bucket": "openhab"
           },
           "programItem": "gardena_start_irrigation_switch",
           "useCisternItem": "gardena_use_cistern_switch",

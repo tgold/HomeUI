@@ -13,6 +13,7 @@ Rectangle {
     property int refreshInterval: 1000
     property string streamFormat: ""
     property bool ignoreSslErrors: false
+    property bool active: true
 
     readonly property string effectiveFormat: {
         if (streamFormat && streamFormat.length > 0) {
@@ -74,7 +75,7 @@ Rectangle {
                 anchors.fill: parent
                 visible: root.effectiveFormat === "mjpeg"
                                 && root.streamUrl.length > 0
-                url: visible ? root.streamUrl : ""
+                url: visible && root.active ? root.streamUrl : ""
                 ignoreSslErrors: root.ignoreSslErrors
             }
 
@@ -89,13 +90,13 @@ Rectangle {
                 cache: false
                 smooth: true
                 property int tick: 0
-                source: visible && root.snapshotUrl.length > 0
+                source: visible && root.active && root.snapshotUrl.length > 0
                     ? root.snapshotUrl + (root.snapshotUrl.indexOf("?") >= 0 ? "&" : "?") + "_=" + tick
                     : ""
             }
 
             Timer {
-                running: snapshot.visible
+                running: snapshot.visible && root.active
                 repeat: true
                 interval: Math.max(250, root.refreshInterval)
                 onTriggered: snapshot.tick += 1

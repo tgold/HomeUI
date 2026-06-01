@@ -8,6 +8,8 @@ Item {
     property var openhab: null
     property var sonos: null
     property var mqtt: null
+    property bool pageCurrent: true
+    property bool pageNear: true
 
     implicitWidth: loader.implicitWidth
     implicitHeight: loader.implicitHeight
@@ -96,6 +98,7 @@ Item {
         id: cameraPanelComponent
 
         CameraTile {
+            active: root.pageCurrent
             title: root.value(["title"], "Kamera")
             location: root.value(["location"], "")
             streamUrl: root.value(["streamUrl"], "")
@@ -154,6 +157,7 @@ Item {
         id: grafanaPanelComponent
 
         GrafanaPanel {
+            active: root.pageCurrent
             title: root.value(["title"], "Grafana")
             baseUrl: root.value(["baseUrl"], "")
             dashboardUid: root.value(["dashboardUid"], "")
@@ -174,6 +178,7 @@ Item {
         id: irrigationFloorplanPanelComponent
 
         IrrigationFloorplanPanel {
+            active: root.pageCurrent
             openhab: root.openhab
             title: root.value(["title"], "Bewaesserung")
             imageSource: root.value(["imageSource"], "")

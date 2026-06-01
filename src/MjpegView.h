@@ -63,6 +63,7 @@ private:
     void setActive(bool active);
     void setLastError(const QString &lastError);
     void updateFrameRate();
+    void scheduleRepaint();
 
     QNetworkAccessManager m_network;
     QNetworkReply *m_reply = nullptr;
@@ -72,7 +73,10 @@ private:
     QImage m_frame;
     QTimer m_reconnectTimer;
     QTimer m_fpsTimer;
+    QTimer m_repaintTimer;
     QElapsedTimer m_fpsWindow;
+    QElapsedTimer m_repaintClock;
+    bool m_repaintPending = false;
     QString m_lastError;
     int m_frameCount = 0;
     int m_recentFrames = 0;
