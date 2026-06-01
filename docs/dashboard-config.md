@@ -204,8 +204,8 @@ You typically obtain the `StmKey` by logging into Surveillance Station and readi
 ### Irrigation floorplan panel
 
 Top-down irrigation panel with a background image, live sensor badges and zone markers.
-Zone markers light up when watering is active (`activityItem` not `CLOSED/OFF/NULL/UNDEF`).
-Tapping a zone opens `Start` / `Stop` quick actions.
+Zone markers light up when watering is active (`activityItem` not `CLOSED/OFF/NULL/UNDEF`). They are status-only (not tappable).
+Use the green **Start** / red **Stop** buttons in the bottom bar to command `programItem` (`ON` / `OFF` by default). Optional duration presets still set `durationItem` before starting the program.
 
 ```json
 {
@@ -245,10 +245,41 @@ Fields:
 - `imageSource` (required): file path or URL to the floorplan image. Relative paths resolve against the dashboard config directory first, then standard install locations (`../share/homeui/assets` next to the binary, `/usr/local/share/homeui/assets`, `/usr/share/homeui/assets`). Use a bare filename such as `irrigation-floorplan.png` on installed panels. If the file cannot be found, the bundled QML resource image is used.
 - `zones` (required): array of overlays with:
   - `label` (required), `activityItem` (required), `x`/`y` (required, normalized `0..1`).
-  - optional action bindings: `startItem`, `startCommand`, `stopItem`, `stopCommand`.
+  - optional per-zone command bindings (`startItem`, `stopItem`, …) are reserved for future use; the panel does not require zone selection.
 - `sensors` (optional): array of badges (`label`, `item`, `x`, `y`) plus optional `format`, `unit`, `decimals`, `scale`, `accentColor`, `width`.
-- `programItem`, `useCisternItem`, `durationItem` (optional): shown in panel footer/header.
+- `programItem` (optional): irrigation program switch; bottom **Start** / **Stop** send `programStartCommand` / `programStopCommand` (default `ON` / `OFF`).
+- `useCisternItem`, `durationItem` (optional): shown in panel footer.
 - `durationOptions` (optional): preset minute buttons, default `[3, 30, 45, 60, 90]`.
+- `history` (optional): 5-day sparkline strip below the floorplan, loaded from **InfluxDB** (not OpenHAB persistence REST). Requires InfluxDB persistence for the charted items.
+
+```json
+"history": {
+  "enabled": true,
+  "days": 5,
+  "bucket": "openhab",
+  "org": "openhab"
+}
+```
+
+Set these environment variables on the panel host (secrets stay out of `dashboard.json`):
+
+- `HOMEUI_INFLUX_URL` — e.g. `http://192.168.0.95:8086`
+- `HOMEUI_INFLUX_TOKEN` — read token for the bucket
+- `HOMEUI_INFLUX_ORG` / `HOMEUI_INFLUX_BUCKET` — optional overrides when omitted from panel JSON
+
+Charts auto-select sensors with `format: "temperature"` or `unit: "%"`. Override per sensor:
+
+- `"history": true` — force a chart
+- `"history": false` — hide
+- `"influxMeasurement": "temperature"` — when several items share one Influx measurement (filters by OpenHAB `item` tag)
+
+Influx runs `aggregateWindow(every: 1d, fn: mean)` server-side; HomeUI only parses ~5 daily values.
+
+Verify with:
+
+```bash
+influx query 'from(bucket:"openhab") |> range(start:-5d) |> filter(fn:(r)=>r._measurement=="zisterne_fuellstand" and r._field=="value") |> aggregateWindow(every:1d, fn:mean)' --org openhab --token ...
+```
 
 ### Controls panel
 

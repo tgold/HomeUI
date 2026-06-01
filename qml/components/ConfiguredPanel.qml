@@ -180,9 +180,12 @@ Item {
             zones: root.value(["zones"], [])
             sensors: root.value(["sensors"], [])
             programItem: root.value(["programItem"], "")
+            programStartCommand: root.value(["programStartCommand"], "ON")
+            programStopCommand: root.value(["programStopCommand"], "OFF")
             useCisternItem: root.value(["useCisternItem"], "")
             durationItem: root.value(["durationItem"], "")
             durationOptions: root.value(["durationOptions"], [3, 30, 45, 60, 90])
+            history: root.value(["history"], ({}))
         }
     }
 

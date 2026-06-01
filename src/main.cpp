@@ -1,4 +1,5 @@
 #include "DashboardConfig.h"
+#include "InfluxHistoryClient.h"
 #include "MjpegView.h"
 #include "OpenHabClient.h"
 #include "ScreenIdleController.h"
@@ -355,6 +356,7 @@ int main(int argc, char *argv[])
     dashboardConfig.setWatching(!parser.isSet(noWatchOption));
 
     OpenHabClient openHabClient;
+    InfluxHistoryClient influxHistoryClient;
     if (parser.isSet(openHabUrlOption)) {
         openHabClient.setBaseUrl(parser.value(openHabUrlOption));
     }
@@ -408,6 +410,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("dashboardConfig"), &dashboardConfig);
     engine.rootContext()->setContextProperty(QStringLiteral("openhabClient"), &openHabClient);
+    engine.rootContext()->setContextProperty(QStringLiteral("influxHistoryClient"), &influxHistoryClient);
     engine.rootContext()->setContextProperty(QStringLiteral("sonosClient"), &sonosClient);
     engine.rootContext()->setContextProperty(QStringLiteral("screenIdle"), &screenIdle);
 

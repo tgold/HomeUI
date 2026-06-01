@@ -681,7 +681,7 @@
               "type": "camera",
               "title": "Tuerklingel",
               "location": "Einfahrt",
-              "height": 300,
+              "height": 400,
               "format": "mjpeg",
               "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22"
             },
@@ -704,7 +704,7 @@
               "type": "camera",
               "title": "Carport",
               "location": "Einfahrt",
-              "height": 300,
+              "height": 400,
               "format": "mjpeg",
               "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=3&StmKey=%22b4727ec4ec4a08a7dabea6480d773dea%22"
             },
@@ -716,22 +716,6 @@
                 { "label": "Aufnahme", "iconText": "R", "accentColor": "#ef4444", "item": "Surveillance_Recording" },
                 { "label": "Home Mode","iconText": "H", "accentColor": "#fbbf24", "item": "Surveillance_HomeMode" },
                 { "label": "Bewegung", "iconText": "M", "accentColor": "#38bdf8", "item": "Surveillance_Event_Motion" }
-              ]
-            }
-          ]
-        },
-        {
-          "width": 292,
-          "panels": [
-            {
-              "type": "controls",
-              "title": "Anwesenheit & Anrufe",
-              "tilesPerRow": 2,
-              "controls": [
-                { "label": "Home Mode",   "iconText": "H", "accentColor": "#fbbf24", "item": "Surveillance_HomeMode" },
-                { "label": "Thomas",      "iconText": "T", "accentColor": "#38bdf8", "item": "fb_devices_thomasphone_online" },
-                { "label": "Anrufe",      "iconText": "C", "accentColor": "#ef4444", "item": "fb_calls_missed" },
-                { "label": "Nachrichten", "iconText": "N", "accentColor": "#a855f7", "item": "fb_tam_newmessages" }
               ]
             }
           ]
@@ -751,6 +735,12 @@
           "columnSpan": 2,
           "height": 650,
           "imageSource": "irrigation-floorplan.png",
+          "history": {
+            "enabled": true,
+            "days": 5,
+            "bucket": "openhab",
+            "org": "openhab"
+          },
           "programItem": "gardena_start_irrigation_switch",
           "useCisternItem": "gardena_use_cistern_switch",
           "durationItem": "gardena_irrigatino_duration",

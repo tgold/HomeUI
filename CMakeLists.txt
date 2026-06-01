@@ -54,6 +54,8 @@ qt_add_executable(homeui
     src/DashboardConfig.h
     src/MjpegView.cpp
     src/MjpegView.h
+    src/InfluxHistoryClient.cpp
+    src/InfluxHistoryClient.h
     src/OpenHabClient.cpp
     src/OpenHabClient.h
     src/ScreenIdleController.cpp
@@ -89,6 +91,7 @@ set(_homeui_qml_module_args
         qml/components/EnergyPanel.qml
         qml/components/Format.js
         qml/components/GrafanaPanel.qml
+        qml/components/HistorySparkline.qml
         qml/components/IrrigationFloorplanPanel.qml
         qml/components/MetricRow.qml
         qml/components/ModePanel.qml

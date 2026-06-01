@@ -11,12 +11,46 @@ Rectangle {
     property var zones: []
     property var sensors: []
     property string programItem: ""
+    property string programStartCommand: "ON"
+    property string programStopCommand: "OFF"
     property string useCisternItem: ""
     property string durationItem: ""
     property var durationOptions: [3, 30, 45, 60, 90]
+    property var history: ({})
     property int stateRevision: openhab ? openhab.stateRevision : 0
 
-    property int selectedZoneIndex: -1
+    readonly property var influx: typeof influxHistoryClient !== "undefined" ? influxHistoryClient : null
+    readonly property bool historyEnabled: {
+        if (!history || history.enabled !== true) {
+            return false
+        }
+        return influx && influx.configured
+    }
+    readonly property int historyDays: {
+        if (history && history.days !== undefined && history.days !== null) {
+            var n = Number(history.days)
+            if (!isNaN(n) && n > 0) {
+                return n
+            }
+        }
+        return 5
+    }
+    readonly property var chartableSensors: {
+        var out = []
+        if (!sensors || sensors.length === 0) {
+            return out
+        }
+        for (var i = 0; i < sensors.length; ++i) {
+            if (isChartableSensor(sensors[i])) {
+                out.push(sensors[i])
+            }
+        }
+        return out
+    }
+
+    property var historyCache: ({})
+    property var historyLoading: ({})
+    property var historyErrors: ({})
 
     readonly property string bundledFloorplanSource:
             "qrc:/qt/qml/HomeUI/assets/irrigation-floorplan.png"
@@ -91,6 +125,80 @@ Rectangle {
         return isNaN(number) ? -1 : number
     }
 
+    function startProgram() {
+        if (!programItem || programItem.length === 0) {
+            return
+        }
+        send(programItem, programStartCommand || "ON")
+    }
+
+    function stopProgram() {
+        if (!programItem || programItem.length === 0) {
+            return
+        }
+        send(programItem, programStopCommand || "OFF")
+    }
+
+    function isChartableSensor(sensor) {
+        if (!sensor || !sensor.item || String(sensor.item).length === 0) {
+            return false
+        }
+        if (sensor.history === false) {
+            return false
+        }
+        if (sensor.history === true) {
+            return true
+        }
+        var fmt = sensor.format !== undefined && sensor.format !== null
+                ? String(sensor.format).toLowerCase()
+                : ""
+        if (fmt === "temperature") {
+            return true
+        }
+        var unit = sensor.unit !== undefined && sensor.unit !== null ? String(sensor.unit) : ""
+        return unit === "%"
+    }
+
+    function applyHistoryConfig() {
+        if (!influx) {
+            return
+        }
+        if (history && history.bucket) {
+            influx.bucket = String(history.bucket)
+        }
+        if (history && history.org) {
+            influx.org = String(history.org)
+        }
+    }
+
+    function refreshHistory() {
+        if (!historyEnabled || !influx) {
+            return
+        }
+        applyHistoryConfig()
+        for (var i = 0; i < chartableSensors.length; ++i) {
+            fetchSensorHistory(chartableSensors[i])
+        }
+    }
+
+    function fetchSensorHistory(sensor) {
+        if (!sensor || !sensor.item || !influx) {
+            return
+        }
+        var item = String(sensor.item)
+        var measurement = sensor.influxMeasurement !== undefined && sensor.influxMeasurement !== null
+                ? String(sensor.influxMeasurement)
+                : item
+        var filterByTag = measurement.length > 0 && measurement !== item
+        var loading = {}
+        for (var key in historyLoading) {
+            loading[key] = historyLoading[key]
+        }
+        loading[item] = true
+        historyLoading = loading
+        influx.fetchDailyMeans(item, measurement, historyDays, filterByTag)
+    }
+
     function overlayX(normX) {
         if (imageReady) {
             var painted = floorplanImage.paintedWidth
@@ -107,6 +215,42 @@ Rectangle {
             return offset + normY * painted
         }
         return normY * mapHost.height
+    }
+
+    Component.onCompleted: refreshHistory()
+    onHistoryEnabledChanged: {
+        if (historyEnabled) {
+            refreshHistory()
+        }
+    }
+
+    Timer {
+        interval: 30 * 60 * 1000
+        running: root.historyEnabled
+        repeat: true
+        onTriggered: root.refreshHistory()
+    }
+
+    Connections {
+        enabled: root.influx !== null
+        target: root.influx
+        function onDailyMeansReady(itemName, values, error) {
+            var item = String(itemName)
+            var cache = root.historyCache
+            var loading = root.historyLoading
+            var errors = root.historyErrors
+            loading[item] = false
+            if (error && String(error).length > 0) {
+                errors[item] = String(error)
+                cache[item] = []
+            } else {
+                errors[item] = ""
+                cache[item] = values
+            }
+            root.historyLoading = loading
+            root.historyErrors = errors
+            root.historyCache = cache
+        }
     }
 
     implicitWidth: 620
@@ -276,7 +420,7 @@ Rectangle {
                         width: 88
                         height: 30
                         radius: 8
-                        color: index === root.selectedZoneIndex ? "#2b3c58" : "#1e293b"
+                        color: "#1e293b"
                         border.color: root.zoneActive(zone) ? "#22c55e" : "#475569"
                         border.width: 1
 
@@ -291,90 +435,30 @@ Rectangle {
                             width: parent.width - 8
                         }
                     }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: root.selectedZoneIndex = index
-                    }
                 }
             }
+        }
 
-            Rectangle {
-                id: actionStrip
-                visible: root.selectedZoneIndex >= 0 && root.selectedZoneIndex < root.zones.length
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                anchors.margins: Fmt.panelMargin
-                height: 54
-                radius: 10
-                color: "#d20f1726"
-                border.color: "#334155"
-                border.width: 1
+        Flow {
+            Layout.fillWidth: true
+            visible: root.historyEnabled && root.chartableSensors.length > 0
+            spacing: 6
 
-                property var selectedZone: visible ? root.zones[root.selectedZoneIndex] : null
+            Repeater {
+                model: root.chartableSensors
 
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.margins: Fmt.tileMargin
-                    spacing: Fmt.gridSpacing
-
-                    Text {
-                        Layout.fillWidth: true
-                        text: actionStrip.selectedZone ? (actionStrip.selectedZone.label || "Zone") : ""
-                        color: "#e2e8f0"
-                        font.pixelSize: 13
-                        font.bold: true
-                        elide: Text.ElideRight
-                    }
-
-                    Rectangle {
-                        implicitWidth: 78
-                        implicitHeight: 34
-                        radius: 8
-                        color: "#163924"
-                        border.color: "#22c55e"
-                        border.width: 1
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Start"
-                            color: "#dcfce7"
-                            font.pixelSize: 12
-                            font.bold: true
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            enabled: actionStrip.selectedZone && actionStrip.selectedZone.startItem
-                            onClicked: root.send(actionStrip.selectedZone.startItem,
-                                                 actionStrip.selectedZone.startCommand || "ON")
-                        }
-                    }
-
-                    Rectangle {
-                        implicitWidth: 78
-                        implicitHeight: 34
-                        radius: 8
-                        color: "#451a1a"
-                        border.color: "#ef4444"
-                        border.width: 1
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Stop"
-                            color: "#fee2e2"
-                            font.pixelSize: 12
-                            font.bold: true
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            enabled: actionStrip.selectedZone && actionStrip.selectedZone.stopItem
-                            onClicked: root.send(actionStrip.selectedZone.stopItem,
-                                                 actionStrip.selectedZone.stopCommand || "ON")
-                        }
-                    }
+                HistorySparkline {
+                    required property var modelData
+                    property string itemName: modelData && modelData.item ? String(modelData.item) : ""
+                    label: modelData && modelData.label ? modelData.label : itemName
+                    accentColor: modelData && modelData.accentColor ? modelData.accentColor : "#38bdf8"
+                    values: itemName.length > 0 && root.historyCache[itemName]
+                            ? root.historyCache[itemName]
+                            : []
+                    loading: itemName.length > 0 && root.historyLoading[itemName] === true
+                    error: itemName.length > 0 && root.historyErrors[itemName]
+                            ? root.historyErrors[itemName]
+                            : ""
                 }
             }
         }
@@ -411,7 +495,7 @@ Rectangle {
                         required property var modelData
                         readonly property int optionValue: Number(modelData)
                         width: 56
-                        height: 30
+                        height: Fmt.actionButtonHeight
                         radius: 8
                         color: optionValue === root.currentDurationNumber() ? "#1d4ed8" : "#273449"
                         border.color: optionValue === root.currentDurationNumber() ? "#93c5fd" : "#475569"
@@ -431,6 +515,54 @@ Rectangle {
                             onClicked: root.send(root.durationItem, optionValue)
                         }
                     }
+                }
+            }
+
+            Rectangle {
+                Layout.preferredWidth: 88
+                Layout.preferredHeight: Fmt.actionButtonHeight
+                radius: 8
+                color: "#163924"
+                border.color: "#22c55e"
+                border.width: 1
+                opacity: root.programItem.length > 0 ? 1 : 0.45
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "Start"
+                    color: "#dcfce7"
+                    font.pixelSize: 13
+                    font.bold: true
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.programItem.length > 0
+                    onClicked: root.startProgram()
+                }
+            }
+
+            Rectangle {
+                Layout.preferredWidth: 88
+                Layout.preferredHeight: Fmt.actionButtonHeight
+                radius: 8
+                color: "#451a1a"
+                border.color: "#ef4444"
+                border.width: 1
+                opacity: root.programItem.length > 0 ? 1 : 0.45
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "Stop"
+                    color: "#fee2e2"
+                    font.pixelSize: 13
+                    font.bold: true
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.programItem.length > 0
+                    onClicked: root.stopProgram()
                 }
             }
         }

@@ -62,6 +62,10 @@ The relevant env vars are:
 | `HOMEUI_CONFIG`                | Path to `dashboard.json`.                                               | `/etc/homeui/dashboard.json`      |
 | `HOMEUI_OPENHAB_URL`           | OpenHAB base URL.                                                       | `http://openhab:8080`             |
 | `HOMEUI_OPENHAB_TOKEN`         | OpenHAB API token.                                                      | unset                             |
+| `HOMEUI_INFLUX_URL`            | InfluxDB 2.x base URL for irrigation history sparklines.                | unset                             |
+| `HOMEUI_INFLUX_TOKEN`          | InfluxDB API token with read access to the bucket.                      | unset                             |
+| `HOMEUI_INFLUX_ORG`            | InfluxDB org (overrides panel `history.org` when set).                  | unset                             |
+| `HOMEUI_INFLUX_BUCKET`         | InfluxDB bucket (overrides panel `history.bucket` when set).            | unset                             |
 | `HOMEUI_MQTT_BROKER`           | `mqtt://host:port` (omit to disable).                                   | unset                             |
 | `HOMEUI_MQTT_USERNAME`         | MQTT username.                                                          | unset                             |
 | `HOMEUI_MQTT_PASSWORD`         | MQTT password.                                                          | unset                             |
