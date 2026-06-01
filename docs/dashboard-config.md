@@ -250,7 +250,7 @@ Fields:
 - `programItem` (optional): irrigation program switch; bottom **Start** / **Stop** send `programStartCommand` / `programStopCommand` (default `ON` / `OFF`).
 - `useCisternItem`, `durationItem` (optional): shown in panel footer.
 - `durationOptions` (optional): preset minute buttons, default `[3, 30, 45, 60, 90]`.
-- `history` (optional): 5-day sparkline strip below the floorplan, loaded from **InfluxDB** (not OpenHAB persistence REST). Requires InfluxDB persistence for the charted items.
+- `history` (optional): 5-day sparklines in columns left/right of the floorplan (sensors with `x` &lt; 0.45 on the left, others on the right), loaded from **InfluxDB** (not OpenHAB persistence REST). Requires InfluxDB persistence for the charted items.
 
 ```json
 "history": {

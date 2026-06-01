@@ -10,6 +10,9 @@ Rectangle {
     property color accentColor: "#38bdf8"
     property bool loading: false
     property string error: ""
+    property string format: ""
+    property string unit: ""
+    property int decimals: -1
 
     readonly property bool hasValues: values && values.length > 0
     readonly property real minValue: {
@@ -39,8 +42,25 @@ Rectangle {
         return isNaN(max) ? 0 : max
     }
 
-    implicitWidth: 112
-    implicitHeight: 52
+    function formatValue(value) {
+        var opts = {}
+        if (root.format.length > 0) {
+            opts.format = root.format
+        }
+        if (root.unit.length > 0) {
+            opts.unit = root.unit
+        }
+        if (root.decimals >= 0) {
+            opts.decimals = root.decimals
+        }
+        return Fmt.apply(String(value), opts)
+    }
+
+    readonly property string minLabel: root.hasValues ? root.formatValue(root.minValue) : "—"
+    readonly property string maxLabel: root.hasValues ? root.formatValue(root.maxValue) : "—"
+
+    implicitWidth: 168
+    implicitHeight: 72
     radius: 8
     color: "#172235"
     border.color: "#304158"
@@ -49,13 +69,13 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 6
-        spacing: 4
+        anchors.margins: 8
+        spacing: 6
 
         Text {
             text: root.label
             color: "#94a3b8"
-            font.pixelSize: 9
+            font.pixelSize: 10
             font.bold: true
             elide: Text.ElideRight
             Layout.fillWidth: true
@@ -63,7 +83,8 @@ Rectangle {
 
         Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: 24
+            Layout.fillHeight: true
+            Layout.minimumHeight: 28
 
             Canvas {
                 id: chart
@@ -121,11 +142,54 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
+                visible: root.loading
+                text: "…"
+                color: "#64748b"
+                font.pixelSize: 11
+            }
+
+            Text {
+                anchors.centerIn: parent
                 visible: !root.loading && !root.hasValues
                 text: root.error.length > 0 ? "—" : ""
                 color: "#64748b"
                 font.pixelSize: 11
             }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 4
+            visible: !root.loading && root.hasValues
+
+            Text {
+                text: "min " + root.minLabel
+                color: "#64748b"
+                font.pixelSize: 9
+                elide: Text.ElideRight
+                Layout.fillWidth: true
+            }
+
+            Text {
+                text: "max " + root.maxLabel
+                color: root.accentColor
+                font.pixelSize: 9
+                font.bold: true
+                horizontalAlignment: Text.AlignRight
+                elide: Text.ElideLeft
+                Layout.fillWidth: true
+            }
+        }
+
+        Text {
+            Layout.fillWidth: true
+            visible: !root.loading && !root.hasValues && root.error.length > 0
+            text: root.error
+            color: "#f87171"
+            font.pixelSize: 9
+            wrapMode: Text.Wrap
+            maximumLineCount: 2
+            elide: Text.ElideRight
         }
     }
 

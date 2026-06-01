@@ -63,6 +63,44 @@ Rectangle {
         return out
     }
 
+    function sensorChartX(sensor) {
+        if (sensor && sensor.x !== undefined && sensor.x !== null) {
+            var x = Number(sensor.x)
+            if (!isNaN(x)) {
+                return x
+            }
+        }
+        return 0.2
+    }
+
+    readonly property var leftChartSensors: {
+        var out = []
+        for (var i = 0; i < chartableSensors.length; ++i) {
+            if (sensorChartX(chartableSensors[i]) < 0.45) {
+                out.push(chartableSensors[i])
+            }
+        }
+        return out
+    }
+
+    readonly property var rightChartSensors: {
+        var out = []
+        for (var i = 0; i < chartableSensors.length; ++i) {
+            if (sensorChartX(chartableSensors[i]) >= 0.45) {
+                out.push(chartableSensors[i])
+            }
+        }
+        return out
+    }
+
+    function chartTileHeight(sensorCount, columnHeight) {
+        if (sensorCount <= 0 || columnHeight <= 0) {
+            return 72
+        }
+        var gap = 8 * Math.max(0, sensorCount - 1)
+        return Math.max(64, Math.floor((columnHeight - gap) / sensorCount))
+    }
+
     property var historyCache: ({})
     property var historyLoading: ({})
     property var historyErrors: ({})
@@ -328,15 +366,58 @@ Rectangle {
             }
         }
 
-        Rectangle {
-            id: mapHost
+        RowLayout {
+            id: chartRow
             Layout.fillWidth: true
             Layout.fillHeight: true
-            radius: 14
-            color: "#0b1220"
-            clip: true
+            spacing: 10
 
-            Image {
+            ColumnLayout {
+                id: leftCharts
+                Layout.preferredWidth: 172
+                Layout.maximumWidth: 220
+                Layout.fillHeight: true
+                spacing: 8
+                visible: root.historyEnabled && root.leftChartSensors.length > 0
+
+                Repeater {
+                    model: root.leftChartSensors
+
+                    HistorySparkline {
+                        required property var modelData
+                        property string itemName: modelData && modelData.item ? String(modelData.item) : ""
+                        label: modelData && modelData.label ? modelData.label : itemName
+                        accentColor: modelData && modelData.accentColor ? modelData.accentColor : "#38bdf8"
+                        format: modelData && modelData.format ? String(modelData.format) : ""
+                        unit: modelData && modelData.unit !== undefined && modelData.unit !== null
+                              ? String(modelData.unit) : ""
+                        decimals: modelData && modelData.decimals !== undefined && modelData.decimals !== null
+                                  ? Number(modelData.decimals) : -1
+                        values: itemName.length > 0 && root.historyCache[itemName]
+                                ? root.historyCache[itemName]
+                                : []
+                        loading: itemName.length > 0 && root.historyLoading[itemName] === true
+                        error: itemName.length > 0 && root.historyErrors[itemName]
+                                ? root.historyErrors[itemName]
+                                : ""
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: root.chartTileHeight(
+                                                  root.leftChartSensors.length,
+                                                  leftCharts.height)
+                    }
+                }
+            }
+
+            Rectangle {
+                id: mapHost
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.minimumWidth: 280
+                radius: 14
+                color: "#0b1220"
+                clip: true
+
+                Image {
                 id: floorplanImage
                 anchors.fill: parent
                 source: root.resolvedImageSource
@@ -471,6 +552,43 @@ Rectangle {
             }
         }
 
+            ColumnLayout {
+                id: rightCharts
+                Layout.preferredWidth: 172
+                Layout.maximumWidth: 220
+                Layout.fillHeight: true
+                spacing: 8
+                visible: root.historyEnabled && root.rightChartSensors.length > 0
+
+                Repeater {
+                    model: root.rightChartSensors
+
+                    HistorySparkline {
+                        required property var modelData
+                        property string itemName: modelData && modelData.item ? String(modelData.item) : ""
+                        label: modelData && modelData.label ? modelData.label : itemName
+                        accentColor: modelData && modelData.accentColor ? modelData.accentColor : "#38bdf8"
+                        format: modelData && modelData.format ? String(modelData.format) : ""
+                        unit: modelData && modelData.unit !== undefined && modelData.unit !== null
+                              ? String(modelData.unit) : ""
+                        decimals: modelData && modelData.decimals !== undefined && modelData.decimals !== null
+                                  ? Number(modelData.decimals) : -1
+                        values: itemName.length > 0 && root.historyCache[itemName]
+                                ? root.historyCache[itemName]
+                                : []
+                        loading: itemName.length > 0 && root.historyLoading[itemName] === true
+                        error: itemName.length > 0 && root.historyErrors[itemName]
+                                ? root.historyErrors[itemName]
+                                : ""
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: root.chartTileHeight(
+                                                  root.rightChartSensors.length,
+                                                  rightCharts.height)
+                    }
+                }
+            }
+        }
+
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 28
@@ -488,31 +606,6 @@ Rectangle {
                 font.pixelSize: 10
                 wrapMode: Text.Wrap
                 verticalAlignment: Text.AlignVCenter
-            }
-        }
-
-        Flow {
-            Layout.fillWidth: true
-            Layout.minimumHeight: visible ? 58 : 0
-            visible: root.historyEnabled && root.chartableSensors.length > 0
-            spacing: 6
-
-            Repeater {
-                model: root.chartableSensors
-
-                HistorySparkline {
-                    required property var modelData
-                    property string itemName: modelData && modelData.item ? String(modelData.item) : ""
-                    label: modelData && modelData.label ? modelData.label : itemName
-                    accentColor: modelData && modelData.accentColor ? modelData.accentColor : "#38bdf8"
-                    values: itemName.length > 0 && root.historyCache[itemName]
-                            ? root.historyCache[itemName]
-                            : []
-                    loading: itemName.length > 0 && root.historyLoading[itemName] === true
-                    error: itemName.length > 0 && root.historyErrors[itemName]
-                            ? root.historyErrors[itemName]
-                            : ""
-                }
             }
         }
 
