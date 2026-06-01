@@ -62,10 +62,13 @@ The relevant env vars are:
 | `HOMEUI_CONFIG`                | Path to `dashboard.json`.                                               | `/etc/homeui/dashboard.json`      |
 | `HOMEUI_OPENHAB_URL`           | OpenHAB base URL.                                                       | `http://openhab:8080`             |
 | `HOMEUI_OPENHAB_TOKEN`         | OpenHAB API token.                                                      | unset                             |
-| `HOMEUI_INFLUX_URL`            | InfluxDB 2.x base URL for irrigation history sparklines.                | unset                             |
-| `HOMEUI_INFLUX_TOKEN`          | InfluxDB API token with read access to the bucket.                      | unset                             |
-| `HOMEUI_INFLUX_ORG`            | InfluxDB org (overrides panel `history.org` when set).                  | unset                             |
-| `HOMEUI_INFLUX_BUCKET`         | InfluxDB bucket (overrides panel `history.bucket` when set).            | unset                             |
+| `HOMEUI_INFLUX_URL`            | InfluxDB base URL for irrigation history sparklines.                    | unset                             |
+| `HOMEUI_INFLUX_TOKEN`          | InfluxDB **2.x** API token (read access to the bucket). When set, Flux v2 is used. | unset                |
+| `HOMEUI_INFLUX_USER`           | InfluxDB **1.x** username (same as OpenHAB `influxdb.cfg` `user=`). Used when no token is set. | unset |
+| `HOMEUI_INFLUX_PASSWORD`       | InfluxDB **1.x** password.                                              | unset                             |
+| `HOMEUI_INFLUX_DATABASE`       | InfluxDB **1.x** database name (same as OpenHAB `db=`). If unset, `HOMEUI_INFLUX_BUCKET` or panel `history.bucket` is used. | unset |
+| `HOMEUI_INFLUX_ORG`            | InfluxDB **2.x** org (overrides panel `history.org` when set).          | unset                             |
+| `HOMEUI_INFLUX_BUCKET`         | InfluxDB **2.x** bucket, or **1.x** database when no `HOMEUI_INFLUX_DATABASE`. | unset                      |
 | `HOMEUI_MQTT_BROKER`           | `mqtt://host:port` (omit to disable).                                   | unset                             |
 | `HOMEUI_MQTT_USERNAME`         | MQTT username.                                                          | unset                             |
 | `HOMEUI_MQTT_PASSWORD`         | MQTT password.                                                          | unset                             |

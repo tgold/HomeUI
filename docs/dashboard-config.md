@@ -263,9 +263,17 @@ Fields:
 
 Set these environment variables on the panel host (secrets stay out of `dashboard.json`):
 
+**InfluxDB 1.x** (typical openHABian; use the same `user`, `password`, and `db` as `/etc/openhab/services/influxdb.cfg`):
+
 - `HOMEUI_INFLUX_URL` — e.g. `http://192.168.0.95:8086`
-- `HOMEUI_INFLUX_TOKEN` — read token for the bucket
-- `HOMEUI_INFLUX_ORG` / `HOMEUI_INFLUX_BUCKET` — optional overrides when omitted from panel JSON
+- `HOMEUI_INFLUX_USER` / `HOMEUI_INFLUX_PASSWORD`
+- Panel `history.bucket` (or `HOMEUI_INFLUX_BUCKET` / `HOMEUI_INFLUX_DATABASE`) — database name, e.g. `openhab`
+
+Do **not** set `HOMEUI_INFLUX_TOKEN` on 1.x; HomeUI selects the API from whether a token is present.
+
+**InfluxDB 2.x**:
+
+- `HOMEUI_INFLUX_URL`, `HOMEUI_INFLUX_TOKEN`, `HOMEUI_INFLUX_ORG`, and bucket (`history.bucket` or `HOMEUI_INFLUX_BUCKET`)
 
 Charts auto-select sensors with `format: "temperature"` or `unit: "%"`. Override per sensor:
 
@@ -273,9 +281,19 @@ Charts auto-select sensors with `format: "temperature"` or `unit: "%"`. Override
 - `"history": false` — hide
 - `"influxMeasurement": "temperature"` — when several items share one Influx measurement (filters by OpenHAB `item` tag)
 
-Influx runs `aggregateWindow(every: 1d, fn: mean)` server-side; HomeUI only parses ~5 daily values.
+Daily means are aggregated on the server (`GROUP BY time(1d)` on 1.x, `aggregateWindow` on 2.x); HomeUI only parses ~5 values.
 
-Verify with:
+Verify **InfluxDB 1.x**:
+
+```bash
+curl -sG 'http://127.0.0.1:8086/query' \
+  --data-urlencode "db=openhab" \
+  --data-urlencode "u=USER" \
+  --data-urlencode "p=PASS" \
+  --data-urlencode 'q=SELECT mean("value") FROM "zisterne_fuellstand" WHERE time > now() - 5d GROUP BY time(1d) fill(none)'
+```
+
+Verify **InfluxDB 2.x**:
 
 ```bash
 influx query 'from(bucket:"openhab") |> range(start:-5d) |> filter(fn:(r)=>r._measurement=="zisterne_fuellstand" and r._field=="value") |> aggregateWindow(every:1d, fn:mean)' --org openhab --token ...
