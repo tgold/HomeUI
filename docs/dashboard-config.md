@@ -277,17 +277,17 @@ Layout options:
 - `tilesPerRow` (default `0` = auto) - force a specific tile-per-row count. With the default the panel computes how many fit at `minTileWidth` (default `140` px) and wraps to additional rows as needed, so the panel grows vertically rather than squashing tiles.
 - `minTileWidth` (default `140`) - minimum tile width used by the auto layout.
 
-If `command` is provided, the control always sends that command. Otherwise it toggles between `onCommand` and `offCommand`.
+If `command` is provided, a single push button sends that command (e.g. doorbell). Otherwise separate **ON** and **OFF** buttons send `onCommand` and `offCommand` regardless of the current state.
 
 ### Control widget kinds
 
-Every entry in `controls` may declare a `kind` that selects a specialised home automation widget. Without `kind` (or with `kind: "switch"`) the existing toggle tile is rendered.
+Every entry in `controls` may declare a `kind` that selects a specialised home automation widget. Without `kind` (or with `kind: "switch"`) a tile with separate **ON** and **OFF** buttons is rendered (always sends the explicit command; state is shown read-only so hardware switches do not make the UI ambiguous).
 
 Supported kinds: `switch`, `dimmer`, `color`, `shutter`, `thermostat`, `scene`, `progress` (alias `gauge`), `selector`, `dropdown`, `value`.
 
 #### Dimmer (`kind: "dimmer"`)
 
-Renders a slider 0..100 plus a power icon that toggles between `0` and `onLevel`.
+Renders a slider 0..100 plus separate **ON** / **OFF** buttons (`onLevel` / `0`, or `powerItem` when set).
 
 ```json
 {
@@ -321,14 +321,14 @@ Hue + brightness picker for OpenHAB `Color` items: power icon, label, hue strip,
 }
 ```
 
-Set `powerItem` when on/off is a separate `Switch` item from the `Color` item (replaces a side-by-side switch + hue tile pair). The icon toggles `ON`/`OFF` on `powerItem`; hue and brightness still use `item`.
+Set `powerItem` when on/off is a separate `Switch` item from the `Color` item (replaces a side-by-side switch + hue tile pair). Separate **ON** / **OFF** buttons command `powerItem`; hue and brightness still use `item`.
 
 State / command encoding:
 
 - The tile expects the OpenHAB Color state in the standard `"H,S,B"` form (hue 0..360, saturation 0..100, brightness 0..100). Plain numeric / `ON` / `OFF` states are also tolerated so this kind degrades cleanly when bound to a `Dimmer` or `Switch` item.
 - Hue strip releases publish a full `"H,S,B"` command, preserving the current saturation (defaults to `100` when off) and brightness (defaults to `100` when off).
 - The brightness slider publishes the raw integer percentage on release, which OpenHAB treats as a `PercentType` command on `Color` items - hue and saturation are kept.
-- The power button publishes `ON` / `OFF`.
+- Separate **ON** / **OFF** buttons publish `ON` / `OFF` (or `onCommand` / `offCommand` when set).
 
 #### Shutter (`kind: "shutter"`)
 

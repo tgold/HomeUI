@@ -50,7 +50,7 @@ Rectangle {
     readonly property string downCommand: control.downCommand || "DOWN"
     readonly property bool stopVisible: control.hideStop !== true
     readonly property string sceneState: String(sceneValue).trim()
-    readonly property int buttonHeight: 28
+    readonly property int buttonHeight: Fmt.actionButtonHeight
 
     function positionLabel() {
         var pos = currentPosition
@@ -135,9 +135,9 @@ Rectangle {
                          ]
 
                 Rectangle {
-                    Layout.preferredWidth: root.buttonHeight
+                    Layout.fillWidth: true
                     Layout.preferredHeight: root.buttonHeight
-                    radius: 6
+                    radius: 8
                     color: movePress.pressed ? root.accent : "#1f2d44"
                     border.color: "#304158"
                     border.width: 1
@@ -146,7 +146,7 @@ Rectangle {
                         anchors.centerIn: parent
                         text: modelData.icon
                         color: movePress.pressed ? "#111827" : "#e2e8f0"
-                        font.pixelSize: 11
+                        font.pixelSize: 14
                         font.bold: true
                     }
 
@@ -162,8 +162,6 @@ Rectangle {
                     }
                 }
             }
-
-            Item { Layout.fillWidth: true }
         }
 
         RowLayout {

@@ -74,25 +74,6 @@ Rectangle {
                     font.pixelSize: 11
                     font.bold: true
                 }
-
-                MouseArea {
-                    anchors.fill: parent
-                    enabled: root.hasBinding || root.hasPowerItem
-                    onClicked: {
-                        if (!root.panel) {
-                            return
-                        }
-                        if (root.hasPowerItem) {
-                            var on = root.control.onCommand || "ON"
-                            var off = root.control.offCommand || "OFF"
-                            root.panel.dispatchCommand(root.powerControl(),
-                                                       root.isActive ? off : on)
-                        } else {
-                            root.panel.dispatchCommand(root.control,
-                                                       root.isActive ? "0" : String(root.onLevel))
-                        }
-                    }
-                }
             }
 
             Text {
@@ -110,6 +91,21 @@ Rectangle {
                 font.pixelSize: 11
                 font.bold: true
             }
+        }
+
+        PowerButtons {
+            Layout.fillWidth: true
+            panel: root.panel
+            targetControl: root.hasPowerItem ? root.powerControl() : root.control
+            powerOn: root.isActive
+            onCommand: root.hasPowerItem
+                    ? (root.control.onCommand || "ON")
+                    : String(root.onLevel)
+            offCommand: root.hasPowerItem
+                    ? (root.control.offCommand || "OFF")
+                    : "0"
+            accent: root.accent
+            enabled: root.hasBinding || root.hasPowerItem
         }
 
         Slider {

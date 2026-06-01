@@ -289,18 +289,11 @@ Rectangle {
     Component {
         id: switchComponent
 
-        ControlTile {
-            readonly property var control: parent.control
-            readonly property string rawValue: parent.rawValue
-            readonly property string statusAccent: root.statusAccentColor(control, rawValue)
-            label: control.label || "Control"
-            value: Fmt.smart(rawValue)
+        SwitchTile {
+            control: parent.control
+            panel: root
+            rawValue: parent.rawValue
             secondary: parent.currentValue
-            iconText: control.iconText || ""
-            active: statusAccent.length > 0 ? true : root.isOnState(rawValue)
-            interactive: !!(control.item || control.mqttTopic)
-            accentColor: statusAccent.length > 0 ? statusAccent : (control.accentColor || "#f59e0b")
-            onClicked: root.toggleSwitch(control)
         }
     }
 

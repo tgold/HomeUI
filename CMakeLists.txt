@@ -82,6 +82,8 @@ set(_homeui_qml_module_args
         qml/components/ColorTile.qml
         qml/components/ControlsPanel.qml
         qml/components/ControlTile.qml
+        qml/components/PowerButtons.qml
+        qml/components/SwitchTile.qml
         qml/components/DimmerTile.qml
         qml/components/DropdownTile.qml
         qml/components/EnergyPanel.qml

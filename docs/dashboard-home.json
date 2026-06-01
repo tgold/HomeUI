@@ -28,40 +28,29 @@
               "item": "thz_aussentemp"
             },
             {
+              "kind": "color",
               "label": "Licht",
               "iconText": "L",
               "accentColor": "#fbbf24",
-              "item": "GF_LivingRoom_Light"
+              "item": "GF_LivingRoom_Light_Color",
+              "powerItem": "GF_LivingRoom_Light"
             },
             {
               "kind": "color",
-              "label": "Licht Hue",
-              "iconText": "H",
-              "accentColor": "#fbbf24",
-              "item": "GF_LivingRoom_Light_Color"
-            },
-            {
               "label": "Stehlampe",
               "iconText": "S",
               "accentColor": "#fbbf24",
-              "item": "GF_LivingRoom_StandLight_Toggle"
-            },
-            {
-              "kind": "color",
-              "label": "Stehlampe Hue",
-              "iconText": "H",
-              "accentColor": "#fbbf24",
-              "item": "GF_LivingRoom_StandLight_Color"
+              "item": "GF_LivingRoom_StandLight_Color",
+              "powerItem": "GF_LivingRoom_StandLight_Toggle"
             },
             {
               "kind": "shutter",
               "label": "Rollo",
-              "item": "GF_LivingRoom_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true
-            },
-            {
-              "kind": "selector",
-              "label": "Rollo Szene",
-              "item": "GF_LivingRoom_Shutter_Scene",
+              "item": "GF_LivingRoom_Shutter",
+              "sceneItem": "GF_LivingRoom_Shutter_Scene",
+              "upCommand": "ON",
+              "downCommand": "OFF",
+              "hideStop": true,
               "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch", "value": "FULLUP" },
@@ -72,12 +61,11 @@
             {
               "kind": "shutter",
               "label": "Rollo Terrasse",
-              "item": "GF_Terrace_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true
-            },
-            {
-              "kind": "selector",
-              "label": "Rollo Terrasse Szene",
-              "item": "GF_Terrace_Shutter_Scene",
+              "item": "GF_Terrace_Shutter",
+              "sceneItem": "GF_Terrace_Shutter_Scene",
+              "upCommand": "ON",
+              "downCommand": "OFF",
+              "hideStop": true,
               "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch", "value": "FULLUP" },
@@ -123,12 +111,11 @@
             {
               "kind": "shutter",
               "label": "Rollo",
-              "item": "GF_Dining_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true
-            },
-            {
-              "kind": "selector",
-              "label": "Rollo Szene",
-              "item": "GF_Dining_Shutter_Scene",
+              "item": "GF_Dining_Shutter",
+              "sceneItem": "GF_Dining_Shutter_Scene",
+              "upCommand": "ON",
+              "downCommand": "OFF",
+              "hideStop": true,
               "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch", "value": "FULLUP" },
@@ -214,7 +201,7 @@
           "type": "camera",
           "title": "Tuerklingel",
           "location": "Einfahrt",
-          "height": 360,
+          "height": 300,
           "format": "mjpeg",
           "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22",
           "snapshotUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.SnapShot&version=1&method=TakeSnapshot&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22",
@@ -223,7 +210,7 @@
         {
           "type": "sonos",
           "title": "Sonos Play Kueche",
-          "columnSpan": 3,
+          "columnSpan": 1,
           "host": "192.168.0.13",
           "accentColor": "#f59e0b",
           "items": {
@@ -262,14 +249,12 @@
           "tilesPerRow": 2,
           "controls": [
             { "kind": "value",  "format": "temperature", "label": "Temperatur",    "iconText": "T", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
-            { "label": "Licht",         "iconText": "L", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light" },
-            { "kind": "color",  "label": "Licht Hue",     "iconText": "H", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light_Color" },
-            { "label": "Stehlampe",     "iconText": "S", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Toggle" },
-            { "kind": "color",  "label": "Stehlampe Hue", "iconText": "H", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Color" },
-            { "kind": "shutter","label": "Rollo",         "item": "GF_LivingRoom_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
+            { "kind": "color",  "label": "Licht",         "iconText": "L", "accentColor": "#fbbf24", "item": "GF_LivingRoom_Light_Color", "powerItem": "GF_LivingRoom_Light" },
+            { "kind": "color",  "label": "Stehlampe",     "iconText": "S", "accentColor": "#fbbf24", "item": "GF_LivingRoom_StandLight_Color", "powerItem": "GF_LivingRoom_StandLight_Toggle" },
             {
-              "kind": "selector", "label": "Rollo Szene",
-              "item": "GF_LivingRoom_Shutter_Scene", "accentColor": "#38bdf8",
+              "kind": "shutter", "label": "Rollo",
+              "item": "GF_LivingRoom_Shutter", "sceneItem": "GF_LivingRoom_Shutter_Scene",
+              "upCommand": "ON", "downCommand": "OFF", "hideStop": true, "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch",   "value": "FULLUP" },
                 { "label": "Halb",   "value": "HALFDOWN" },
@@ -286,10 +271,10 @@
             { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "GF_LivingRoom_Temperature" },
             { "kind": "dimmer", "label": "Licht",      "iconText": "%", "accentColor": "#fbbf24", "item": "GF_DiningRoom_Light_Dimmer" },
             { "kind": "dimmer", "label": "Licht Hue",  "iconText": "%", "accentColor": "#fbbf24", "item": "GF_DiningRoom_Light_Temperature" },
-            { "kind": "shutter","label": "Rollo Essen","item": "GF_Dining_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
             {
-              "kind": "selector", "label": "Rollo Szene",
-              "item": "GF_Dining_Shutter_Scene", "accentColor": "#38bdf8",
+              "kind": "shutter", "label": "Rollo",
+              "item": "GF_Dining_Shutter", "sceneItem": "GF_Dining_Shutter_Scene",
+              "upCommand": "ON", "downCommand": "OFF", "hideStop": true, "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch",   "value": "FULLUP" },
                 { "label": "Halb",   "value": "HALFDOWN" },
@@ -305,10 +290,10 @@
           "controls": [
             { "kind": "value",  "format": "temperature", "label": "Temperatur", "iconText": "T", "accentColor": "#f97316", "item": "thz_aussentemp" },
             { "label": "Licht",          "iconText": "L", "accentColor": "#fbbf24", "item": "GF_Terrace_Light" },
-            { "kind": "shutter","label": "Rollo",      "item": "GF_Terrace_Shutter", "upCommand": "ON", "downCommand": "OFF", "hideStop": true },
             {
-              "kind": "selector", "label": "Rollo Szene",
-              "item": "GF_Terrace_Shutter_Scene", "accentColor": "#38bdf8",
+              "kind": "shutter", "label": "Rollo",
+              "item": "GF_Terrace_Shutter", "sceneItem": "GF_Terrace_Shutter_Scene",
+              "upCommand": "ON", "downCommand": "OFF", "hideStop": true, "accentColor": "#38bdf8",
               "options": [
                 { "label": "Hoch",   "value": "FULLUP" },
                 { "label": "Halb",   "value": "HALFDOWN" },
@@ -651,8 +636,8 @@
             { "label": "Waermestrom NT",  "iconText": "N", "accentColor": "#ef4444", "item": "waermestrom_nt" },
             { "label": "Einspeisung",     "iconText": "E", "accentColor": "#22c55e", "item": "waermestrom_einspeisung" },
             { "label": "Haus Einspeisung","iconText": "S", "accentColor": "#22c55e", "item": "haushaltsstrom_einspeisung" },
-            { "label": "Wasserverbauch gesamt","iconText": "W", "accentColor": "#38bdf8", "item": "water_total" },
-            { "label": "Wasserverbauch heute","iconText": "W", "accentColor": "#38bdf8", "item": "water_total" }
+            { "label": "Wasserverbauch gesamt","iconText": "W", "accentColor": "#38bdf8", "item": "water_total", "decimals": 3, "unit": "m3" },
+            { "label": "Wasserverbauch heute","iconText": "W", "accentColor": "#38bdf8", "item": "water_daily", "decimals": 0, "unit": "L", "scale": 1000 }
           ]
         },
         {
@@ -701,7 +686,7 @@
               "type": "camera",
               "title": "Tuerklingel",
               "location": "Einfahrt",
-              "height": 360,
+              "height": 300,
               "format": "mjpeg",
               "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=2&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22"
             },
@@ -722,11 +707,11 @@
           "panels": [
             {
               "type": "camera",
-              "title": "Surveillance",
-              "location": "Carport",
-              "height": 260,
+              "title": "Carport",
+              "location": "Einfahrt",
+              "height": 300,
               "format": "mjpeg",
-              "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=3&StmKey=%22b9ff7f89f0b9be9b8971831856023748%22"
+              "streamUrl": "http://192.168.0.23:5000/webapi/entry.cgi?api=SYNO.SurveillanceStation.Stream.VideoStreaming&version=1&method=Stream&format=mjpeg&cameraId=3&StmKey=%22b4727ec4ec4a08a7dabea6480d773dea%22"
             },
             {
               "type": "controls",

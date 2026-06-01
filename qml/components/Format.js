@@ -7,6 +7,8 @@ var panelMargin = 10
 var panelSpacing = 8
 var gridSpacing = 8
 var tileMargin = 8
+var actionButtonHeight = 40
+var selectorButtonHeight = 44
 
 // Internal: split a raw OpenHAB state into { number, unit } when possible.
 // Returns null when the state cannot be parsed as a leading number.

@@ -72,16 +72,8 @@ Rectangle {
         }
     }
 
-    function togglePower() {
-        if (!panel) { return }
-        if (hasPowerItem) {
-            var on = control.onCommand || control.mqttOnPayload || "ON"
-            var off = control.offCommand || control.mqttOffPayload || "OFF"
-            panel.dispatchCommand(powerControl(), powerOn ? off : on)
-            return
-        }
-        panel.dispatchCommand(control, powerOn ? "OFF" : "ON")
-    }
+    readonly property string onCmd: control.onCommand || control.mqttOnPayload || "ON"
+    readonly property string offCmd: control.offCommand || control.mqttOffPayload || "OFF"
 
     implicitWidth: 200
     implicitHeight: contentLayout.implicitHeight + 2 * Fmt.tileMargin
@@ -111,16 +103,10 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: root.control.iconText || (root.powerOn ? "ON" : "OFF")
+                    text: root.control.iconText || "L"
                     color: root.powerOn ? "#111827" : "#cbd5e1"
                     font.pixelSize: 11
                     font.bold: true
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    enabled: root.hasBinding || root.hasPowerItem
-                    onClicked: root.togglePower()
                 }
             }
 
@@ -139,6 +125,17 @@ Rectangle {
                 font.pixelSize: 11
                 font.bold: true
             }
+        }
+
+        PowerButtons {
+            Layout.fillWidth: true
+            panel: root.panel
+            targetControl: root.hasPowerItem ? root.powerControl() : root.control
+            powerOn: root.powerOn
+            onCommand: root.onCmd
+            offCommand: root.offCmd
+            accent: root.accent
+            enabled: root.hasBinding || root.hasPowerItem
         }
 
         Rectangle {

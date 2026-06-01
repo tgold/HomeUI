@@ -19,6 +19,10 @@ Rectangle {
         return value.length > 0 && value.toUpperCase() === currentValue.toUpperCase()
     }
 
+    readonly property int buttonHeight: control.buttonHeight !== undefined
+            ? Number(control.buttonHeight)
+            : Fmt.selectorButtonHeight
+
     implicitWidth: Math.max(140, options.length * 72 + 20)
     implicitHeight: contentColumn.implicitHeight + 2 * contentColumn.anchors.margins
     radius: 12
@@ -54,8 +58,8 @@ Rectangle {
                     readonly property bool active: root._isActive(modelData)
 
                     Layout.fillWidth: true
-                    implicitHeight: 26
-                    radius: 6
+                    Layout.preferredHeight: root.buttonHeight
+                    radius: 8
                     color: active ? root.accent : "#0f1726"
                     border.color: active ? root.accent : "#304158"
                     border.width: 1
@@ -64,7 +68,7 @@ Rectangle {
                         anchors.centerIn: parent
                         text: btn.opt && btn.opt.label !== undefined ? btn.opt.label : (btn.opt ? btn.opt.value : "")
                         color: btn.active ? "#111827" : "#cbd5e1"
-                        font.pixelSize: 11
+                        font.pixelSize: 12
                         font.bold: true
                     }
 
