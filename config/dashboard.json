@@ -57,27 +57,6 @@
                 { "label": "Halb", "value": "HALFDOWN" },
                 { "label": "Runter", "value": "FULLDOWN" }
               ]
-            },
-            {
-              "kind": "shutter",
-              "label": "Rollo Terrasse",
-              "item": "GF_Terrace_Shutter",
-              "sceneItem": "GF_Terrace_Shutter_Scene",
-              "upCommand": "ON",
-              "downCommand": "OFF",
-              "hideStop": true,
-              "accentColor": "#38bdf8",
-              "options": [
-                { "label": "Hoch", "value": "FULLUP" },
-                { "label": "Halb", "value": "HALFDOWN" },
-                { "label": "Runter", "value": "FULLDOWN" }
-              ]
-            },
-            {
-              "label": "Licht Terrasse",
-              "iconText": "T",
-              "accentColor": "#fbbf24",
-              "item": "GF_Terrace_Light"
             }
           ]
         },
@@ -122,6 +101,27 @@
                 { "label": "Halb", "value": "HALFDOWN" },
                 { "label": "Runter", "value": "FULLDOWN" }
               ]
+            },
+            {
+              "kind": "shutter",
+              "label": "Rollo Terrasse",
+              "item": "GF_Terrace_Shutter",
+              "sceneItem": "GF_Terrace_Shutter_Scene",
+              "upCommand": "ON",
+              "downCommand": "OFF",
+              "hideStop": true,
+              "accentColor": "#38bdf8",
+              "options": [
+                { "label": "Hoch", "value": "FULLUP" },
+                { "label": "Halb", "value": "HALFDOWN" },
+                { "label": "Runter", "value": "FULLDOWN" }
+              ]
+            },
+            {
+              "label": "Licht Terrasse",
+              "iconText": "T",
+              "accentColor": "#fbbf24",
+              "item": "GF_Terrace_Light"
             }
           ]
         },
@@ -205,7 +205,7 @@
         {
           "type": "sonos",
           "title": "Sonos Play Kueche",
-          "columnSpan": 2,
+          "columnSpan": 1,
           "host": "192.168.0.13",
           "accentColor": "#f59e0b",
           "items": {
