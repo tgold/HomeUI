@@ -1,6 +1,9 @@
 #include "InfluxHistoryClient.h"
 
 #include <QDateTime>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QTimeZone>
+#endif
 #include <QVector>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -368,10 +371,7 @@ bool InfluxHistoryClient::parseInfluxTimestamp(const QJsonValue &value, QDateTim
     qint64 raw = 0;
     if (value.isString()) {
         const QString timeText = value.toString();
-        QDateTime timestamp = QDateTime::fromString(timeText, Qt::RFC3339Date);
-        if (!timestamp.isValid()) {
-            timestamp = QDateTime::fromString(timeText, Qt::ISODateWithMs);
-        }
+        QDateTime timestamp = QDateTime::fromString(timeText, Qt::ISODateWithMs);
         if (!timestamp.isValid()) {
             timestamp = QDateTime::fromString(timeText, Qt::ISODate);
         }
@@ -405,7 +405,11 @@ bool InfluxHistoryClient::parseInfluxTimestamp(const QJsonValue &value, QDateTim
         epochMs = raw * 1000;
     }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    *out = QDateTime::fromMSecsSinceEpoch(epochMs, QTimeZone::utc());
+#else
     *out = QDateTime::fromMSecsSinceEpoch(epochMs, Qt::UTC);
+#endif
     return out->isValid();
 }
 
