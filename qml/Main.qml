@@ -473,6 +473,8 @@ ApplicationWindow {
                 openhab: openhabClient
                 sonos: sonosClient
                 mqtt: mqttClient
+                pageCurrent: swipeView.currentIndex === index
+                pageNear: Math.abs(swipeView.currentIndex - index) <= 1
             }
         }
 

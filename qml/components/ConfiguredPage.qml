@@ -10,12 +10,9 @@ Item {
     property var sonos: null
     property var mqtt: null
 
-    // SwipeView keeps every page instantiated; gate heavy work to the visible page
-    // (and immediate neighbours while the gesture is in flight).
-    readonly property bool pageCurrent: SwipeView.isCurrentItem
-    readonly property bool pageNear: SwipeView.isCurrentItem
-            || SwipeView.isNextItem
-            || SwipeView.isPreviousItem
+    // Set from Main.qml (swipeView.currentIndex); gates cameras/Grafana on off-screen pages.
+    property bool pageCurrent: false
+    property bool pageNear: false
 
     function layoutValue(object, key, fallback) {
         if (!object || object[key] === undefined || object[key] === null) {

@@ -179,7 +179,9 @@ Rectangle {
             return
         }
         if (history && history.bucket) {
-            influx.bucket = String(history.bucket)
+            var db = String(history.bucket)
+            influx.bucket = db
+            influx.database = db
         }
         if (history && history.org) {
             influx.org = String(history.org)

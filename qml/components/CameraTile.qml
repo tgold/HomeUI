@@ -75,8 +75,21 @@ Rectangle {
                 anchors.fill: parent
                 visible: root.effectiveFormat === "mjpeg"
                                 && root.streamUrl.length > 0
-                url: visible && root.active ? root.streamUrl : ""
+                url: root.active && visible ? root.streamUrl : ""
                 ignoreSslErrors: root.ignoreSslErrors
+            }
+
+            Connections {
+                target: root
+                function onActiveChanged() {
+                    if (!root.active || root.effectiveFormat !== "mjpeg" || root.streamUrl.length === 0) {
+                        return
+                    }
+                    // Clearing url forces MjpegView to reconnect after an off-screen pause.
+                    var stream = root.streamUrl
+                    mjpeg.url = ""
+                    mjpeg.url = stream
+                }
             }
 
             // ---- Snapshot polling fallback ----------------------------

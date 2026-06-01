@@ -591,13 +591,12 @@ void InfluxHistoryClient::fetchDailyMeans(const QString &itemName,
         QUrlQuery logQuery(logUrl.query());
         logQuery.removeQueryItem(QStringLiteral("p"));
         logUrl.setQuery(logQuery);
-        qCDebug(lcInflux,
-                "POST %s (item=%s, db=%s, rp=%s) q=%s",
-                qUtf8Printable(logUrl.toString()),
-                qUtf8Printable(item),
-                qUtf8Printable(databaseName()),
-                m_retentionPolicy.isEmpty() ? "(default)" : qUtf8Printable(m_retentionPolicy),
-                qUtf8Printable(influxQuery));
+        qCDebug(lcInflux).noquote()
+            << "Influx POST" << logUrl.toString()
+            << "| item:" << item
+            << "| db:" << databaseName()
+            << "| rp:" << (m_retentionPolicy.isEmpty() ? QStringLiteral("default") : m_retentionPolicy)
+            << "| query:" << influxQuery;
         reply = m_network.post(request, body);
     } else {
         url.setPath(QStringLiteral("/api/v2/query"));
