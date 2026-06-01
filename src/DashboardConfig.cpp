@@ -15,7 +15,49 @@
 
 namespace {
 Q_LOGGING_CATEGORY(lcConfig, "homeui.config")
+
+QString localFileUrl(const QString &path)
+{
+    return QUrl::fromLocalFile(QFileInfo(path).absoluteFilePath()).toString();
 }
+
+QStringList assetInstallSearchDirs()
+{
+    QStringList dirs;
+    const QFileInfo exe(QCoreApplication::applicationFilePath());
+    const QString exeDir = exe.absolutePath();
+    dirs << QDir(exeDir).absoluteFilePath(QStringLiteral("../share/homeui/assets"));
+    dirs << QStringLiteral("/usr/local/share/homeui/assets");
+    dirs << QStringLiteral("/usr/share/homeui/assets");
+    return dirs;
+}
+
+QString resolveLocalAssetPath(const QString &trimmed, const QString &configBaseDir)
+{
+    QStringList candidates;
+    if (!configBaseDir.isEmpty()) {
+        candidates << QDir(configBaseDir).absoluteFilePath(trimmed);
+        const QString fileName = QFileInfo(trimmed).fileName();
+        if (!fileName.isEmpty() && fileName != trimmed) {
+            candidates << QDir(configBaseDir).absoluteFilePath(fileName);
+        }
+    }
+
+    const QString fileName = QFileInfo(trimmed).fileName();
+    if (!fileName.isEmpty()) {
+        for (const QString &root : assetInstallSearchDirs()) {
+            candidates << QDir(root).absoluteFilePath(fileName);
+        }
+    }
+
+    for (const QString &candidate : candidates) {
+        if (QFileInfo::exists(candidate)) {
+            return candidate;
+        }
+    }
+    return {};
+}
+} // namespace
 
 namespace {
 const QStringList ValidPanelTypes = {
@@ -184,17 +226,23 @@ QString DashboardConfig::resolveAssetUrl(const QString &path) const
 
     const QFileInfo pathInfo(trimmed);
     if (pathInfo.isAbsolute()) {
-        return QUrl::fromLocalFile(pathInfo.absoluteFilePath()).toString();
+        if (QFileInfo::exists(pathInfo.absoluteFilePath())) {
+            return localFileUrl(pathInfo.absoluteFilePath());
+        }
+        qCWarning(lcConfig) << "Asset not found:" << trimmed;
+        return {};
     }
 
     const QFileInfo configInfo(m_sourcePath);
     const QString baseDir = configInfo.absolutePath();
-    if (baseDir.isEmpty()) {
-        return trimmed;
+    const QString resolved = resolveLocalAssetPath(trimmed, baseDir);
+    if (!resolved.isEmpty()) {
+        return localFileUrl(resolved);
     }
 
-    const QString resolved = QDir(baseDir).absoluteFilePath(trimmed);
-    return QUrl::fromLocalFile(resolved).toString();
+    qCWarning(lcConfig) << "Asset not found:" << trimmed
+                        << "(config dir:" << baseDir << ")";
+    return {};
 }
 
 bool DashboardConfig::reload()

@@ -18,17 +18,22 @@ Rectangle {
 
     property int selectedZoneIndex: -1
 
+    readonly property string bundledFloorplanSource:
+            "qrc:/qt/qml/HomeUI/assets/irrigation-floorplan.png"
+
     readonly property string resolvedImageSource: {
         if (!imageSource || imageSource.length === 0) {
-            return "qrc:/qt/qml/HomeUI/assets/irrigation-floorplan.png"
+            return bundledFloorplanSource
         }
         if (typeof dashboardConfig !== "undefined" && dashboardConfig.resolveAssetUrl) {
             var resolved = dashboardConfig.resolveAssetUrl(imageSource)
             if (resolved && resolved.length > 0) {
                 return resolved
             }
+        } else if (imageSource.indexOf("://") >= 0 || imageSource.indexOf("qrc:") === 0) {
+            return imageSource
         }
-        return imageSource
+        return bundledFloorplanSource
     }
 
     readonly property bool imageReady: floorplanImage.status === Image.Ready

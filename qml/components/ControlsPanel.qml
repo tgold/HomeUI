@@ -249,6 +249,9 @@ Rectangle {
                     readonly property string sceneValue: modelData.sceneItem
                             ? root.valueForItem(modelData.sceneItem, "")
                             : ""
+                    readonly property string footerValue: modelData.footerItem
+                            ? root.valueForItem(modelData.footerItem, "")
+                            : ""
 
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
@@ -358,6 +361,7 @@ Rectangle {
             control: parent.control
             panel: root
             rawValue: parent.rawValue
+            footerRawValue: parent.footerValue
         }
     }
 

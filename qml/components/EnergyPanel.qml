@@ -100,17 +100,6 @@ Rectangle {
                 Layout.fillWidth: true
             }
 
-            Text {
-                visible: root.hasDayMetrics
-                Layout.columnSpan: 2
-                Layout.fillWidth: true
-                Layout.topMargin: 2
-                text: "Tagesertrag"
-                color: "#64748b"
-                font.pixelSize: 10
-                font.bold: true
-            }
-
             MetricRow {
                 visible: root.pvDayItem.length > 0
                 label: "PV heute"

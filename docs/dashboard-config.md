@@ -242,7 +242,7 @@ Tapping a zone opens `Start` / `Stop` quick actions.
 
 Fields:
 
-- `imageSource` (required): file path or URL to the floorplan image. Relative paths resolve against the dashboard config directory (e.g. `../assets/irrigation-floorplan.png`). A bundled fallback image is used when loading fails.
+- `imageSource` (required): file path or URL to the floorplan image. Relative paths resolve against the dashboard config directory first, then standard install locations (`../share/homeui/assets` next to the binary, `/usr/local/share/homeui/assets`, `/usr/share/homeui/assets`). Use a bare filename such as `irrigation-floorplan.png` on installed panels. If the file cannot be found, the bundled QML resource image is used.
 - `zones` (required): array of overlays with:
   - `label` (required), `activityItem` (required), `x`/`y` (required, normalized `0..1`).
   - optional action bindings: `startItem`, `startCommand`, `stopItem`, `stopCommand`.
@@ -444,6 +444,21 @@ Renders a read-only horizontal progress bar with a numeric value on the right. U
 - `decimals` controls the displayed precision (defaults: `0` for `%`/`W`, `1` otherwise).
 - With `unit: "%"`, unitless OpenHAB states in `0..1` are shown as percent (`1` → `100 %`, `0.85` → `85 %`). This matches evcc SoC items like `evcc_loadpoint0_vehicleSoC`. States already at `0..100` or with a `%` suffix are unchanged.
 - `format: "fraction"` forces `0..1` scaling even when a unit is present.
+- `footerItem` (optional) — live OpenHAB item shown on the progress bar (e.g. charge power while SoC is the bar value).
+- `footerFormat` / `footerUnit` / `footerDecimals` — formatting for `footerItem` (`power`, `energy`, or any `Fmt.apply` hint).
+
+Example (EV battery SoC + charge power on the bar):
+
+```json
+{
+  "kind": "progress",
+  "label": "Auto Batterie",
+  "item": "evcc_loadpoint0_vehicleSoC",
+  "unit": "%",
+  "footerItem": "evcc_loadpoint0_chargePower",
+  "footerFormat": "power"
+}
+```
 
 #### Selector (`kind: "selector"`)
 

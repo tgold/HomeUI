@@ -8,6 +8,7 @@ Rectangle {
     property var control: ({})
     property var panel: null
     property string rawValue: ""
+    property string footerRawValue: ""
     property string maxRawValue: {
         if (panel && panel.itemState && control && control.maxItem) {
             return panel.itemState(control.maxItem, "")
@@ -112,6 +113,31 @@ Rectangle {
         return maxNumericValue.toFixed(decimals) + " " + unit
     }
 
+    function _formattedFooter() {
+        if (!control.footerItem || String(footerRawValue).trim().length === 0) {
+            if (control.secondary !== undefined && control.secondary !== null) {
+                return String(control.secondary)
+            }
+            return ""
+        }
+        var format = control.footerFormat ? String(control.footerFormat).toLowerCase() : ""
+        if (format === "power") {
+            return Fmt.power(footerRawValue, control.footerDecimals)
+        }
+        if (format === "energy") {
+            return Fmt.energy(footerRawValue, control.footerDecimals)
+        }
+        return Fmt.apply(footerRawValue, {
+            format: control.footerFormat,
+            unit: control.footerUnit,
+            decimals: control.footerDecimals,
+            scale: control.footerScale,
+            valueMap: control.footerValueMap
+        })
+    }
+
+    readonly property string footerText: root._formattedFooter()
+
     implicitWidth: 160
     implicitHeight: 78
     radius: 12
@@ -151,11 +177,12 @@ Rectangle {
 
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 10
+            Layout.preferredHeight: root.footerText.length > 0 ? 22 : 10
             radius: 5
             color: "#0b1322"
             border.color: "#26364d"
             border.width: 1
+            clip: true
 
             Rectangle {
                 anchors.left: parent.left
@@ -166,17 +193,17 @@ Rectangle {
                 radius: 4
                 color: root.accent
             }
-        }
 
-        Text {
-            text: root.control && root.control.secondary !== undefined && root.control.secondary !== null
-                  ? String(root.control.secondary)
-                  : ""
-            visible: text.length > 0
-            color: "#94a3b8"
-            font.pixelSize: 10
-            elide: Text.ElideRight
-            Layout.fillWidth: true
+            Text {
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.rightMargin: 6
+                text: root.footerText
+                visible: root.footerText.length > 0
+                color: "#e2e8f0"
+                font.pixelSize: 11
+                font.bold: true
+            }
         }
     }
 }
