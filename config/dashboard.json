@@ -162,6 +162,7 @@
         {
           "type": "controls",
           "title": "Auto",
+          "column": 3,
           "tilesPerRow": 2,
           "controls": [
             {
@@ -203,6 +204,7 @@
         {
           "type": "controls",
           "title": "Robi",
+          "column": 3,
           "tilesPerRow": 2,
           "controls": [
             {
@@ -238,6 +240,7 @@
         {
           "type": "energy",
           "title": "Energie",
+          "column": 3,
           "items": {
             "pv": "evcc_pvPower",
             "grid": "evcc_gridPower",
@@ -250,6 +253,7 @@
         {
           "type": "camera",
           "title": "Tuerklingel",
+          "column": 2,
           "location": "Einfahrt",
           "height": 300,
           "format": "mjpeg",
@@ -1122,40 +1126,70 @@
               ]
             },
             {
+              "kind": "value",
               "label": "Heizen",
               "iconText": "H",
               "accentColor": "#ef4444",
-              "item": "thz_heizen"
+              "item": "thz_heizen",
+              "valueMap": {
+                "ON": "AN",
+                "OFF": "AUS"
+              }
             },
             {
+              "kind": "value",
               "label": "Warmwasser",
               "iconText": "W",
               "accentColor": "#38bdf8",
-              "item": "thz_warmwasserbereitung"
+              "item": "thz_warmwasserbereitung",
+              "valueMap": {
+                "ON": "AN",
+                "OFF": "AUS"
+              }
             },
             {
+              "kind": "value",
               "label": "Verdichter",
               "iconText": "V",
               "accentColor": "#a855f7",
-              "item": "thz_verdichter"
+              "item": "thz_verdichter",
+              "valueMap": {
+                "ON": "AN",
+                "OFF": "AUS"
+              }
             },
             {
+              "kind": "value",
               "label": "Heizkreis",
               "iconText": "P",
               "accentColor": "#fbbf24",
-              "item": "thz_heizkreispumpe"
+              "item": "thz_heizkreispumpe",
+              "valueMap": {
+                "ON": "AN",
+                "OFF": "AUS"
+              }
             },
             {
+              "kind": "value",
               "label": "Filter",
               "iconText": "F",
               "accentColor": "#fbbf24",
-              "item": "thz_filterwechsel"
+              "item": "thz_filterwechsel",
+              "valueMap": {
+                "ON": "AN",
+                "OFF": "AUS"
+              }
             },
             {
+              "kind": "value",
               "label": "Abtauen",
               "iconText": "A",
               "accentColor": "#38bdf8",
-              "item": "thz_abtauen_ll_wt"
+              "item": "thz_abtauen_ll_wt",
+              "valueMap": {
+                "ON": "AN",
+                "OFF": "AUS"
+              }
             },
             {
               "kind": "value",
@@ -1331,36 +1365,42 @@
           "tilesPerRow": 4,
           "controls": [
             {
+              "kind": "value",
               "label": "Haushaltsstrom HT",
               "iconText": "H",
               "accentColor": "#ef4444",
               "item": "haushaltsstrom_ht"
             },
             {
+              "kind": "value",
               "label": "Haushaltsstrom NT",
               "iconText": "N",
               "accentColor": "#ef4444",
               "item": "haushaltsstrom_nt"
             },
             {
+              "kind": "value",
               "label": "Waermestrom HT",
               "iconText": "H",
               "accentColor": "#ef4444",
               "item": "waermestrom_ht"
             },
             {
+              "kind": "value",
               "label": "Waermestrom NT",
               "iconText": "N",
               "accentColor": "#ef4444",
               "item": "waermestrom_nt"
             },
             {
+              "kind": "value",
               "label": "Einspeisung",
               "iconText": "E",
               "accentColor": "#22c55e",
               "item": "waermestrom_einspeisung"
             },
             {
+              "kind": "value",
               "label": "Haus Einspeisung",
               "iconText": "S",
               "accentColor": "#22c55e",

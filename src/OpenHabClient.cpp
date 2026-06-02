@@ -116,6 +116,35 @@ bool OpenHabClient::eventStreamConnected() const
     return m_eventStreamConnected;
 }
 
+bool OpenHabClient::eventStreamPaused() const
+{
+    return m_eventStreamPaused;
+}
+
+void OpenHabClient::setEventStreamPaused(bool paused)
+{
+    if (m_eventStreamPaused == paused) {
+        return;
+    }
+    m_eventStreamPaused = paused;
+    emit eventStreamPausedChanged();
+
+    if (m_eventStreamPaused) {
+        m_eventReconnectTimer.stop();
+        if (m_eventReply) {
+            m_eventReply->abort();
+        } else {
+            setEventStreamConnected(false);
+            setStatusText(QStringLiteral("OpenHAB event stream paused"));
+        }
+        return;
+    }
+
+    if (m_enabled) {
+        connectEventStream();
+    }
+}
+
 QString OpenHabClient::statusText() const
 {
     return m_statusText;
@@ -385,7 +414,7 @@ void OpenHabClient::parseItemsResponse(const QByteArray &body)
 
 void OpenHabClient::connectEventStream()
 {
-    if (!m_enabled || m_eventReply) {
+    if (!m_enabled || m_eventReply || m_eventStreamPaused) {
         return;
     }
 
@@ -460,7 +489,7 @@ void OpenHabClient::connectEventStream()
 
 void OpenHabClient::scheduleEventReconnect()
 {
-    if (m_enabled && !m_eventReconnectTimer.isActive()) {
+    if (m_enabled && !m_eventStreamPaused && !m_eventReconnectTimer.isActive()) {
         m_eventReconnectTimer.start();
     }
 }

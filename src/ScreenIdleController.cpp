@@ -104,6 +104,11 @@ bool ScreenIdleController::enabled() const
     return m_enabled;
 }
 
+bool ScreenIdleController::nightModeActive() const
+{
+    return m_nightModeActive;
+}
+
 void ScreenIdleController::setEnabled(bool enabled)
 {
     if (m_enabled == enabled) {
@@ -200,7 +205,10 @@ void ScreenIdleController::wake()
         return;
     }
     if (m_nightModeActive) {
-        return;
+        qCInfo(lcIdle, "Touch wake during night mode (temporary override)");
+        m_nightModeWakeOverride = true;
+        m_nightModeActive = false;
+        emit nightModeActiveChanged();
     }
     if (m_idle) {
         qCInfo(lcIdle, "Waking from idle (active brightness %d%%)", m_activeBrightness);
@@ -238,6 +246,11 @@ void ScreenIdleController::setIdle(bool idle)
     if (m_idle) {
         qCInfo(lcIdle, "Going idle (idle brightness %d%%)", m_idleBrightness);
         emit brightnessRequested(m_idleBrightness);
+        if (m_nightModeWakeOverride && isWithinNightMode(QTime::currentTime())) {
+            // Temporary night wake expires once the user goes idle again.
+            m_nightModeWakeOverride = false;
+            refreshNightMode();
+        }
     }
 }
 
@@ -262,9 +275,19 @@ void ScreenIdleController::refreshNightMode()
         return;
     }
 
+    const bool withinNightWindow = isWithinNightMode(QTime::currentTime());
+    if (!withinNightWindow) {
+        m_nightModeWakeOverride = false;
+    }
+
     const bool wasNightModeActive = m_nightModeActive;
-    const bool shouldBeNightModeActive = m_nightModeEnabled && isWithinNightMode(QTime::currentTime());
+    const bool shouldBeNightModeActive = m_nightModeEnabled
+        && withinNightWindow
+        && !m_nightModeWakeOverride;
     m_nightModeActive = shouldBeNightModeActive;
+    if (wasNightModeActive != m_nightModeActive) {
+        emit nightModeActiveChanged();
+    }
 
     if (shouldBeNightModeActive) {
         m_idleTimer.stop();

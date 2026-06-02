@@ -12,6 +12,7 @@ Rectangle {
     property bool active: false
     property bool interactive: false
     property color accentColor: "#f59e0b"
+    readonly property bool showIcon: iconText.length > 0 && width >= 128
     signal clicked()
 
     implicitWidth: 132
@@ -42,9 +43,10 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 8
+            spacing: root.showIcon ? 8 : 0
 
             Rectangle {
+                visible: root.showIcon
                 Layout.preferredWidth: 28
                 Layout.preferredHeight: 28
                 radius: 8

@@ -14,6 +14,7 @@ class OpenHabClient : public QObject
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
     Q_PROPERTY(bool eventStreamConnected READ eventStreamConnected NOTIFY eventStreamConnectedChanged)
+    Q_PROPERTY(bool eventStreamPaused READ eventStreamPaused WRITE setEventStreamPaused NOTIFY eventStreamPausedChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)
     Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
     Q_PROPERTY(int itemCount READ itemCount NOTIFY itemCountChanged)
@@ -31,6 +32,8 @@ public:
 
     bool connected() const;
     bool eventStreamConnected() const;
+    bool eventStreamPaused() const;
+    void setEventStreamPaused(bool paused);
     QString statusText() const;
     QString lastError() const;
     int itemCount() const;
@@ -49,6 +52,7 @@ signals:
     void enabledChanged();
     void connectedChanged();
     void eventStreamConnectedChanged();
+    void eventStreamPausedChanged();
     void statusTextChanged();
     void lastErrorChanged();
     void itemCountChanged();
@@ -78,6 +82,7 @@ private:
     bool m_enabled = true;
     bool m_connected = false;
     bool m_eventStreamConnected = false;
+    bool m_eventStreamPaused = false;
     QString m_statusText;
     QString m_lastError;
     QHash<QString, QString> m_itemStates;

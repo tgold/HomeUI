@@ -10,6 +10,9 @@ Item {
     property var mqtt: null
     property bool pageCurrent: true
     property bool pageNear: true
+    readonly property bool nightModeActive: (typeof screenIdle !== "undefined")
+            ? screenIdle.nightModeActive
+            : false
 
     implicitWidth: loader.implicitWidth
     implicitHeight: loader.implicitHeight
@@ -98,7 +101,7 @@ Item {
         id: cameraPanelComponent
 
         CameraTile {
-            active: root.pageCurrent
+            active: root.pageCurrent && !root.nightModeActive
             title: root.value(["title"], "Kamera")
             location: root.value(["location"], "")
             streamUrl: root.value(["streamUrl"], "")

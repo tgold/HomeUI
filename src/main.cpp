@@ -399,11 +399,16 @@ int main(int argc, char *argv[])
     screenIdle.setNightModeStartTime(nightModeStart);
     screenIdle.setNightModeEndTime(nightModeEnd);
     screenIdle.setNightModeEnabled(nightModeEnabled);
+    QObject::connect(&screenIdle, &ScreenIdleController::nightModeActiveChanged,
+                     &openHabClient, [&]() {
+                         openHabClient.setEventStreamPaused(screenIdle.nightModeActive());
+                     });
     QObject::connect(&screenIdle, &ScreenIdleController::brightnessRequested,
                      &app, [](int percent) {
                          applyBrightnessPercent(percent);
                      });
     screenIdle.refreshNightMode();
+    openHabClient.setEventStreamPaused(screenIdle.nightModeActive());
 
     qmlRegisterType<MjpegView>("HomeUI", 1, 0, "MjpegView");
 

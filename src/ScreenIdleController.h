@@ -24,6 +24,7 @@ class ScreenIdleController : public QObject
     Q_PROPERTY(int activeBrightness READ activeBrightness WRITE setActiveBrightness NOTIFY activeBrightnessChanged)
     Q_PROPERTY(int idleBrightness READ idleBrightness WRITE setIdleBrightness NOTIFY idleBrightnessChanged)
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
+    Q_PROPERTY(bool nightModeActive READ nightModeActive NOTIFY nightModeActiveChanged)
 
 public:
     explicit ScreenIdleController(QObject *parent = nullptr);
@@ -38,6 +39,7 @@ public:
     void setIdleBrightness(int idleBrightness);
     bool enabled() const;
     void setEnabled(bool enabled);
+    bool nightModeActive() const;
     bool nightModeEnabled() const;
     void setNightModeEnabled(bool enabled);
     QTime nightModeStartTime() const;
@@ -57,6 +59,7 @@ signals:
     void activeBrightnessChanged();
     void idleBrightnessChanged();
     void enabledChanged();
+    void nightModeActiveChanged();
     void brightnessRequested(int percent);
 
 private:
@@ -76,5 +79,6 @@ private:
     bool m_enabled = true;
     bool m_nightModeEnabled = true;
     bool m_nightModeActive = false;
+    bool m_nightModeWakeOverride = false;
     bool m_filterInstalled = false;
 };

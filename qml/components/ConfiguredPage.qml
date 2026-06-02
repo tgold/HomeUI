@@ -191,14 +191,21 @@ Item {
                         }
                         placeY = bestY
                     } else {
-                        var shortest = 0
-                        for (var k2 = 1; k2 < cols; ++k2) {
-                            if (heights[k2] < heights[shortest]) {
-                                shortest = k2
+                        var preferredRaw = Number(root.layoutValue(p.panel, "column", 0))
+                        var preferred = Math.floor(preferredRaw) - 1
+                        if (isFinite(preferred) && preferred >= 0 && preferred < cols) {
+                            startCol = preferred
+                            placeY = heights[preferred]
+                        } else {
+                            var shortest = 0
+                            for (var k2 = 1; k2 < cols; ++k2) {
+                                if (heights[k2] < heights[shortest]) {
+                                    shortest = k2
+                                }
                             }
+                            startCol = shortest
+                            placeY = heights[shortest]
                         }
-                        startCol = shortest
-                        placeY = heights[shortest]
                     }
 
                     var panelWidth = effSpan >= cols

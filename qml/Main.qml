@@ -16,6 +16,9 @@ ApplicationWindow {
     property int maxDebugEvents: 300
     property string doorbellItemName: "Doorbell_Pressed"
     property bool lastDoorbellPressed: false
+    readonly property bool blackoutActive: (typeof screenIdle !== "undefined")
+            && (screenIdle.nightModeActive
+                || (screenIdle.idle && screenIdle.idleBrightness <= 0))
     readonly property string doorbellStreamUrl: {
         var _ = dashboardConfig.revision
         return resolveDoorbellStreamUrl()
@@ -449,6 +452,7 @@ ApplicationWindow {
             CameraTile {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                active: (typeof screenIdle !== "undefined") ? !screenIdle.nightModeActive : true
                 title: "Tuerklingel"
                 location: "Einfahrt"
                 streamUrl: root.doorbellStreamUrl
@@ -543,6 +547,33 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    Rectangle {
+        id: sleepBlackout
+        anchors.fill: parent
+        visible: root.blackoutActive
+        z: 9999
+        color: "black"
+
+        // First touch/key should wake the panel without activating underlying UI.
+        MouseArea {
+            anchors.fill: parent
+            onPressed: {
+                if (typeof screenIdle !== "undefined") {
+                    screenIdle.wake()
+                }
+                mouse.accepted = true
+            }
+        }
+
+        Keys.onPressed: {
+            if (typeof screenIdle !== "undefined") {
+                screenIdle.wake()
+            }
+            event.accepted = true
+        }
+        focus: visible
     }
 
 }

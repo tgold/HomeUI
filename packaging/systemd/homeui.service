@@ -22,8 +22,12 @@ Environment=HOMEUI_OPENHAB_URL=http://192.168.0.95:8080
 #Environment=HOMEUI_MQTT_PANEL_ID=wallpanel-eg
 # Set HOMEUI_BRIGHTNESS_PATH=none to force display power commands.
 #Environment=HOMEUI_BRIGHTNESS_PATH=/sys/class/backlight/10-0045/brightness
-#Environment="HOMEUI_DISPLAY_OFF_COMMAND=vcgencmd display_power 0"
-#Environment="HOMEUI_DISPLAY_ON_COMMAND=vcgencmd display_power 1"
+# Wayland (wlroots/labwc/wayfire) example:
+#Environment=HOMEUI_DISPLAY_OFF_COMMAND="WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-0} /usr/bin/wlr-randr --output HDMI-A-1 --off"
+#Environment=HOMEUI_DISPLAY_ON_COMMAND="WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-0} /usr/bin/wlr-randr --output HDMI-A-1 --on"
+# Wayland black blank (keeps HDMI signal, no "No signal" OSD):
+#Environment=HOMEUI_DISPLAY_OFF_COMMAND="WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-0} /usr/bin/pkill -f 'swaylock -f -c 000000' ; WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-0} /usr/bin/swaylock -f -c 000000 >/dev/null 2>&1 &"
+#Environment=HOMEUI_DISPLAY_ON_COMMAND="WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-0} /usr/bin/pkill -f 'swaylock -f -c 000000' || true"
 #Environment=HOMEUI_IDLE_TIMEOUT_MS=600000
 Environment=HOMEUI_NIGHT_MODE_ENABLED=true
 Environment=HOMEUI_NIGHT_MODE_START=00:00
