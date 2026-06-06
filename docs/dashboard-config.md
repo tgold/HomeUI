@@ -540,8 +540,8 @@ Options can set `command` when the value shown by OpenHAB differs from the comma
 {
   "label": "Home",
   "value": "charge",
-  "command": "app_charge",
-  "activeValues": ["charge", "dock", "app_charge"]
+  "command": "charge",
+  "activeValues": ["charge", "charging", "returning"]
 }
 ```
 

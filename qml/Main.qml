@@ -140,10 +140,11 @@ ApplicationWindow {
     function _robotRunning() {
         var _ = openhabClient.stateRevision
         var state = (openhabClient.itemState("GF_robi_command", "") || "").toLowerCase().trim()
-        // EG Robi command/status values: "charge"/"dock"/"pause" = idle,
-        // "vacuum"/"clean"/"cleaning"/"spot"/"app_start" = running.
+        // EG Robi Ecovacs command/status values: "charge"/"pause" = idle,
+        // "clean"/"cleaning"/area modes = running.
         return state === "vacuum" || state === "clean" || state === "cleaning"
-                || state === "spot" || state === "app_start" || state === "app_spot"
+                || state === "spot" || state === "spotarea"
+                || state === "customarea" || state === "sceneclean"
     }
 
     function _irrigationRunning() {

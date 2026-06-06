@@ -223,33 +223,30 @@
               "options": [
                 {
                   "label": "Clean",
-                  "value": "cleaning",
-                  "command": "app_start",
+                  "value": "clean",
+                  "command": "clean",
                   "activeValues": [
-                    "vacuum",
                     "clean",
                     "cleaning",
-                    "spot",
-                    "app_start"
+                    "spot"
                   ]
                 },
                 {
                   "label": "Home",
                   "value": "charge",
-                  "command": "app_charge",
+                  "command": "charge",
                   "activeValues": [
                     "charge",
-                    "dock",
-                    "app_charge"
+                    "charging",
+                    "returning"
                   ]
                 },
                 {
                   "label": "Pause",
                   "value": "pause",
-                  "command": "app_pause",
+                  "command": "pause",
                   "activeValues": [
-                    "pause",
-                    "app_pause"
+                    "pause"
                   ]
                 }
               ]
@@ -615,24 +612,22 @@
               "options": [
                 {
                   "label": "Clean",
-                  "value": "cleaning",
-                  "command": "app_start",
+                  "value": "clean",
+                  "command": "clean",
                   "activeValues": [
-                    "vacuum",
                     "clean",
                     "cleaning",
-                    "spot",
-                    "app_start"
+                    "spot"
                   ]
                 },
                 {
                   "label": "Home",
                   "value": "charge",
-                  "command": "app_charge",
+                  "command": "charge",
                   "activeValues": [
                     "charge",
-                    "dock",
-                    "app_charge"
+                    "charging",
+                    "returning"
                   ]
                 }
               ]
