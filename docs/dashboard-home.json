@@ -221,15 +221,31 @@
               "options": [
                 {
                   "label": "Clean",
-                  "value": "vacuum"
+                  "value": "clean",
+                  "command": "clean",
+                  "activeValues": [
+                    "clean",
+                    "cleaning",
+                    "spot"
+                  ]
                 },
                 {
                   "label": "Home",
-                  "value": "dock"
+                  "value": "charge",
+                  "command": "charge",
+                  "activeValues": [
+                    "charge",
+                    "charging",
+                    "returning"
+                  ]
                 },
                 {
                   "label": "Pause",
-                  "value": "pause"
+                  "value": "pause",
+                  "command": "pause",
+                  "activeValues": [
+                    "pause"
+                  ]
                 }
               ]
             }
@@ -592,11 +608,23 @@
               "options": [
                 {
                   "label": "Clean",
-                  "value": "vacuum"
+                  "value": "clean",
+                  "command": "clean",
+                  "activeValues": [
+                    "clean",
+                    "cleaning",
+                    "spot"
+                  ]
                 },
                 {
                   "label": "Home",
-                  "value": "dock"
+                  "value": "charge",
+                  "command": "charge",
+                  "activeValues": [
+                    "charge",
+                    "charging",
+                    "returning"
+                  ]
                 }
               ]
             }

@@ -13,10 +13,31 @@ Rectangle {
     readonly property color accent: control.accentColor || "#38bdf8"
     readonly property string currentValue: String(rawValue).trim()
 
+    function _commandFor(opt) {
+        if (!opt) { return "" }
+        if (opt.command !== undefined && opt.command !== null) {
+            return String(opt.command)
+        }
+        return opt.value !== undefined && opt.value !== null ? String(opt.value) : ""
+    }
+
     function _isActive(opt) {
         if (!opt) { return false }
-        var value = opt.value !== undefined ? String(opt.value) : ""
-        return value.length > 0 && value.toUpperCase() === currentValue.toUpperCase()
+        var values = []
+        if (opt.value !== undefined && opt.value !== null) {
+            values.push(opt.value)
+        }
+        var aliases = Fmt.asArray(opt.activeValues)
+        for (var aliasIndex = 0; aliasIndex < aliases.length; ++aliasIndex) {
+            values.push(aliases[aliasIndex])
+        }
+        for (var i = 0; i < values.length; ++i) {
+            var value = values[i] !== undefined && values[i] !== null ? String(values[i]) : ""
+            if (value.length > 0 && value.toUpperCase() === currentValue.toUpperCase()) {
+                return true
+            }
+        }
+        return false
     }
 
     readonly property int buttonHeight: control.buttonHeight !== undefined
@@ -76,8 +97,9 @@ Rectangle {
                         anchors.fill: parent
                         enabled: !!(root.panel && root.control && (root.control.item || root.control.mqttTopic))
                         onClicked: {
-                            if (root.panel && btn.opt && btn.opt.value !== undefined) {
-                                root.panel.dispatchCommand(root.control, String(btn.opt.value))
+                            var command = root._commandFor(btn.opt)
+                            if (root.panel && command.length > 0) {
+                                root.panel.dispatchCommand(root.control, command)
                             }
                         }
                     }

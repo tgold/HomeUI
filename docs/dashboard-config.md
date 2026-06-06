@@ -532,7 +532,18 @@ Renders a compact row of radio-style buttons for picking one of a fixed set of s
 }
 ```
 
-`options` is required and must contain at least one `{ label, value }` pair. The currently active value is highlighted by string-comparing it against the item state (case-insensitive). Each press dispatches `value` as the command (OpenHAB or MQTT, depending on which binding the control declares).
+`options` is required and must contain at least one `{ label, value }` pair. The currently active value is highlighted by string-comparing it against the item state (case-insensitive). Each press dispatches `command` when present, otherwise `value` (OpenHAB or MQTT, depending on which binding the control declares).
+
+Options can set `command` when the value shown by OpenHAB differs from the command that must be sent. `activeValues` can list additional state aliases that should highlight the same button:
+
+```json
+{
+  "label": "Home",
+  "value": "charge",
+  "command": "charge",
+  "activeValues": ["charge", "charging", "returning"]
+}
+```
 
 #### Dropdown (`kind: "dropdown"`)
 
@@ -557,8 +568,9 @@ Renders a compact ComboBox-style picker. Same shape as `selector` but with the o
 ```
 
 - `options` is required (same format as `selector`) and must contain at least one entry. Values may be strings or numbers - they are compared numerically when both sides parse as numbers, otherwise case-insensitively.
+- Options may also use `command` and `activeValues` just like `selector` entries.
 - The currently active label is shown in the closed combobox. While the popup is open, live state updates do not yank the selection.
-- Picking an entry dispatches its `value` as the command (OpenHAB or MQTT).
+- Picking an entry dispatches its `command` when present, otherwise `value` (OpenHAB or MQTT).
 
 Irrigation example (duration preselection before start actions):
 
