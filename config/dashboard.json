@@ -223,15 +223,34 @@
               "options": [
                 {
                   "label": "Clean",
-                  "value": "vacuum"
+                  "value": "cleaning",
+                  "command": "app_start",
+                  "activeValues": [
+                    "vacuum",
+                    "clean",
+                    "cleaning",
+                    "spot",
+                    "app_start"
+                  ]
                 },
                 {
                   "label": "Home",
-                  "value": "dock"
+                  "value": "charge",
+                  "command": "app_charge",
+                  "activeValues": [
+                    "charge",
+                    "dock",
+                    "app_charge"
+                  ]
                 },
                 {
                   "label": "Pause",
-                  "value": "pause"
+                  "value": "pause",
+                  "command": "app_pause",
+                  "activeValues": [
+                    "pause",
+                    "app_pause"
+                  ]
                 }
               ]
             }
@@ -596,11 +615,25 @@
               "options": [
                 {
                   "label": "Clean",
-                  "value": "vacuum"
+                  "value": "cleaning",
+                  "command": "app_start",
+                  "activeValues": [
+                    "vacuum",
+                    "clean",
+                    "cleaning",
+                    "spot",
+                    "app_start"
+                  ]
                 },
                 {
                   "label": "Home",
-                  "value": "dock"
+                  "value": "charge",
+                  "command": "app_charge",
+                  "activeValues": [
+                    "charge",
+                    "dock",
+                    "app_charge"
+                  ]
                 }
               ]
             }

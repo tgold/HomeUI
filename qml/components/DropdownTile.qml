@@ -14,6 +14,16 @@ Rectangle {
     readonly property color accent: control.accentColor || "#fbbf24"
     readonly property bool hasBinding: !!(control.item || control.mqttTopic)
 
+    function _optionCommand(opt) {
+        if (!opt) {
+            return ""
+        }
+        if (opt.command !== undefined && opt.command !== null) {
+            return String(opt.command)
+        }
+        return opt.value !== undefined && opt.value !== null ? String(opt.value) : ""
+    }
+
     // Normalise both the raw state and the option values so "2" and "2.0"
     // map to the same selection.
     function _normalize(v) {
@@ -37,6 +47,12 @@ Rectangle {
             var opt = options[i]
             if (opt && _normalize(opt.value) === key) {
                 return i
+            }
+            var activeValues = Fmt.asArray(opt ? opt.activeValues : [])
+            for (var j = 0; j < activeValues.length; ++j) {
+                if (_normalize(activeValues[j]) === key) {
+                    return i
+                }
             }
         }
         return -1
@@ -121,8 +137,9 @@ Rectangle {
                     return
                 }
                 var opt = root.options[index]
-                if (opt && root.panel && opt.value !== undefined) {
-                    root.panel.dispatchCommand(root.control, String(opt.value))
+                var command = root._optionCommand(opt)
+                if (root.panel && command.length > 0) {
+                    root.panel.dispatchCommand(root.control, command)
                 }
             }
         }
