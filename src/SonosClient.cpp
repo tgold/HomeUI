@@ -7,6 +7,8 @@
 #include <QUrl>
 #include <QXmlStreamReader>
 
+#include <algorithm>
+
 namespace {
 Q_LOGGING_CATEGORY(lcSonos, "homeui.sonos")
 
@@ -24,6 +26,37 @@ bool looksLikeUrlOrUri(const QString &value)
         || v.contains(QLatin1Char('?'));
 }
 
+bool isGenericSourceLabel(const QString &value)
+{
+    const QString v = value.trimmed();
+    if (v.isEmpty()) {
+        return false;
+    }
+    static const QStringList genericLabels = {
+        QStringLiteral("Spotify"),
+        QStringLiteral("Amazon Music"),
+        QStringLiteral("Apple Music"),
+        QStringLiteral("YouTube Music"),
+        QStringLiteral("TuneIn"),
+        QStringLiteral("Pandora"),
+        QStringLiteral("Deezer"),
+        QStringLiteral("SoundCloud"),
+        QStringLiteral("Qobuz"),
+        QStringLiteral("Tidal"),
+        QStringLiteral("Radio"),
+        QStringLiteral("Line-In"),
+        QStringLiteral("Audio Line-In"),
+        QStringLiteral("TV"),
+        QStringLiteral("x-rincon-mp3radio"),
+    };
+    for (const QString &label : genericLabels) {
+        if (v.compare(label, Qt::CaseInsensitive) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool isBetterMetadata(const QString &candidate, const QString &current)
 {
     const QString c = candidate.trimmed();
@@ -32,6 +65,12 @@ bool isBetterMetadata(const QString &candidate, const QString &current)
         return false;
     }
     if (cur.isEmpty()) {
+        return !isGenericSourceLabel(c);
+    }
+    if (isGenericSourceLabel(c) && !isGenericSourceLabel(cur)) {
+        return false;
+    }
+    if (!isGenericSourceLabel(c) && isGenericSourceLabel(cur)) {
         return true;
     }
     const bool candidateLooksLikeUrl = looksLikeUrlOrUri(c);
@@ -44,6 +83,13 @@ bool isBetterMetadata(const QString &candidate, const QString &current)
     }
     return c != cur;
 }
+
+bool hasTrackLevelMetadata(const QString &artist, const QString &title)
+{
+    return !artist.trimmed().isEmpty()
+        || (!title.trimmed().isEmpty() && !isGenericSourceLabel(title));
+}
+
 }
 
 SonosClient::SonosClient(QObject *parent)
@@ -83,6 +129,7 @@ void SonosClient::ensureZone(const QString &hostOrUrl)
 
     startPoll();
     pollZone(host);
+    refreshFavorites(host);
 }
 
 int SonosClient::zoneRevision(const QString &hostOrUrl) const
@@ -200,6 +247,70 @@ void SonosClient::setVolume(const QString &hostOrUrl, int volume)
              });
 }
 
+void SonosClient::refreshFavorites(const QString &hostOrUrl)
+{
+    const QString host = normalizeHost(hostOrUrl);
+    if (host.isEmpty() || !m_zones.contains(host)) {
+        return;
+    }
+    requestFavoritesPage(host, 0, {});
+}
+
+QVariantList SonosClient::zoneFavorites(const QString &hostOrUrl) const
+{
+    const QString host = normalizeHost(hostOrUrl);
+    if (host.isEmpty() || !m_zones.contains(host)) {
+        return {};
+    }
+
+    QVariantList favorites;
+    for (const FavoriteEntry &entry : m_zones.value(host).favorites) {
+        favorites.append(QVariantMap{
+            { QStringLiteral("id"), entry.id },
+            { QStringLiteral("label"), entry.label },
+            { QStringLiteral("command"), entry.label },
+        });
+    }
+    return favorites;
+}
+
+int SonosClient::favoritesRevision(const QString &hostOrUrl) const
+{
+    const QString host = normalizeHost(hostOrUrl);
+    if (host.isEmpty() || !m_zones.contains(host)) {
+        return 0;
+    }
+    return m_zones.value(host).favoritesRevision;
+}
+
+void SonosClient::playFavorite(const QString &hostOrUrl, const QString &favoriteKey)
+{
+    const QString host = normalizeHost(hostOrUrl);
+    const QString key = favoriteKey.trimmed();
+    if (host.isEmpty() || key.isEmpty() || !m_zones.contains(host)) {
+        return;
+    }
+
+    const QList<FavoriteEntry> favorites = m_zones.value(host).favorites;
+    const auto it = std::find_if(favorites.cbegin(), favorites.cend(),
+                                 [&key](const FavoriteEntry &entry) {
+                                     return favoriteKeyMatches(entry, key);
+                                 });
+    if (it == favorites.cend()) {
+        qCWarning(lcSonos, "Favorite '%s' not found on %s", qUtf8Printable(key), qUtf8Printable(host));
+        emit errorOccurred(host, QStringLiteral("Favorite not found: %1").arg(key));
+        return;
+    }
+
+    setAvTransportUri(host, it->uri, it->metadata, [this, host](bool ok) {
+        if (!ok) {
+            return;
+        }
+        startPlayback(host);
+        pollZone(host);
+    });
+}
+
 void SonosClient::setMuted(const QString &hostOrUrl, bool muted)
 {
     const QString host = normalizeHost(hostOrUrl);
@@ -263,16 +374,9 @@ QString SonosClient::firstTagText(const QString &xml, const QString &localTagNam
     return {};
 }
 
-QString SonosClient::parseMetaField(const QString &metadata, const QString &localTagName)
+QString SonosClient::decodeXmlEntities(const QString &value)
 {
-    if (metadata.isEmpty()) {
-        return {};
-    }
-
-    // Decode XML entities from Sonos DIDL metadata without relying on
-    // QString::fromHtmlEscaped (missing on some distro Qt builds). Some
-    // Sonos payloads are double-escaped, so decode a few rounds.
-    QString decoded = metadata;
+    QString decoded = value;
     for (int i = 0; i < 3; ++i) {
         QString next = decoded;
         next.replace(QStringLiteral("&lt;"), QStringLiteral("<"));
@@ -285,7 +389,27 @@ QString SonosClient::parseMetaField(const QString &metadata, const QString &loca
         }
         decoded = next;
     }
+    return decoded;
+}
 
+QString SonosClient::xmlEscape(const QString &value)
+{
+    QString escaped = value;
+    escaped.replace(QLatin1Char('&'), QStringLiteral("&amp;"));
+    escaped.replace(QLatin1Char('<'), QStringLiteral("&lt;"));
+    escaped.replace(QLatin1Char('>'), QStringLiteral("&gt;"));
+    escaped.replace(QLatin1Char('"'), QStringLiteral("&quot;"));
+    escaped.replace(QLatin1Char('\''), QStringLiteral("&apos;"));
+    return escaped;
+}
+
+QString SonosClient::parseMetaField(const QString &metadata, const QString &localTagName)
+{
+    if (metadata.isEmpty()) {
+        return {};
+    }
+
+    const QString decoded = decodeXmlEntities(metadata);
     QString value = firstTagText(decoded, localTagName);
     if (!value.isEmpty()) {
         return value;
@@ -302,6 +426,103 @@ QString SonosClient::parseMetaField(const QString &metadata, const QString &loca
         return m.captured(1).trimmed();
     }
     return {};
+}
+
+bool SonosClient::favoriteKeyMatches(const FavoriteEntry &entry, const QString &favoriteKey)
+{
+    const QString key = favoriteKey.trimmed();
+    if (key.isEmpty()) {
+        return false;
+    }
+    if (!entry.id.isEmpty() && entry.id.compare(key, Qt::CaseInsensitive) == 0) {
+        return true;
+    }
+    return entry.label.compare(key, Qt::CaseInsensitive) == 0;
+}
+
+QString SonosClient::buildFavoriteMetadata(const FavoriteEntry &entry)
+{
+    const QString itemClass = entry.itemClass.isEmpty()
+        ? QStringLiteral("object.item.audioItem")
+        : entry.itemClass;
+    return QStringLiteral(
+               "<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
+               "xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" "
+               "xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\">"
+               "<item id=\"%1\" parentID=\"FV:2\" restricted=\"true\">"
+               "<dc:title>%2</dc:title>"
+               "<upnp:class>%3</upnp:class>"
+               "<res protocolInfo=\"http-get:*:audio/mpeg:*\">%4</res>"
+               "</item></DIDL-Lite>")
+        .arg(xmlEscape(entry.id),
+             xmlEscape(entry.label),
+             xmlEscape(itemClass),
+             xmlEscape(entry.uri));
+}
+
+QList<SonosClient::FavoriteEntry> SonosClient::parseFavoriteItems(const QString &didlXml)
+{
+    QList<FavoriteEntry> favorites;
+    if (didlXml.trimmed().isEmpty()) {
+        return favorites;
+    }
+
+    QXmlStreamReader reader(didlXml);
+    FavoriteEntry current;
+    QString currentTextTag;
+    bool inItem = false;
+
+    while (!reader.atEnd()) {
+        reader.readNext();
+        if (reader.isStartElement()) {
+            const QString localName = reader.name().toString();
+            if (localName.compare(QStringLiteral("item"), Qt::CaseInsensitive) == 0) {
+                inItem = true;
+                current = FavoriteEntry{};
+                current.id = reader.attributes().value(QStringLiteral("id")).toString();
+                currentTextTag.clear();
+            } else if (inItem) {
+                if (localName.compare(QStringLiteral("title"), Qt::CaseInsensitive) == 0) {
+                    currentTextTag = QStringLiteral("title");
+                } else if (localName.compare(QStringLiteral("class"), Qt::CaseInsensitive) == 0) {
+                    currentTextTag = QStringLiteral("class");
+                } else if (localName.compare(QStringLiteral("res"), Qt::CaseInsensitive) == 0) {
+                    currentTextTag = QStringLiteral("res");
+                } else {
+                    currentTextTag.clear();
+                }
+            }
+        } else if (reader.isCharacters() && inItem && !currentTextTag.isEmpty()) {
+            const QString text = reader.text().toString().trimmed();
+            if (text.isEmpty()) {
+                continue;
+            }
+            if (currentTextTag == QStringLiteral("title") && current.label.isEmpty()) {
+                current.label = text;
+            } else if (currentTextTag == QStringLiteral("class") && current.itemClass.isEmpty()) {
+                current.itemClass = text;
+            } else if (currentTextTag == QStringLiteral("res") && current.uri.isEmpty()) {
+                current.uri = text;
+            }
+        } else if (reader.isEndElement()) {
+            const QString localName = reader.name().toString();
+            if (localName.compare(QStringLiteral("item"), Qt::CaseInsensitive) == 0 && inItem) {
+                if (!current.label.isEmpty() && !current.uri.isEmpty()) {
+                    if (current.id.isEmpty()) {
+                        current.id = QStringLiteral("FV:2/%1").arg(favorites.size() + 1);
+                    }
+                    current.metadata = buildFavoriteMetadata(current);
+                    favorites.append(current);
+                }
+                inItem = false;
+                currentTextTag.clear();
+            } else if (inItem) {
+                currentTextTag.clear();
+            }
+        }
+    }
+
+    return favorites;
 }
 
 QString SonosClient::normalizedState(const QString &raw)
@@ -402,25 +623,29 @@ void SonosClient::requestPositionInfo(const QString &host)
                      if (!albumArt.isEmpty() && albumArt.startsWith('/')) {
                          albumArt = QStringLiteral("http://%1:1400%2").arg(host, albumArt);
                      }
-                     if (title.isEmpty() && !streamContent.isEmpty()) {
+                     if (title.isEmpty() && !streamContent.isEmpty() && !isGenericSourceLabel(streamContent)) {
                          title = streamContent;
                      }
                      if (title.isEmpty() && !radioShow.isEmpty()) {
                          title = radioShow;
                      }
                      if (track.isEmpty()) {
-                         track = !title.isEmpty() ? title : streamContent;
+                         if (!title.isEmpty()) {
+                             track = title;
+                         } else if (!streamContent.isEmpty() && !isGenericSourceLabel(streamContent)) {
+                             track = streamContent;
+                         }
                      }
                      if (looksLikeUrlOrUri(track)) {
                          if (!title.isEmpty()) {
                              track = title;
-                         } else if (!streamContent.isEmpty()) {
+                         } else if (!streamContent.isEmpty() && !isGenericSourceLabel(streamContent)) {
                              track = streamContent;
                          } else if (!radioShow.isEmpty()) {
                              track = radioShow;
                          }
                      }
-                     if (looksLikeUrlOrUri(title)) {
+                     if (looksLikeUrlOrUri(title) || isGenericSourceLabel(title)) {
                          title.clear();
                      }
 
@@ -482,20 +707,23 @@ void SonosClient::requestMediaInfo(const QString &host)
                  if (!stationArt.isEmpty() && stationArt.startsWith('/')) {
                      stationArt = QStringLiteral("http://%1:1400%2").arg(host, stationArt);
                  }
-                 if (looksLikeUrlOrUri(stationTitle) || stationTitle.compare(QStringLiteral("x-rincon-mp3radio"), Qt::CaseInsensitive) == 0) {
+                 if (looksLikeUrlOrUri(stationTitle) || isGenericSourceLabel(stationTitle)) {
                      stationTitle.clear();
                  }
 
                  applyZoneUpdate(host, [stationTitle, stationArt, uri](ZoneData &zone) {
                      bool changed = false;
+                     const bool trackMetadataKnown = hasTrackLevelMetadata(zone.artist, zone.title);
 
                      // MediaInfo often carries radio station metadata/logo even when
-                     // PositionInfo only has stream URLs.
-                     if (isBetterMetadata(stationTitle, zone.title)) {
+                     // PositionInfo only has stream URLs. For Spotify and similar
+                     // sources it can also report the service name ("Spotify") and
+                     // overwrite the current track title on every other poll.
+                     if (!trackMetadataKnown && isBetterMetadata(stationTitle, zone.title)) {
                          zone.title = stationTitle;
                          changed = true;
                      }
-                     if (isBetterMetadata(stationArt, zone.albumArtUrl)) {
+                     if (!trackMetadataKnown && isBetterMetadata(stationArt, zone.albumArtUrl)) {
                          zone.albumArtUrl = stationArt;
                          changed = true;
                      }
@@ -572,16 +800,145 @@ void SonosClient::requestRenderingState(const QString &host)
              });
 }
 
+void SonosClient::requestFavoritesPage(const QString &host,
+                                       int startingIndex,
+                                       QList<FavoriteEntry> accumulated)
+{
+    if (!m_zones.contains(host)) {
+        return;
+    }
+
+    const QByteArray body = QStringLiteral(
+                                "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:1\">"
+                                "<ObjectID>FV:2</ObjectID>"
+                                "<BrowseFlag>BrowseDirectChildren</BrowseFlag>"
+                                "<Filter>dc:title,res,upnp:class</Filter>"
+                                "<StartingIndex>%1</StartingIndex>"
+                                "<RequestedCount>100</RequestedCount>"
+                                "<SortCriteria></SortCriteria>"
+                                "</u:Browse>")
+                                .arg(qMax(0, startingIndex))
+                                .toUtf8();
+
+    postSoap(host,
+             QStringLiteral("/MediaServer/ContentDirectory/Control"),
+             QByteArray("urn:schemas-upnp-org:service:ContentDirectory:1#Browse"),
+             body,
+             [this, host, startingIndex, accumulated](QNetworkReply *reply) mutable {
+                 if (reply->error() != QNetworkReply::NoError) {
+                     qCWarning(lcSonos, "Browse favorites failed for %s: %s",
+                               qUtf8Printable(host), qUtf8Printable(reply->errorString()));
+                     emit errorOccurred(host, reply->errorString());
+                     return;
+                 }
+
+                 const QString xml = QString::fromUtf8(reply->readAll());
+                 const QString result = decodeXmlEntities(firstTagText(xml, QStringLiteral("Result")));
+                 const QList<FavoriteEntry> pageEntries = parseFavoriteItems(result);
+                 accumulated.append(pageEntries);
+
+                 bool ok = false;
+                 const int totalMatches = firstTagText(xml, QStringLiteral("TotalMatches")).toInt(&ok);
+                 const int numberReturned = firstTagText(xml, QStringLiteral("NumberReturned")).toInt();
+                 const int nextIndex = startingIndex + qMax(0, numberReturned);
+                 if (ok && nextIndex < totalMatches) {
+                     requestFavoritesPage(host, nextIndex, accumulated);
+                     return;
+                 }
+
+                 if (!m_zones.contains(host)) {
+                     return;
+                 }
+                 ZoneData &zone = m_zones[host];
+                 bool unchanged = zone.favorites.size() == accumulated.size();
+                 if (unchanged) {
+                     for (int i = 0; i < accumulated.size(); ++i) {
+                         if (zone.favorites.at(i).id != accumulated.at(i).id
+                             || zone.favorites.at(i).label != accumulated.at(i).label
+                             || zone.favorites.at(i).uri != accumulated.at(i).uri) {
+                             unchanged = false;
+                             break;
+                         }
+                     }
+                 }
+                 if (unchanged) {
+                     return;
+                 }
+                 zone.favorites = accumulated;
+                 ++zone.favoritesRevision;
+                 qCInfo(lcSonos, "Loaded %d favorites from %s", accumulated.size(), qUtf8Printable(host));
+                 emit zoneFavoritesUpdated(host);
+             },
+             QByteArray("Sonos/83.1-61210"));
+}
+
+void SonosClient::setAvTransportUri(const QString &host,
+                                     const QString &uri,
+                                     const QString &metadata,
+                                     const std::function<void(bool)> &onFinished)
+{
+    const QByteArray body = QStringLiteral(
+                                "<u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+                                "<InstanceID>0</InstanceID>"
+                                "<CurrentURI>%1</CurrentURI>"
+                                "<CurrentURIMetaData>%2</CurrentURIMetaData>"
+                                "</u:SetAVTransportURI>")
+                                .arg(xmlEscape(uri), xmlEscape(metadata))
+                                .toUtf8();
+
+    postSoap(host,
+             QStringLiteral("/MediaRenderer/AVTransport/Control"),
+             QByteArray("urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI"),
+             body,
+             [this, host, onFinished](QNetworkReply *reply) {
+                 if (reply->error() != QNetworkReply::NoError) {
+                     qCWarning(lcSonos, "SetAVTransportURI failed for %s: %s",
+                               qUtf8Printable(host), qUtf8Printable(reply->errorString()));
+                     emit errorOccurred(host, reply->errorString());
+                     onFinished(false);
+                     return;
+                 }
+                 onFinished(true);
+             });
+}
+
+void SonosClient::startPlayback(const QString &host)
+{
+    static const QByteArray body =
+        "<u:Play xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
+        "<InstanceID>0</InstanceID><Speed>1</Speed>"
+        "</u:Play>";
+
+    postSoap(host,
+             QStringLiteral("/MediaRenderer/AVTransport/Control"),
+             QByteArray("urn:schemas-upnp-org:service:AVTransport:1#Play"),
+             body,
+             [this, host](QNetworkReply *reply) {
+                 if (reply->error() != QNetworkReply::NoError) {
+                     emit errorOccurred(host, reply->errorString());
+                     return;
+                 }
+                 applyZoneUpdate(host, [](ZoneData &zone) {
+                     if (zone.state == QStringLiteral("PLAYING")) {
+                         return false;
+                     }
+                     zone.state = QStringLiteral("PLAYING");
+                     return true;
+                 });
+             });
+}
+
 void SonosClient::postSoap(const QString &host,
                            const QString &servicePath,
                            const QByteArray &soapAction,
                            const QByteArray &body,
-                           const std::function<void(QNetworkReply *)> &onFinished)
+                           const std::function<void(QNetworkReply *)> &onFinished,
+                           const QByteArray &userAgent)
 {
     QNetworkRequest request(QUrl(soapEndpoint(host, servicePath)));
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/xml; charset=utf-8"));
     request.setRawHeader("SOAPACTION", QByteArray("\"") + soapAction + QByteArray("\""));
-    request.setRawHeader("User-Agent", "HomeUI/0.1");
+    request.setRawHeader("User-Agent", userAgent);
 
     const QByteArray envelope =
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>"

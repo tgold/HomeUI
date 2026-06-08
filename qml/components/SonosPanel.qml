@@ -32,14 +32,29 @@ Rectangle {
     property string host: ""
     property int stateRevision: openhab ? openhab.stateRevision : 0
     property int directRevision: 0
+    property int favoritesRevision: 0
     readonly property bool usingDirectSonos: sonosClient && host.trim().length > 0
     // Wide panels (full-width footer or multi-column span): metadata left,
     // transport/volume right, favorites on a full-width row underneath.
     readonly property bool compactLayout: root.columnSpan >= 2 || width >= 560
-    readonly property bool showFavorites: root.favorites && root.favorites.length > 0
-    readonly property bool showFavoriteButtons: showFavorites && root._item("favorite").length > 0
+    readonly property var effectiveFavorites: {
+        favoritesRevision
+        directRevision
+        if (usingDirectSonos && sonosClient) {
+            var apiFavorites = sonosClient.zoneFavorites(host)
+            if (apiFavorites && apiFavorites.length > 0) {
+                return apiFavorites
+            }
+        }
+        return favorites || []
+    }
+    readonly property bool showFavorites: root.effectiveFavorites.length > 0
+    readonly property bool showFavoriteButtons: showFavorites
+            && (usingDirectSonos || root._item("favorite").length > 0)
     readonly property int artSize: compactLayout ? 72 : 96
-    readonly property int favoriteColumns: compactLayout ? Math.min(6, Math.max(3, root.favorites.length)) : 3
+    readonly property int favoriteColumns: compactLayout
+            ? Math.min(6, Math.max(3, root.effectiveFavorites.length))
+            : 3
 
     function _item(role) {
         if (!items || !items[role]) {
@@ -75,6 +90,44 @@ Rectangle {
         openhab.sendCommand(name, String(command))
     }
 
+    function isGenericSourceLabel(text) {
+        var value = String(text || "").trim().toLowerCase()
+        if (value.length === 0) {
+            return false
+        }
+        return value === "spotify"
+            || value === "amazon music"
+            || value === "apple music"
+            || value === "youtube music"
+            || value === "tunein"
+            || value === "pandora"
+            || value === "deezer"
+            || value === "soundcloud"
+            || value === "qobuz"
+            || value === "tidal"
+            || value === "radio"
+            || value === "line-in"
+            || value === "audio line-in"
+            || value === "tv"
+    }
+
+    function resolvedTitleText() {
+        if (root.titleText.length > 0 && !root.isGenericSourceLabel(root.titleText)) {
+            return root.titleText
+        }
+        if (root.trackText.length > 0 && !root.isGenericSourceLabel(root.trackText)) {
+            return root.trackText
+        }
+        return ""
+    }
+
+    function resolvedArtistText() {
+        if (root.artistText.length > 0 && !root.isGenericSourceLabel(root.artistText)) {
+            return root.artistText
+        }
+        return ""
+    }
+
     function sendTransport(command) {
         if (usingDirectSonos && sonosClient) {
             sonosClient.sendTransport(host, String(command))
@@ -99,6 +152,18 @@ Rectangle {
         root.sendCommand(root.volumeItem, Math.round(value))
     }
 
+    function playFavoriteEntry(entry) {
+        if (!entry) {
+            return
+        }
+        var key = entry.id || entry.command || entry.label || ""
+        if (usingDirectSonos && sonosClient && key.length > 0) {
+            sonosClient.playFavorite(host, key)
+            return
+        }
+        root.sendCommand(root._item("favorite"), entry.command || entry.label || key)
+    }
+
     readonly property string controllerItem: _item("controller")
     readonly property string volumeItem: _item("volume")
     readonly property string muteItem: _item("mute")
@@ -120,12 +185,22 @@ Rectangle {
         if (raw.length === 0 || raw.toUpperCase() === "NULL" || raw.toUpperCase() === "UNDEF") {
             return ""
         }
-        // Many Sonos bindings reuse a stable artwork URL. Append a lightweight
-        // cache-buster so the Image reloads when track metadata changes.
-        var fingerprint = root.titleText + "|" + root.artistText + "|" + root.albumText + "|" + root.trackText
+        if (usingDirectSonos) {
+            return raw
+        }
+        // OpenHAB bindings may reuse a stable artwork URL. Bust cache only when
+        // the resolved track identity changes, not when transient source labels
+        // like "Spotify" briefly replace the title.
+        var title = root.resolvedTitleText()
+        var artist = root.resolvedArtistText()
+        if (title.length === 0 && artist.length === 0) {
+            return raw
+        }
+        var fingerprint = artist + "|" + title + "|" + root.albumText
         var separator = raw.indexOf("?") === -1 ? "?" : "&"
         return raw + separator + "_homeui=" + encodeURIComponent(fingerprint)
     }
+    property string displayedArtUrl: ""
     readonly property string stateText: {
         if (usingDirectSonos) {
             return String(directStateValue("state", "")).toUpperCase()
@@ -188,6 +263,14 @@ Rectangle {
                 root.directRevision = root.directRevision + 1
             }
         }
+        function onZoneFavoritesUpdated(updatedHost) {
+            if (!root.usingDirectSonos || !updatedHost) {
+                return
+            }
+            if (String(updatedHost).toLowerCase() === String(root.host).toLowerCase()) {
+                root.favoritesRevision = root.favoritesRevision + 1
+            }
+        }
     }
 
     GridLayout {
@@ -242,19 +325,42 @@ Rectangle {
                 clip: true
 
                 Image {
+                    id: artLoader
                     anchors.fill: parent
                     anchors.margins: 4
                     source: root.albumArtUrl
                     fillMode: Image.PreserveAspectFit
-                    cache: false
-                    visible: status === Image.Ready
+                    visible: false
                     asynchronous: true
+                    cache: true
+                    smooth: true
+                    onStatusChanged: {
+                        if (status === Image.Ready && source) {
+                            root.displayedArtUrl = source
+                        } else if (status === Image.Error && source === root.displayedArtUrl) {
+                            root.displayedArtUrl = ""
+                        }
+                    }
+                    onSourceChanged: {
+                        if (!source || source.length === 0) {
+                            root.displayedArtUrl = ""
+                        }
+                    }
+                }
+                Image {
+                    anchors.fill: parent
+                    anchors.margins: 4
+                    source: root.displayedArtUrl
+                    fillMode: Image.PreserveAspectFit
+                    visible: root.displayedArtUrl.length > 0
+                    asynchronous: false
+                    cache: true
                     smooth: true
                 }
                 Text {
                     anchors.centerIn: parent
                     text: "MUSIC"
-                    visible: root.albumArtUrl.length === 0
+                    visible: root.albumArtUrl.length === 0 && root.displayedArtUrl.length === 0
                     color: "#475569"
                     font.pixelSize: 12
                     font.bold: true
@@ -273,14 +379,16 @@ Rectangle {
                 }
                 Text {
                     text: {
-                        if (root.titleText.length > 0 && root.artistText.length > 0) {
-                            return root.artistText + " – " + root.titleText
+                        var title = root.resolvedTitleText()
+                        var artist = root.resolvedArtistText()
+                        if (title.length > 0 && artist.length > 0) {
+                            return artist + " – " + title
                         }
-                        if (root.titleText.length > 0) {
-                            return root.titleText
+                        if (title.length > 0) {
+                            return title
                         }
-                        if (root.trackText.length > 0) {
-                            return root.trackText
+                        if (artist.length > 0) {
+                            return artist
                         }
                         return "—"
                     }
@@ -392,11 +500,11 @@ Rectangle {
                 visible: root.showFavoriteButtons && !root.compactLayout
 
                 Repeater {
-                    model: root.favorites
+                    model: root.effectiveFavorites
                     delegate: TransportButton {
                         label: modelData.label || modelData.command || "—"
                         accent: modelData.accentColor || "#475569"
-                        onClicked: root.sendCommand(root._item("favorite"), modelData.command)
+                        onClicked: root.playFavoriteEntry(modelData)
                         active: true
                         Layout.fillWidth: true
                     }
@@ -414,11 +522,11 @@ Rectangle {
             visible: root.showFavoriteButtons && root.compactLayout
 
             Repeater {
-                model: root.favorites
+                model: root.effectiveFavorites
                 delegate: TransportButton {
                     label: modelData.label || modelData.command || "—"
                     accent: modelData.accentColor || "#475569"
-                    onClicked: root.sendCommand(root._item("favorite"), modelData.command)
+                    onClicked: root.playFavoriteEntry(modelData)
                     active: true
                     Layout.fillWidth: true
                 }

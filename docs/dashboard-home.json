@@ -1395,6 +1395,7 @@
               "item": "haushaltsstrom_einspeisung"
             },
             {
+              "kind": "value",
               "label": "Wasserverbauch gesamt",
               "iconText": "W",
               "accentColor": "#38bdf8",
@@ -1403,6 +1404,7 @@
               "unit": "m3"
             },
             {
+              "kind": "value",
               "label": "Wasserverbauch heute",
               "iconText": "W",
               "accentColor": "#38bdf8",
