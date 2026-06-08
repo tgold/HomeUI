@@ -5,6 +5,7 @@
 #include <QNetworkRequest>
 #include <QRegularExpression>
 #include <QUrl>
+#include <QUrlQuery>
 #include <QXmlStreamReader>
 
 #include <algorithm>
@@ -302,8 +303,17 @@ void SonosClient::playFavorite(const QString &hostOrUrl, const QString &favorite
         return;
     }
 
-    setAvTransportUri(host, it->uri, it->metadata, [this, host](bool ok) {
+    qCInfo(lcSonos,
+           "Playing favorite '%s' on %s (uri=%s, metadataBytes=%d)",
+           qUtf8Printable(it->label),
+           qUtf8Printable(host),
+           qUtf8Printable(it->uri),
+           it->metadataSoap.isEmpty() ? it->metadata.size() : it->metadataSoap.size());
+
+    setAvTransportUri(host, it->uri, it->metadata, it->metadataSoap, [this, host, label = it->label](bool ok) {
         if (!ok) {
+            qCWarning(lcSonos, "Failed to start favorite '%s' on %s",
+                      qUtf8Printable(label), qUtf8Printable(host));
             return;
         }
         startPlayback(host);
@@ -393,22 +403,52 @@ QString SonosClient::soapTagText(const QString &xml, const QString &localTagName
     return {};
 }
 
+QString SonosClient::decodeXmlEntitiesOnce(const QString &value)
+{
+    QString decoded = value;
+    decoded.replace(QStringLiteral("&lt;"), QStringLiteral("<"));
+    decoded.replace(QStringLiteral("&gt;"), QStringLiteral(">"));
+    decoded.replace(QStringLiteral("&quot;"), QStringLiteral("\""));
+    decoded.replace(QStringLiteral("&apos;"), QStringLiteral("'"));
+    decoded.replace(QStringLiteral("&amp;"), QStringLiteral("&"));
+    return decoded;
+}
+
 QString SonosClient::decodeXmlEntities(const QString &value)
 {
     QString decoded = value;
     for (int i = 0; i < 3; ++i) {
-        QString next = decoded;
-        next.replace(QStringLiteral("&lt;"), QStringLiteral("<"));
-        next.replace(QStringLiteral("&gt;"), QStringLiteral(">"));
-        next.replace(QStringLiteral("&quot;"), QStringLiteral("\""));
-        next.replace(QStringLiteral("&apos;"), QStringLiteral("'"));
-        next.replace(QStringLiteral("&amp;"), QStringLiteral("&"));
+        const QString next = decodeXmlEntitiesOnce(decoded);
         if (next == decoded) {
             break;
         }
         decoded = next;
     }
     return decoded;
+}
+
+QString SonosClient::normalizeSonosAlbumArtUrl(const QString &url)
+{
+    const QString trimmed = url.trimmed();
+    if (trimmed.isEmpty() || !trimmed.contains(QStringLiteral("/getaa"))) {
+        return trimmed;
+    }
+
+    QUrl artUrl(trimmed);
+    if (!artUrl.isValid()) {
+        return trimmed;
+    }
+
+    QUrlQuery query(artUrl);
+    const QString streamUri = query.queryItemValue(QStringLiteral("u"), QUrl::FullyDecoded);
+    if (streamUri.isEmpty()) {
+        return trimmed;
+    }
+
+    query.removeAllQueryItems(QStringLiteral("u"));
+    query.addQueryItem(QStringLiteral("u"), streamUri);
+    artUrl.setQuery(query);
+    return artUrl.toString(QUrl::FullyEncoded);
 }
 
 QString SonosClient::xmlEscape(const QString &value)
@@ -487,7 +527,9 @@ QString SonosClient::buildFavoriteMetadata(const FavoriteEntry &entry)
 QList<SonosClient::FavoriteEntry> SonosClient::parseFavoriteItems(const QString &didlXml)
 {
     QList<FavoriteEntry> favorites;
-    const QString decoded = decodeXmlEntities(didlXml).trimmed();
+    // Only decode the outer Browse Result once. Fully decoding nested r:resMD
+    // inline breaks extraction and leaves TuneIn favorites without metadata.
+    const QString decoded = decodeXmlEntitiesOnce(didlXml).trimmed();
     if (decoded.isEmpty()) {
         return favorites;
     }
@@ -543,14 +585,15 @@ QList<SonosClient::FavoriteEntry> SonosClient::parseFavoriteItems(const QString 
 
         const QRegularExpressionMatch resMdMatch = resMdRe.match(body);
         if (resMdMatch.hasMatch()) {
-            entry.metadata = decodeXmlEntities(resMdMatch.captured(1).trimmed());
+            entry.metadataSoap = resMdMatch.captured(1).trimmed();
+            entry.metadata = decodeXmlEntities(entry.metadataSoap);
         }
 
         if (!entry.label.isEmpty() && !entry.uri.isEmpty()) {
             if (entry.id.isEmpty()) {
                 entry.id = QStringLiteral("FV:2/%1").arg(favorites.size() + 1);
             }
-            if (entry.metadata.isEmpty()) {
+            if (entry.metadataSoap.isEmpty() && entry.metadata.isEmpty()) {
                 entry.metadata = buildFavoriteMetadata(entry);
             }
             favorites.append(entry);
@@ -658,6 +701,7 @@ void SonosClient::requestPositionInfo(const QString &host)
                      if (!albumArt.isEmpty() && albumArt.startsWith('/')) {
                          albumArt = QStringLiteral("http://%1:1400%2").arg(host, albumArt);
                      }
+                     albumArt = normalizeSonosAlbumArtUrl(albumArt);
                      if (title.isEmpty() && !streamContent.isEmpty() && !isGenericSourceLabel(streamContent)) {
                          title = streamContent;
                      }
@@ -742,6 +786,7 @@ void SonosClient::requestMediaInfo(const QString &host)
                  if (!stationArt.isEmpty() && stationArt.startsWith('/')) {
                      stationArt = QStringLiteral("http://%1:1400%2").arg(host, stationArt);
                  }
+                 stationArt = normalizeSonosAlbumArtUrl(stationArt);
                  if (looksLikeUrlOrUri(stationTitle) || isGenericSourceLabel(stationTitle)) {
                      stationTitle.clear();
                  }
@@ -868,7 +913,7 @@ void SonosClient::requestFavoritesPage(const QString &host,
                  }
 
                  const QString xml = QString::fromUtf8(reply->readAll());
-                 const QString result = decodeXmlEntities(soapTagText(xml, QStringLiteral("Result")));
+                 const QString result = decodeXmlEntitiesOnce(soapTagText(xml, QStringLiteral("Result")));
                  const QList<FavoriteEntry> pageEntries = parseFavoriteItems(result);
                  accumulated.append(pageEntries);
 
@@ -919,15 +964,19 @@ void SonosClient::requestFavoritesPage(const QString &host,
 void SonosClient::setAvTransportUri(const QString &host,
                                      const QString &uri,
                                      const QString &metadata,
+                                     const QString &metadataSoap,
                                      const std::function<void(bool)> &onFinished)
 {
+    const QString metadataPayload = !metadataSoap.isEmpty()
+        ? metadataSoap
+        : xmlEscape(metadata);
     const QByteArray body = QStringLiteral(
                                 "<u:SetAVTransportURI xmlns:u=\"urn:schemas-upnp-org:service:AVTransport:1\">"
                                 "<InstanceID>0</InstanceID>"
                                 "<CurrentURI>%1</CurrentURI>"
                                 "<CurrentURIMetaData>%2</CurrentURIMetaData>"
                                 "</u:SetAVTransportURI>")
-                                .arg(xmlEscape(uri), xmlEscape(metadata))
+                                .arg(xmlEscape(uri), metadataPayload)
                                 .toUtf8();
 
     postSoap(host,

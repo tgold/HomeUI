@@ -46,6 +46,7 @@ private:
         QString itemClass;
         QString resProtocolInfo;
         QString metadata;
+        QString metadataSoap;
     };
 
     struct ZoneData {
@@ -67,7 +68,9 @@ private:
     static QString firstTagText(const QString &xml, const QString &localTagName);
     static QString soapTagText(const QString &xml, const QString &localTagName);
     static QString decodeXmlEntities(const QString &value);
+    static QString decodeXmlEntitiesOnce(const QString &value);
     static QString xmlEscape(const QString &value);
+    static QString normalizeSonosAlbumArtUrl(const QString &url);
     static QString parseMetaField(const QString &metadata, const QString &localTagName);
     static QString normalizedState(const QString &raw);
     static QList<FavoriteEntry> parseFavoriteItems(const QString &didlXml);
@@ -86,6 +89,7 @@ private:
     void setAvTransportUri(const QString &host,
                            const QString &uri,
                            const QString &metadata,
+                           const QString &metadataSoap,
                            const std::function<void(bool)> &onFinished);
     void startPlayback(const QString &host);
     void postSoap(const QString &host,
