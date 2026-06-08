@@ -41,10 +41,7 @@ Rectangle {
         favoritesRevision
         if (usingDirectSonos && sonosClient) {
             sonosClient.favoritesRevision(host)
-            var apiFavorites = sonosClient.zoneFavorites(host)
-            if (apiFavorites && apiFavorites.length > 0) {
-                return apiFavorites
-            }
+            return sonosClient.zoneFavorites(host)
         }
         return favorites || []
     }
@@ -242,13 +239,17 @@ Rectangle {
     Component.onCompleted: {
         if (usingDirectSonos && sonosClient) {
             sonosClient.ensureZone(host)
+            sonosClient.refreshFavorites(host)
             directRevision = sonosClient.zoneRevision(host)
+            favoritesRevision = sonosClient.favoritesRevision(host)
         }
     }
     onHostChanged: {
         if (usingDirectSonos && sonosClient) {
             sonosClient.ensureZone(host)
+            sonosClient.refreshFavorites(host)
             directRevision = sonosClient.zoneRevision(host)
+            favoritesRevision = sonosClient.favoritesRevision(host)
         }
     }
 
@@ -268,7 +269,7 @@ Rectangle {
                 return
             }
             if (String(updatedHost).toLowerCase() === String(root.host).toLowerCase()) {
-                root.favoritesRevision = root.favoritesRevision + 1
+                root.favoritesRevision = sonosClient.favoritesRevision(root.host)
             }
         }
     }

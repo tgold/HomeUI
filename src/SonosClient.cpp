@@ -482,62 +482,58 @@ QString SonosClient::buildFavoriteMetadata(const FavoriteEntry &entry)
 QList<SonosClient::FavoriteEntry> SonosClient::parseFavoriteItems(const QString &didlXml)
 {
     QList<FavoriteEntry> favorites;
-    if (didlXml.trimmed().isEmpty()) {
+    const QString decoded = decodeXmlEntities(didlXml).trimmed();
+    if (decoded.isEmpty()) {
         return favorites;
     }
 
-    QXmlStreamReader reader(didlXml);
-    FavoriteEntry current;
-    QString currentTextTag;
-    bool inItem = false;
+    static const QRegularExpression itemRe(
+        QStringLiteral("<item\\b([^>]*)>(.*?)</item>"),
+        QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression idAttrRe(QStringLiteral("\\bid=\"([^\"]+)\""));
+    static const QRegularExpression titleRe(
+        QStringLiteral("<(?:\\w+:)?title\\b[^>]*>(.*?)</(?:\\w+:)?title>"),
+        QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression classRe(
+        QStringLiteral("<(?:\\w+:)?class\\b[^>]*>(.*?)</(?:\\w+:)?class>"),
+        QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression resRe(
+        QStringLiteral("<res\\b[^>]*>(.*?)</res>"),
+        QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
 
-    while (!reader.atEnd()) {
-        reader.readNext();
-        if (reader.isStartElement()) {
-            const QString localName = reader.name().toString();
-            if (localName.compare(QStringLiteral("item"), Qt::CaseInsensitive) == 0) {
-                inItem = true;
-                current = FavoriteEntry{};
-                current.id = reader.attributes().value(QStringLiteral("id")).toString();
-                currentTextTag.clear();
-            } else if (inItem) {
-                if (localName.compare(QStringLiteral("title"), Qt::CaseInsensitive) == 0) {
-                    currentTextTag = QStringLiteral("title");
-                } else if (localName.compare(QStringLiteral("class"), Qt::CaseInsensitive) == 0) {
-                    currentTextTag = QStringLiteral("class");
-                } else if (localName.compare(QStringLiteral("res"), Qt::CaseInsensitive) == 0) {
-                    currentTextTag = QStringLiteral("res");
-                } else {
-                    currentTextTag.clear();
-                }
+    auto it = itemRe.globalMatch(decoded);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch itemMatch = it.next();
+        const QString attrs = itemMatch.captured(1);
+        const QString body = itemMatch.captured(2);
+
+        FavoriteEntry entry;
+        const QRegularExpressionMatch idMatch = idAttrRe.match(attrs);
+        if (idMatch.hasMatch()) {
+            entry.id = idMatch.captured(1).trimmed();
+        }
+
+        const QRegularExpressionMatch titleMatch = titleRe.match(body);
+        if (titleMatch.hasMatch()) {
+            entry.label = decodeXmlEntities(titleMatch.captured(1).trimmed());
+        }
+
+        const QRegularExpressionMatch classMatch = classRe.match(body);
+        if (classMatch.hasMatch()) {
+            entry.itemClass = decodeXmlEntities(classMatch.captured(1).trimmed());
+        }
+
+        const QRegularExpressionMatch resMatch = resRe.match(body);
+        if (resMatch.hasMatch()) {
+            entry.uri = decodeXmlEntities(resMatch.captured(1).trimmed());
+        }
+
+        if (!entry.label.isEmpty() && !entry.uri.isEmpty()) {
+            if (entry.id.isEmpty()) {
+                entry.id = QStringLiteral("FV:2/%1").arg(favorites.size() + 1);
             }
-        } else if (reader.isCharacters() && inItem && !currentTextTag.isEmpty()) {
-            const QString text = reader.text().toString().trimmed();
-            if (text.isEmpty()) {
-                continue;
-            }
-            if (currentTextTag == QStringLiteral("title") && current.label.isEmpty()) {
-                current.label = text;
-            } else if (currentTextTag == QStringLiteral("class") && current.itemClass.isEmpty()) {
-                current.itemClass = text;
-            } else if (currentTextTag == QStringLiteral("res") && current.uri.isEmpty()) {
-                current.uri = text;
-            }
-        } else if (reader.isEndElement()) {
-            const QString localName = reader.name().toString();
-            if (localName.compare(QStringLiteral("item"), Qt::CaseInsensitive) == 0 && inItem) {
-                if (!current.label.isEmpty() && !current.uri.isEmpty()) {
-                    if (current.id.isEmpty()) {
-                        current.id = QStringLiteral("FV:2/%1").arg(favorites.size() + 1);
-                    }
-                    current.metadata = buildFavoriteMetadata(current);
-                    favorites.append(current);
-                }
-                inItem = false;
-                currentTextTag.clear();
-            } else if (inItem) {
-                currentTextTag.clear();
-            }
+            entry.metadata = buildFavoriteMetadata(entry);
+            favorites.append(entry);
         }
     }
 
@@ -880,7 +876,8 @@ void SonosClient::requestFavoritesPage(const QString &host,
                          }
                      }
                  }
-                 if (unchanged) {
+                 const bool firstLoad = zone.favoritesRevision == 0;
+                 if (unchanged && !firstLoad) {
                      return;
                  }
                  zone.favorites = accumulated;
