@@ -304,11 +304,11 @@ void SonosClient::playFavorite(const QString &hostOrUrl, const QString &favorite
     }
 
     qCInfo(lcSonos,
-           "Playing favorite '%s' on %s (uri=%s, metadataBytes=%d)",
+           "Playing favorite '%s' on %s (uri=%s, metadataSoapBytes=%d)",
            qUtf8Printable(it->label),
            qUtf8Printable(host),
            qUtf8Printable(it->uri),
-           it->metadataSoap.isEmpty() ? it->metadata.size() : it->metadataSoap.size());
+           it->metadataSoap.size());
 
     setAvTransportUri(host, it->uri, it->metadata, it->metadataSoap, [this, host, label = it->label](bool ok) {
         if (!ok) {
@@ -527,32 +527,33 @@ QString SonosClient::buildFavoriteMetadata(const FavoriteEntry &entry)
 QList<SonosClient::FavoriteEntry> SonosClient::parseFavoriteItems(const QString &didlXml)
 {
     QList<FavoriteEntry> favorites;
-    // Only decode the outer Browse Result once. Fully decoding nested r:resMD
-    // inline breaks extraction and leaves TuneIn favorites without metadata.
-    const QString decoded = decodeXmlEntitiesOnce(didlXml).trimmed();
-    if (decoded.isEmpty()) {
+    // Parse the Browse Result while it is still XML-escaped. Decoding the full
+    // document even once turns encoded &lt;/item&gt; tags inside r:resMD into
+    // literal </item>, which truncates item extraction and drops TuneIn metadata.
+    const QString raw = didlXml.trimmed();
+    if (raw.isEmpty()) {
         return favorites;
     }
 
     static const QRegularExpression itemRe(
-        QStringLiteral("<item\\b([^>]*)>(.*?)</item>"),
+        QStringLiteral("&lt;item\\b(.*?)&gt;(.*?)&lt;/item&gt;"),
         QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
-    static const QRegularExpression idAttrRe(QStringLiteral("\\bid=\"([^\"]+)\""));
+    static const QRegularExpression idAttrRe(QStringLiteral("\\bid=&quot;([^&]+)&quot;"));
     static const QRegularExpression titleRe(
-        QStringLiteral("<(?:\\w+:)?title\\b[^>]*>(.*?)</(?:\\w+:)?title>"),
+        QStringLiteral("&lt;(?:\\w+:)?title\\b.*?&gt;(.*?)&lt;/(?:\\w+:)?title&gt;"),
         QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
     static const QRegularExpression classRe(
-        QStringLiteral("<(?:\\w+:)?class\\b[^>]*>(.*?)</(?:\\w+:)?class>"),
+        QStringLiteral("&lt;(?:\\w+:)?class\\b.*?&gt;(.*?)&lt;/(?:\\w+:)?class&gt;"),
         QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
     static const QRegularExpression resRe(
-        QStringLiteral("<res\\b([^>]*)>(.*?)</res>"),
+        QStringLiteral("&lt;res\\b(.*?)&gt;(.*?)&lt;/res&gt;"),
         QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
     static const QRegularExpression resMdRe(
-        QStringLiteral("<(?:\\w+:)?resMD\\b[^>]*>(.*?)</(?:\\w+:)?resMD>"),
+        QStringLiteral("&lt;(?:\\w+:)?resMD\\b.*?&gt;(.*?)&lt;/(?:\\w+:)?resMD&gt;"),
         QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
-    static const QRegularExpression protocolInfoRe(QStringLiteral("protocolInfo=\"([^\"]+)\""));
+    static const QRegularExpression protocolInfoRe(QStringLiteral("protocolInfo=&quot;([^&]+)&quot;"));
 
-    auto it = itemRe.globalMatch(decoded);
+    auto it = itemRe.globalMatch(raw);
     while (it.hasNext()) {
         const QRegularExpressionMatch itemMatch = it.next();
         const QString attrs = itemMatch.captured(1);
@@ -566,26 +567,28 @@ QList<SonosClient::FavoriteEntry> SonosClient::parseFavoriteItems(const QString 
 
         const QRegularExpressionMatch titleMatch = titleRe.match(body);
         if (titleMatch.hasMatch()) {
-            entry.label = decodeXmlEntities(titleMatch.captured(1).trimmed());
+            entry.label = decodeXmlEntitiesOnce(titleMatch.captured(1).trimmed());
         }
 
         const QRegularExpressionMatch classMatch = classRe.match(body);
         if (classMatch.hasMatch()) {
-            entry.itemClass = decodeXmlEntities(classMatch.captured(1).trimmed());
+            entry.itemClass = decodeXmlEntitiesOnce(classMatch.captured(1).trimmed());
         }
 
         const QRegularExpressionMatch resMatch = resRe.match(body);
         if (resMatch.hasMatch()) {
             const QRegularExpressionMatch protocolMatch = protocolInfoRe.match(resMatch.captured(1));
             if (protocolMatch.hasMatch()) {
-                entry.resProtocolInfo = protocolMatch.captured(1).trimmed();
+                entry.resProtocolInfo = decodeXmlEntitiesOnce(protocolMatch.captured(1).trimmed());
             }
-            entry.uri = decodeXmlEntities(resMatch.captured(2).trimmed());
+            entry.uri = decodeXmlEntitiesOnce(resMatch.captured(2).trimmed());
         }
 
         const QRegularExpressionMatch resMdMatch = resMdRe.match(body);
         if (resMdMatch.hasMatch()) {
-            entry.metadataSoap = resMdMatch.captured(1).trimmed();
+            // resMD in the Browse payload is double-encoded; Sonos expects the
+            // single-encoded DIDL blob in SetAVTransportURI.
+            entry.metadataSoap = decodeXmlEntitiesOnce(resMdMatch.captured(1).trimmed());
             entry.metadata = decodeXmlEntities(entry.metadataSoap);
         }
 
@@ -913,7 +916,7 @@ void SonosClient::requestFavoritesPage(const QString &host,
                  }
 
                  const QString xml = QString::fromUtf8(reply->readAll());
-                 const QString result = decodeXmlEntitiesOnce(soapTagText(xml, QStringLiteral("Result")));
+                 const QString result = soapTagText(xml, QStringLiteral("Result"));
                  const QList<FavoriteEntry> pageEntries = parseFavoriteItems(result);
                  accumulated.append(pageEntries);
 
