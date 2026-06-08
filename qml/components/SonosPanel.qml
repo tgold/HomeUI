@@ -503,7 +503,7 @@ Rectangle {
                 Repeater {
                     model: root.effectiveFavorites
                     delegate: TransportButton {
-                        label: modelData.label || modelData.command || "—"
+                        label: root.shortFavoriteLabel(modelData.label || modelData.command || "—", 18)
                         accent: modelData.accentColor || "#475569"
                         onClicked: root.playFavoriteEntry(modelData)
                         active: true
@@ -525,7 +525,7 @@ Rectangle {
             Repeater {
                 model: root.effectiveFavorites
                 delegate: TransportButton {
-                    label: modelData.label || modelData.command || "—"
+                    label: root.shortFavoriteLabel(modelData.label || modelData.command || "—", 22)
                     accent: modelData.accentColor || "#475569"
                     onClicked: root.playFavoriteEntry(modelData)
                     active: true
@@ -533,6 +533,14 @@ Rectangle {
                 }
             }
         }
+    }
+
+    function shortFavoriteLabel(text, maxChars) {
+        var value = String(text || "").trim()
+        if (value.length <= maxChars) {
+            return value
+        }
+        return value.substring(0, Math.max(1, maxChars - 1)) + "…"
     }
 
     component TransportButton: Rectangle {
@@ -545,18 +553,23 @@ Rectangle {
 
         implicitHeight: 36
         radius: 8
+        clip: true
         color: !btn.enabled ? "#141e2c" : (btn.active ? "#223047" : "#1c2839")
         border.color: btn.accent
         border.width: btn.active ? 2 : 1
         opacity: btn.enabled ? 1.0 : 0.4
 
         Text {
-            anchors.centerIn: parent
+            anchors.fill: parent
+            anchors.margins: 6
             text: btn.label
             color: btn.enabled ? (btn.active ? btn.accent : "#f8fafc") : "#64748b"
             font.pixelSize: 12
             font.bold: true
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
+            clip: true
         }
 
         MouseArea {
