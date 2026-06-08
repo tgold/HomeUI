@@ -177,7 +177,7 @@ void OpenHabClient::pollPausedWatchItem()
     const QString encodedItem = QString::fromUtf8(QUrl::toPercentEncoding(m_pausedWatchItem));
     const QNetworkRequest request = makeRequest(
         QStringLiteral("/rest/items/%1/state").arg(encodedItem),
-        QStringLiteral("text/plain"));
+        "text/plain");
     QNetworkReply *reply = m_network.get(request);
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         reply->deleteLater();
