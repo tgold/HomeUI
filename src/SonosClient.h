@@ -43,6 +43,7 @@ private:
         QString id;
         QString label;
         QString uri;
+        QString albumArtUrl;
         QString itemClass;
         QString resProtocolInfo;
         QString metadata;
@@ -56,6 +57,8 @@ private:
         QString album;
         QString track;
         QString albumArtUrl;
+        QString currentUri;
+        int metadataEpoch = 0;
         QString state;
         int volume = 0;
         bool muted = false;

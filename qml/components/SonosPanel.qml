@@ -345,6 +345,10 @@ Rectangle {
                     onSourceChanged: {
                         if (!source || source.length === 0) {
                             root.displayedArtUrl = ""
+                            return
+                        }
+                        if (source !== root.displayedArtUrl) {
+                            root.displayedArtUrl = ""
                         }
                     }
                 }

@@ -58,6 +58,11 @@ bool isGenericSourceLabel(const QString &value)
     return false;
 }
 
+bool isGetAaAlbumArtUrl(const QString &value)
+{
+    return value.contains(QStringLiteral("/getaa"));
+}
+
 bool isBetterMetadata(const QString &candidate, const QString &current)
 {
     const QString c = candidate.trimmed();
@@ -81,6 +86,10 @@ bool isBetterMetadata(const QString &candidate, const QString &current)
     }
     if (!candidateLooksLikeUrl && currentLooksLikeUrl) {
         return true;
+    }
+    if (candidateLooksLikeUrl && currentLooksLikeUrl
+        && isGetAaAlbumArtUrl(c) && !isGetAaAlbumArtUrl(cur)) {
+        return false;
     }
     return c != cur;
 }
@@ -303,14 +312,31 @@ void SonosClient::playFavorite(const QString &hostOrUrl, const QString &favorite
         return;
     }
 
+    const QString playbackUri = decodeXmlEntities(it->uri);
+    QString favoriteArt = it->albumArtUrl;
+    if (!favoriteArt.isEmpty() && favoriteArt.startsWith(QLatin1Char('/'))) {
+        favoriteArt = QStringLiteral("http://%1:1400%2").arg(host, favoriteArt);
+    }
+
     qCInfo(lcSonos,
            "Playing favorite '%s' on %s (uri=%s, metadataSoapBytes=%d)",
            qUtf8Printable(it->label),
            qUtf8Printable(host),
-           qUtf8Printable(it->uri),
+           qUtf8Printable(playbackUri),
            it->metadataSoap.size());
 
-    setAvTransportUri(host, it->uri, it->metadata, it->metadataSoap, [this, host, label = it->label](bool ok) {
+    applyZoneUpdate(host, [label = it->label, playbackUri, favoriteArt](ZoneData &zone) {
+        ++zone.metadataEpoch;
+        zone.currentUri = playbackUri;
+        zone.title = label;
+        zone.artist.clear();
+        zone.album.clear();
+        zone.track = label;
+        zone.albumArtUrl = favoriteArt;
+        return true;
+    });
+
+    setAvTransportUri(host, playbackUri, it->metadata, it->metadataSoap, [this, host, label = it->label](bool ok) {
         if (!ok) {
             qCWarning(lcSonos, "Failed to start favorite '%s' on %s",
                       qUtf8Printable(label), qUtf8Printable(host));
@@ -597,7 +623,7 @@ QList<SonosClient::FavoriteEntry> SonosClient::parseFavoriteItems(const QString 
             if (protocolMatch.hasMatch()) {
                 entry.resProtocolInfo = decodeXmlEntitiesOnce(protocolMatch.captured(1).trimmed());
             }
-            entry.uri = decodeXmlEntitiesOnce(resMatch.captured(2).trimmed());
+            entry.uri = decodeXmlEntities(resMatch.captured(2).trimmed());
         }
 
         const QRegularExpressionMatch resMdMatch = resMdRe.match(body);
@@ -606,6 +632,10 @@ QList<SonosClient::FavoriteEntry> SonosClient::parseFavoriteItems(const QString 
             // single-encoded DIDL blob in SetAVTransportURI.
             entry.metadataSoap = decodeXmlEntitiesOnce(resMdMatch.captured(1).trimmed());
             entry.metadata = decodeXmlEntities(entry.metadataSoap);
+        }
+
+        if (!entry.metadata.isEmpty()) {
+            entry.albumArtUrl = parseMetaField(entry.metadata, QStringLiteral("albumArtURI"));
         }
 
         if (!entry.label.isEmpty() && !entry.uri.isEmpty()) {
@@ -701,11 +731,16 @@ void SonosClient::requestPositionInfo(const QString &host)
         "<InstanceID>0</InstanceID>"
         "</u:GetPositionInfo>";
 
+    const int metadataEpoch = m_zones.value(host).metadataEpoch;
+
     postSoap(host,
              QStringLiteral("/MediaRenderer/AVTransport/Control"),
              QByteArray("urn:schemas-upnp-org:service:AVTransport:1#GetPositionInfo"),
              body,
-             [this, host](QNetworkReply *reply) {
+             [this, host, metadataEpoch](QNetworkReply *reply) {
+                 if (!m_zones.contains(host) || m_zones.value(host).metadataEpoch != metadataEpoch) {
+                     return;
+                 }
                  if (reply->error() == QNetworkReply::NoError) {
                      const QString xml = QString::fromUtf8(reply->readAll());
                      const QString metadata = firstTagText(xml, QStringLiteral("TrackMetaData"));
@@ -748,6 +783,12 @@ void SonosClient::requestPositionInfo(const QString &host)
                      }
 
                      applyZoneUpdate(host, [title, artist, album, albumArt, track](ZoneData &zone) {
+                         if (!zone.currentUri.isEmpty() && !track.isEmpty()
+                             && track != zone.currentUri
+                             && looksLikeUrlOrUri(track) && looksLikeUrlOrUri(zone.currentUri)) {
+                             return false;
+                         }
+
                          bool changed = false;
                          if (isBetterMetadata(title, zone.title)) {
                              zone.title = title;
@@ -785,11 +826,16 @@ void SonosClient::requestMediaInfo(const QString &host)
         "<InstanceID>0</InstanceID>"
         "</u:GetMediaInfo>";
 
+    const int metadataEpoch = m_zones.value(host).metadataEpoch;
+
     postSoap(host,
              QStringLiteral("/MediaRenderer/AVTransport/Control"),
              QByteArray("urn:schemas-upnp-org:service:AVTransport:1#GetMediaInfo"),
              body,
-             [this, host](QNetworkReply *reply) {
+             [this, host, metadataEpoch](QNetworkReply *reply) {
+                 if (!m_zones.contains(host) || m_zones.value(host).metadataEpoch != metadataEpoch) {
+                     return;
+                 }
                  if (reply->error() != QNetworkReply::NoError) {
                      qCWarning(lcSonos, "GetMediaInfo failed for %s: %s",
                                qUtf8Printable(host), qUtf8Printable(reply->errorString()));
@@ -812,6 +858,27 @@ void SonosClient::requestMediaInfo(const QString &host)
 
                  applyZoneUpdate(host, [stationTitle, stationArt, uri](ZoneData &zone) {
                      bool changed = false;
+                     const bool sourceChanged = !uri.isEmpty() && uri != zone.currentUri;
+
+                     if (sourceChanged) {
+                         zone.currentUri = uri;
+                         zone.artist.clear();
+                         zone.album.clear();
+                         if (!stationTitle.isEmpty() && !isGenericSourceLabel(stationTitle)) {
+                             zone.title = stationTitle;
+                             zone.track = stationTitle;
+                             changed = true;
+                         }
+                         if (!stationArt.isEmpty()) {
+                             zone.albumArtUrl = stationArt;
+                             changed = true;
+                         } else {
+                             zone.albumArtUrl.clear();
+                             changed = true;
+                         }
+                         return changed;
+                     }
+
                      const bool trackMetadataKnown = hasTrackLevelMetadata(zone.artist, zone.title);
 
                      // MediaInfo often carries radio station metadata/logo even when
