@@ -403,6 +403,22 @@ QString SonosClient::soapTagText(const QString &xml, const QString &localTagName
     return {};
 }
 
+QString SonosClient::soapEncodedTagText(const QString &soapXml, const QString &localTagName)
+{
+    // QXmlStreamReader decodes entities in <Result>, which breaks encoded-item
+    // parsing for Sonos favorites. Extract the raw text straight from SOAP XML.
+    const QString pattern = QStringLiteral("<(?:\\w+:)?%1\\b[^>]*>(.*)</(?:\\w+:)?%1>")
+                                .arg(QRegularExpression::escape(localTagName));
+    QRegularExpression re(pattern,
+                          QRegularExpression::DotMatchesEverythingOption
+                              | QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpressionMatch match = re.match(soapXml);
+    if (match.hasMatch()) {
+        return match.captured(1).trimmed();
+    }
+    return {};
+}
+
 QString SonosClient::decodeXmlEntitiesOnce(const QString &value)
 {
     QString decoded = value;
@@ -916,7 +932,7 @@ void SonosClient::requestFavoritesPage(const QString &host,
                  }
 
                  const QString xml = QString::fromUtf8(reply->readAll());
-                 const QString result = soapTagText(xml, QStringLiteral("Result"));
+                 const QString result = soapEncodedTagText(xml, QStringLiteral("Result"));
                  const QList<FavoriteEntry> pageEntries = parseFavoriteItems(result);
                  accumulated.append(pageEntries);
 
@@ -952,10 +968,11 @@ void SonosClient::requestFavoritesPage(const QString &host,
                  ++zone.favoritesRevision;
                  if (accumulated.isEmpty()) {
                      qCWarning(lcSonos,
-                               "No favorites parsed from %s (TotalMatches=%d, resultBytes=%d)",
+                               "No favorites parsed from %s (TotalMatches=%d, resultBytes=%d, encoded=%d)",
                                qUtf8Printable(host),
                                ok ? totalMatches : -1,
-                               result.size());
+                               result.size(),
+                               result.contains(QStringLiteral("&lt;item")) ? 1 : 0);
                  } else {
                      qCInfo(lcSonos, "Loaded %d favorites from %s", accumulated.size(), qUtf8Printable(host));
                  }
