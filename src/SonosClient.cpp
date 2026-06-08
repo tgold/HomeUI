@@ -464,19 +464,24 @@ QString SonosClient::buildFavoriteMetadata(const FavoriteEntry &entry)
     const QString itemClass = entry.itemClass.isEmpty()
         ? QStringLiteral("object.item.audioItem")
         : entry.itemClass;
+    const QString protocolInfo = entry.resProtocolInfo.isEmpty()
+        ? QStringLiteral("http-get:*:audio/mpeg:*")
+        : entry.resProtocolInfo;
     return QStringLiteral(
                "<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
                "xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" "
+               "xmlns:r=\"urn:schemas-rinconnetworks-com:metadata-1-0/\" "
                "xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\">"
                "<item id=\"%1\" parentID=\"FV:2\" restricted=\"true\">"
                "<dc:title>%2</dc:title>"
                "<upnp:class>%3</upnp:class>"
-               "<res protocolInfo=\"http-get:*:audio/mpeg:*\">%4</res>"
+               "<res protocolInfo=\"%5\">%4</res>"
                "</item></DIDL-Lite>")
         .arg(xmlEscape(entry.id),
              xmlEscape(entry.label),
              xmlEscape(itemClass),
-             xmlEscape(entry.uri));
+             xmlEscape(entry.uri),
+             xmlEscape(protocolInfo));
 }
 
 QList<SonosClient::FavoriteEntry> SonosClient::parseFavoriteItems(const QString &didlXml)
@@ -498,8 +503,12 @@ QList<SonosClient::FavoriteEntry> SonosClient::parseFavoriteItems(const QString 
         QStringLiteral("<(?:\\w+:)?class\\b[^>]*>(.*?)</(?:\\w+:)?class>"),
         QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
     static const QRegularExpression resRe(
-        QStringLiteral("<res\\b[^>]*>(.*?)</res>"),
+        QStringLiteral("<res\\b([^>]*)>(.*?)</res>"),
         QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression resMdRe(
+        QStringLiteral("<(?:\\w+:)?resMD\\b[^>]*>(.*?)</(?:\\w+:)?resMD>"),
+        QRegularExpression::DotMatchesEverythingOption | QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression protocolInfoRe(QStringLiteral("protocolInfo=\"([^\"]+)\""));
 
     auto it = itemRe.globalMatch(decoded);
     while (it.hasNext()) {
@@ -525,14 +534,25 @@ QList<SonosClient::FavoriteEntry> SonosClient::parseFavoriteItems(const QString 
 
         const QRegularExpressionMatch resMatch = resRe.match(body);
         if (resMatch.hasMatch()) {
-            entry.uri = decodeXmlEntities(resMatch.captured(1).trimmed());
+            const QRegularExpressionMatch protocolMatch = protocolInfoRe.match(resMatch.captured(1));
+            if (protocolMatch.hasMatch()) {
+                entry.resProtocolInfo = protocolMatch.captured(1).trimmed();
+            }
+            entry.uri = decodeXmlEntities(resMatch.captured(2).trimmed());
+        }
+
+        const QRegularExpressionMatch resMdMatch = resMdRe.match(body);
+        if (resMdMatch.hasMatch()) {
+            entry.metadata = decodeXmlEntities(resMdMatch.captured(1).trimmed());
         }
 
         if (!entry.label.isEmpty() && !entry.uri.isEmpty()) {
             if (entry.id.isEmpty()) {
                 entry.id = QStringLiteral("FV:2/%1").arg(favorites.size() + 1);
             }
-            entry.metadata = buildFavoriteMetadata(entry);
+            if (entry.metadata.isEmpty()) {
+                entry.metadata = buildFavoriteMetadata(entry);
+            }
             favorites.append(entry);
         }
     }
@@ -827,7 +847,7 @@ void SonosClient::requestFavoritesPage(const QString &host,
                                 "<u:Browse xmlns:u=\"urn:schemas-upnp-org:service:ContentDirectory:1\">"
                                 "<ObjectID>FV:2</ObjectID>"
                                 "<BrowseFlag>BrowseDirectChildren</BrowseFlag>"
-                                "<Filter>dc:title,res,upnp:class</Filter>"
+                                "<Filter>*</Filter>"
                                 "<StartingIndex>%1</StartingIndex>"
                                 "<RequestedCount>100</RequestedCount>"
                                 "<SortCriteria></SortCriteria>"

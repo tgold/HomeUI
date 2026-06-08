@@ -44,6 +44,7 @@ private:
         QString label;
         QString uri;
         QString itemClass;
+        QString resProtocolInfo;
         QString metadata;
     };
 
