@@ -39,8 +39,8 @@ Rectangle {
     readonly property bool compactLayout: root.columnSpan >= 2 || width >= 560
     readonly property var effectiveFavorites: {
         favoritesRevision
-        directRevision
         if (usingDirectSonos && sonosClient) {
+            sonosClient.favoritesRevision(host)
             var apiFavorites = sonosClient.zoneFavorites(host)
             if (apiFavorites && apiFavorites.length > 0) {
                 return apiFavorites

@@ -64,6 +64,7 @@ private:
 
     static QString normalizeHost(const QString &hostOrUrl);
     static QString firstTagText(const QString &xml, const QString &localTagName);
+    static QString soapTagText(const QString &xml, const QString &localTagName);
     static QString decodeXmlEntities(const QString &value);
     static QString xmlEscape(const QString &value);
     static QString parseMetaField(const QString &metadata, const QString &localTagName);

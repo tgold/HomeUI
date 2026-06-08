@@ -374,6 +374,25 @@ QString SonosClient::firstTagText(const QString &xml, const QString &localTagNam
     return {};
 }
 
+QString SonosClient::soapTagText(const QString &xml, const QString &localTagName)
+{
+    QString value = firstTagText(xml, localTagName);
+    if (!value.isEmpty()) {
+        return value;
+    }
+
+    const QString pattern = QStringLiteral("<(?:\\w+:)?%1\\b[^>]*>(.*?)</(?:\\w+:)?%1>")
+                                .arg(QRegularExpression::escape(localTagName));
+    QRegularExpression re(pattern,
+                          QRegularExpression::DotMatchesEverythingOption
+                              | QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpressionMatch match = re.match(xml);
+    if (match.hasMatch()) {
+        return match.captured(1).trimmed();
+    }
+    return {};
+}
+
 QString SonosClient::decodeXmlEntities(const QString &value)
 {
     QString decoded = value;
@@ -833,13 +852,13 @@ void SonosClient::requestFavoritesPage(const QString &host,
                  }
 
                  const QString xml = QString::fromUtf8(reply->readAll());
-                 const QString result = decodeXmlEntities(firstTagText(xml, QStringLiteral("Result")));
+                 const QString result = decodeXmlEntities(soapTagText(xml, QStringLiteral("Result")));
                  const QList<FavoriteEntry> pageEntries = parseFavoriteItems(result);
                  accumulated.append(pageEntries);
 
                  bool ok = false;
-                 const int totalMatches = firstTagText(xml, QStringLiteral("TotalMatches")).toInt(&ok);
-                 const int numberReturned = firstTagText(xml, QStringLiteral("NumberReturned")).toInt();
+                 const int totalMatches = soapTagText(xml, QStringLiteral("TotalMatches")).toInt(&ok);
+                 const int numberReturned = soapTagText(xml, QStringLiteral("NumberReturned")).toInt();
                  const int nextIndex = startingIndex + qMax(0, numberReturned);
                  if (ok && nextIndex < totalMatches) {
                      requestFavoritesPage(host, nextIndex, accumulated);
@@ -866,7 +885,15 @@ void SonosClient::requestFavoritesPage(const QString &host,
                  }
                  zone.favorites = accumulated;
                  ++zone.favoritesRevision;
-                 qCInfo(lcSonos, "Loaded %d favorites from %s", accumulated.size(), qUtf8Printable(host));
+                 if (accumulated.isEmpty()) {
+                     qCWarning(lcSonos,
+                               "No favorites parsed from %s (TotalMatches=%d, resultBytes=%d)",
+                               qUtf8Printable(host),
+                               ok ? totalMatches : -1,
+                               result.size());
+                 } else {
+                     qCInfo(lcSonos, "Loaded %d favorites from %s", accumulated.size(), qUtf8Printable(host));
+                 }
                  emit zoneFavoritesUpdated(host);
              },
              QByteArray("Sonos/83.1-61210"));
