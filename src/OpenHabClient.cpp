@@ -48,6 +48,8 @@ OpenHabClient::OpenHabClient(QObject *parent)
     m_eventReconnectTimer.setInterval(EventReconnectDelayMs);
     m_eventReconnectTimer.setSingleShot(true);
     connect(&m_eventReconnectTimer, &QTimer::timeout, this, &OpenHabClient::connectEventStream);
+    m_pausedPollTimer.setInterval(1000);
+    connect(&m_pausedPollTimer, &QTimer::timeout, this, &OpenHabClient::pollPausedWatchItem);
 }
 
 OpenHabClient::~OpenHabClient()
@@ -137,12 +139,57 @@ void OpenHabClient::setEventStreamPaused(bool paused)
             setEventStreamConnected(false);
             setStatusText(QStringLiteral("OpenHAB event stream paused"));
         }
+        updatePausedWatchTimer();
         return;
     }
 
+    m_pausedPollTimer.stop();
     if (m_enabled) {
         connectEventStream();
     }
+}
+
+void OpenHabClient::setPausedWatchItem(const QString &itemName)
+{
+    if (m_pausedWatchItem == itemName) {
+        return;
+    }
+    m_pausedWatchItem = itemName;
+    updatePausedWatchTimer();
+}
+
+void OpenHabClient::updatePausedWatchTimer()
+{
+    if (m_eventStreamPaused && m_enabled && !m_pausedWatchItem.isEmpty()) {
+        pollPausedWatchItem();
+        m_pausedPollTimer.start();
+        return;
+    }
+    m_pausedPollTimer.stop();
+}
+
+void OpenHabClient::pollPausedWatchItem()
+{
+    if (!m_enabled || !m_eventStreamPaused || m_pausedWatchItem.isEmpty()) {
+        return;
+    }
+
+    const QString encodedItem = QString::fromUtf8(QUrl::toPercentEncoding(m_pausedWatchItem));
+    const QNetworkRequest request = makeRequest(
+        QStringLiteral("/rest/items/%1/state").arg(encodedItem),
+        QStringLiteral("text/plain"));
+    QNetworkReply *reply = m_network.get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            return;
+        }
+
+        const QString state = normalizedState(QString::fromUtf8(reply->readAll()).trimmed());
+        if (!state.isEmpty()) {
+            updateItemState(m_pausedWatchItem, state);
+        }
+    });
 }
 
 QString OpenHabClient::statusText() const

@@ -47,6 +47,8 @@ public:
     Q_INVOKABLE void sendCommand(const QString &itemName, const QString &command);
     Q_INVOKABLE void start();
 
+    void setPausedWatchItem(const QString &itemName);
+
 signals:
     void baseUrlChanged();
     void enabledChanged();
@@ -75,6 +77,8 @@ private:
     void dispatchEvent();
     void applyEventData(const QByteArray &data);
     static QString stateValueFromPayload(const QByteArray &payload);
+    void updatePausedWatchTimer();
+    void pollPausedWatchItem();
 
     QNetworkAccessManager m_network;
     QUrl m_baseUrl;
@@ -91,4 +95,6 @@ private:
     QByteArray m_eventBuffer;
     QByteArray m_currentEventData;
     QTimer m_eventReconnectTimer;
+    QTimer m_pausedPollTimer;
+    QString m_pausedWatchItem;
 };

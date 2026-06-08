@@ -23,6 +23,15 @@ ScreenIdleController::ScreenIdleController(QObject *parent)
     });
     m_nightModeTimer.setSingleShot(true);
     connect(&m_nightModeTimer, &QTimer::timeout, this, &ScreenIdleController::refreshNightMode);
+    m_wakeInputGuardTimer.setSingleShot(true);
+    m_wakeInputGuardTimer.setInterval(400);
+    connect(&m_wakeInputGuardTimer, &QTimer::timeout, this, &ScreenIdleController::clearWakeInputGuard);
+    connect(this, &ScreenIdleController::idleChanged, this, [this]() {
+        emit wakeInputBlockedChanged();
+    });
+    connect(this, &ScreenIdleController::nightModeActiveChanged, this, [this]() {
+        emit wakeInputBlockedChanged();
+    });
 
     if (QCoreApplication::instance()) {
         QCoreApplication::instance()->installEventFilter(this);
@@ -109,6 +118,11 @@ bool ScreenIdleController::nightModeActive() const
     return m_nightModeActive;
 }
 
+bool ScreenIdleController::wakeInputBlocked() const
+{
+    return shouldBlockWakeInput();
+}
+
 void ScreenIdleController::setEnabled(bool enabled)
 {
     if (m_enabled == enabled) {
@@ -172,10 +186,9 @@ void ScreenIdleController::setNightModeEndTime(const QTime &time)
     refreshNightMode();
 }
 
-bool ScreenIdleController::eventFilter(QObject *watched, QEvent *event)
+bool ScreenIdleController::isInputEvent(QEvent *event)
 {
-    Q_UNUSED(watched);
-    if (!m_enabled || event == nullptr) {
+    if (event == nullptr) {
         return false;
     }
     switch (event->type()) {
@@ -191,21 +204,72 @@ bool ScreenIdleController::eventFilter(QObject *watched, QEvent *event)
     case QEvent::TabletPress:
     case QEvent::TabletMove:
     case QEvent::TabletRelease:
-        wake();
-        break;
+        return true;
     default:
-        break;
+        return false;
     }
+}
+
+bool ScreenIdleController::shouldBlockWakeInput() const
+{
+    return m_wakeInputGuard
+        || m_nightModeActive
+        || (m_idle && m_idleBrightness <= 0);
+}
+
+bool ScreenIdleController::eventFilter(QObject *watched, QEvent *event)
+{
+    Q_UNUSED(watched);
+    if (!m_enabled || !isInputEvent(event)) {
+        return false;
+    }
+
+    if (shouldBlockWakeInput()) {
+        switch (event->type()) {
+        case QEvent::MouseButtonPress:
+        case QEvent::TouchBegin:
+        case QEvent::KeyPress:
+        case QEvent::TabletPress:
+            wake();
+            break;
+        default:
+            break;
+        }
+        return true;
+    }
+
+    wake();
     return false;
 }
 
-void ScreenIdleController::wake()
+void ScreenIdleController::startWakeInputGuard()
+{
+    if (m_wakeInputGuard) {
+        m_wakeInputGuardTimer.start();
+        return;
+    }
+    m_wakeInputGuard = true;
+    emit wakeInputBlockedChanged();
+    m_wakeInputGuardTimer.start();
+}
+
+void ScreenIdleController::clearWakeInputGuard()
+{
+    if (!m_wakeInputGuard) {
+        return;
+    }
+    m_wakeInputGuard = false;
+    emit wakeInputBlockedChanged();
+}
+
+void ScreenIdleController::wake(bool consumeWakeGesture)
 {
     if (!m_enabled) {
         return;
     }
+    const bool wasBlockingInput = m_nightModeActive || (m_idle && m_idleBrightness <= 0);
     if (m_nightModeActive) {
-        qCInfo(lcIdle, "Touch wake during night mode (temporary override)");
+        qCInfo(lcIdle, "Wake during night mode (temporary override)");
         m_nightModeWakeOverride = true;
         m_nightModeActive = false;
         emit nightModeActiveChanged();
@@ -214,6 +278,9 @@ void ScreenIdleController::wake()
         qCInfo(lcIdle, "Waking from idle (active brightness %d%%)", m_activeBrightness);
         setIdle(false);
         emit brightnessRequested(m_activeBrightness);
+    }
+    if (wasBlockingInput && consumeWakeGesture) {
+        startWakeInputGuard();
     }
     resetIdleTimer();
 }

@@ -408,6 +408,7 @@ int main(int argc, char *argv[])
                          applyBrightnessPercent(percent);
                      });
     screenIdle.refreshNightMode();
+    openHabClient.setPausedWatchItem(QStringLiteral("Doorbell_Pressed"));
     openHabClient.setEventStreamPaused(screenIdle.nightModeActive());
 
     qmlRegisterType<MjpegView>("HomeUI", 1, 0, "MjpegView");

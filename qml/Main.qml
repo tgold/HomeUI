@@ -19,6 +19,8 @@ ApplicationWindow {
     readonly property bool blackoutActive: (typeof screenIdle !== "undefined")
             && (screenIdle.nightModeActive
                 || (screenIdle.idle && screenIdle.idleBrightness <= 0))
+    readonly property bool wakeTapShield: typeof screenIdle !== "undefined"
+            && screenIdle.wakeInputBlocked
     readonly property string doorbellStreamUrl: {
         var _ = dashboardConfig.revision
         return resolveDoorbellStreamUrl()
@@ -206,6 +208,9 @@ ApplicationWindow {
             }
             var pressed = String(state || "").toUpperCase() === "ON"
             if (pressed && !root.lastDoorbellPressed) {
+                if (typeof screenIdle !== "undefined") {
+                    screenIdle.wake(false)
+                }
                 doorbellPopup.open()
                 doorbellAutoClose.restart()
             } else if (!pressed && root.lastDoorbellPressed) {
@@ -455,7 +460,7 @@ ApplicationWindow {
             CameraTile {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                active: (typeof screenIdle !== "undefined") ? !screenIdle.nightModeActive : true
+                active: doorbellPopup.opened
                 title: "Tuerklingel"
                 location: "Einfahrt"
                 streamUrl: root.doorbellStreamUrl
@@ -555,22 +560,36 @@ ApplicationWindow {
     Rectangle {
         id: sleepBlackout
         anchors.fill: parent
-        visible: root.blackoutActive
+        visible: root.blackoutActive || root.wakeTapShield
         z: 9999
-        color: "black"
+        color: root.blackoutActive ? "black" : "transparent"
 
-        // First touch/key should wake the panel without activating underlying UI.
+        // Absorb the full press/release cycle so wake taps never hit tiles below.
         MouseArea {
             anchors.fill: parent
-            onPressed: {
+            propagateComposedEvents: false
+            preventStealing: true
+            acceptedButtons: Qt.AllButtons
+            onPressed: function(mouse) {
                 if (typeof screenIdle !== "undefined") {
                     screenIdle.wake()
                 }
                 mouse.accepted = true
             }
+            onReleased: function(mouse) { mouse.accepted = true }
+            onClicked: function(mouse) { mouse.accepted = true }
         }
 
-        Keys.onPressed: {
+        MultiPointTouchArea {
+            anchors.fill: parent
+            onPressed: {
+                if (typeof screenIdle !== "undefined") {
+                    screenIdle.wake()
+                }
+            }
+        }
+
+        Keys.onPressed: function(event) {
             if (typeof screenIdle !== "undefined") {
                 screenIdle.wake()
             }
