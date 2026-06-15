@@ -102,6 +102,7 @@ set(_homeui_qml_module_args
         qml/components/SceneTile.qml
         qml/components/SelectorTile.qml
         qml/components/ShutterTile.qml
+        qml/components/SchematicPanel.qml
         qml/components/SonosPanel.qml
         qml/components/StatusBar.qml
         qml/components/ThermostatTile.qml

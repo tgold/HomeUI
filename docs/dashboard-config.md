@@ -95,6 +95,7 @@ Supported panel types:
 - `sonos`
 - `grafana`
 - `irrigationFloorplan`
+- `schematic`
 
 Grid pages also accept `columnSpan` / `rowSpan` on any panel to make it stretch over multiple cells (e.g. a full-width Sonos footer below a 3-column overview).
 
@@ -302,6 +303,62 @@ Verify **InfluxDB 2.x**:
 ```bash
 influx query 'from(bucket:"openhab") |> range(start:-5d) |> filter(fn:(r)=>r._measurement=="zisterne_fuellstand" and r._field=="value") |> aggregateWindow(every:1d, fn:mean)' --org openhab --token ...
 ```
+
+### Schematic panel
+
+Generic image-overlay panel for technical schematics. It can use a configured
+background image, or draw the built-in abstract heat-pump/ventilation schematic
+when `imageSource` is omitted or cannot be resolved.
+
+```json
+{
+  "type": "schematic",
+  "title": "Waermepumpe & Lueftung - Schema",
+  "columnSpan": 3,
+  "height": 430,
+  "backgroundStyle": "heatPump",
+  "imageSource": "heat-pump-schematic.png",
+  "labels": [
+    {
+      "label": "Vorlauf",
+      "item": "thz_vorlauftemp",
+      "format": "temperature",
+      "x": 0.84,
+      "y": 0.51,
+      "accentColor": "#ef4444"
+    },
+    {
+      "label": "Verdichter",
+      "item": "thz_verdichter",
+      "x": 0.43,
+      "y": 0.59,
+      "status": true,
+      "valueMap": {
+        "ON": "AN",
+        "OFF": "AUS"
+      }
+    }
+  ]
+}
+```
+
+Fields:
+
+- `imageSource` (optional): file path or URL to the schematic image. Relative
+  paths resolve the same way as irrigation floorplan images. If omitted, HomeUI
+  draws the built-in abstract heat-pump/ventilation background.
+- `backgroundStyle` (optional, default `heatPump`): reserved for choosing
+  built-in schematic drawings. Currently only `heatPump` is implemented.
+- `labels` (required): array of live badges over the schematic:
+  - `label`, `x`, `y` are required. Coordinates are normalized `0..1` over the
+    painted image area, or over the built-in drawing when no image is used.
+  - `item` reads an OpenHAB item. For static badges, provide `value` instead.
+  - `format`, `unit`, `decimals`, `scale`, and `valueMap` use the same formatter
+    options as `kind: "value"` controls.
+  - `accentColor`, `width`, `height`, and `fontSize` tune badge appearance.
+  - `status: true` renders ON/running-style states as highlighted status badges.
+  - `anchor` (`left`, `center`, `right`) and `anchorY` (`top`, `center`,
+    `bottom`) adjust how the badge attaches to its `x`/`y` coordinate.
 
 ### Controls panel
 
