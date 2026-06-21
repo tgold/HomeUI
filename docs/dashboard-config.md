@@ -359,6 +359,10 @@ Fields:
   - `status: true` renders ON/running-style states as highlighted status badges.
   - `anchor` (`left`, `center`, `right`) and `anchorY` (`top`, `center`,
     `bottom`) adjust how the badge attaches to its `x`/`y` coordinate.
+- `controls` (optional): array of positioned control widgets (same kinds as a
+  controls panel). Each entry requires `label`, `x`, `y`, and the usual control
+  fields (`kind`, `item`, `options`, …). Optional `width` and `height` set the
+  overlay size (defaults `168`×`84`).
 
 ### Controls panel
 

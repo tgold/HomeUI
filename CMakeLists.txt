@@ -108,6 +108,7 @@ set(_homeui_qml_module_args
         qml/components/ThermostatTile.qml
     RESOURCES
         assets/irrigation-floorplan.png
+        assets/heat-pump-schematic.png
 )
 if(HOMEUI_NO_QML_CACHEGEN)
     list(APPEND _homeui_qml_module_args NO_CACHEGEN)
@@ -146,6 +147,7 @@ install(FILES config/dashboard.json
 )
 
 install(FILES assets/irrigation-floorplan.png
+        assets/heat-pump-schematic.png
     DESTINATION ${CMAKE_INSTALL_DATADIR}/homeui/assets
 )
 

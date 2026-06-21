@@ -9,7 +9,9 @@ Rectangle {
     property string imageSource: ""
     property string backgroundStyle: "heatPump"
     property var labels: []
+    property var controls: []
     property var openhab: null
+    property var mqtt: null
     property int stateRevision: openhab ? openhab.stateRevision : 0
 
     readonly property string resolvedImageSource: {
@@ -144,6 +146,17 @@ Rectangle {
     border.color: "#26364d"
     border.width: 1
     clip: true
+
+    ControlsPanel {
+        id: controlMethods
+        visible: false
+        width: 1
+        height: 1
+        opacity: 0
+        controls: []
+        openhab: root.openhab
+        mqtt: root.mqtt
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -392,6 +405,63 @@ Rectangle {
             }
 
             Repeater {
+                model: root.controls
+
+                Item {
+                    required property var modelData
+                    property var controlData: modelData
+                    width: root.numericValue(controlData, "width", 168)
+                    height: root.numericValue(controlData, "height", 84)
+                    x: root.labelX(controlData, width)
+                    y: root.labelY(controlData, height)
+                    z: 2
+
+                    Loader {
+                        id: controlLoader
+                        anchors.fill: parent
+                        readonly property var control: parent.controlData
+                        readonly property string kind: controlMethods.controlKind(parent.controlData)
+                        readonly property string rawValue: controlMethods.controlValue(parent.controlData)
+                        readonly property string currentValue: controlMethods.controlSecondary(parent.controlData)
+                        readonly property string powerValue: parent.controlData.powerItem
+                                ? controlMethods.valueForItem(parent.controlData.powerItem, "")
+                                : ""
+                        readonly property string sceneValue: parent.controlData.sceneItem
+                                ? controlMethods.valueForItem(parent.controlData.sceneItem, "")
+                                : ""
+                        readonly property string footerValue: parent.controlData.footerItem
+                                ? controlMethods.valueForItem(parent.controlData.footerItem, "")
+                                : ""
+
+                        sourceComponent: {
+                            switch (kind) {
+                            case "dimmer":
+                                return schematicDimmerComponent
+                            case "color":
+                                return schematicColorComponent
+                            case "shutter":
+                                return schematicShutterComponent
+                            case "thermostat":
+                                return schematicThermostatComponent
+                            case "scene":
+                                return schematicSceneComponent
+                            case "progress":
+                                return schematicProgressComponent
+                            case "selector":
+                                return schematicSelectorComponent
+                            case "dropdown":
+                                return schematicDropdownComponent
+                            case "value":
+                                return schematicValueComponent
+                            default:
+                                return schematicSwitchComponent
+                            }
+                        }
+                    }
+                }
+            }
+
+            Repeater {
                 model: root.labels
 
                 Rectangle {
@@ -405,6 +475,7 @@ Rectangle {
                     height: root.numericValue(labelData, "height", 50)
                     x: root.labelX(labelData, width)
                     y: root.labelY(labelData, height)
+                    z: 1
                     radius: 10
                     color: statusLabel
                            ? (activeState ? "#d91c3b2b" : "#c0182433")
@@ -451,6 +522,126 @@ Rectangle {
                     }
                 }
             }
+        }
+    }
+
+    Component {
+        id: schematicSwitchComponent
+
+        SwitchTile {
+            control: parent.control
+            panel: controlMethods
+            rawValue: parent.rawValue
+            secondary: parent.currentValue
+        }
+    }
+
+    Component {
+        id: schematicDimmerComponent
+
+        DimmerTile {
+            control: parent.control
+            panel: controlMethods
+            rawValue: parent.rawValue
+            powerValue: parent.powerValue
+        }
+    }
+
+    Component {
+        id: schematicColorComponent
+
+        ColorTile {
+            control: parent.control
+            panel: controlMethods
+            rawValue: parent.rawValue
+            powerValue: parent.powerValue
+        }
+    }
+
+    Component {
+        id: schematicShutterComponent
+
+        ShutterTile {
+            control: parent.control
+            panel: controlMethods
+            rawValue: parent.rawValue
+            sceneValue: parent.sceneValue
+        }
+    }
+
+    Component {
+        id: schematicThermostatComponent
+
+        ThermostatTile {
+            control: parent.control
+            panel: controlMethods
+            rawValue: parent.rawValue
+            currentValue: parent.currentValue
+        }
+    }
+
+    Component {
+        id: schematicSceneComponent
+
+        SceneTile {
+            control: parent.control
+            panel: controlMethods
+            rawValue: parent.rawValue
+        }
+    }
+
+    Component {
+        id: schematicProgressComponent
+
+        ProgressTile {
+            control: parent.control
+            panel: controlMethods
+            rawValue: parent.rawValue
+            footerRawValue: parent.footerValue
+        }
+    }
+
+    Component {
+        id: schematicSelectorComponent
+
+        SelectorTile {
+            control: parent.control
+            panel: controlMethods
+            rawValue: parent.rawValue
+        }
+    }
+
+    Component {
+        id: schematicDropdownComponent
+
+        DropdownTile {
+            control: parent.control
+            panel: controlMethods
+            rawValue: parent.rawValue
+        }
+    }
+
+    Component {
+        id: schematicValueComponent
+
+        ControlTile {
+            readonly property var control: parent.control
+            readonly property string rawValue: parent.rawValue
+            readonly property string statusAccent: controlMethods.statusAccentColor(control, rawValue)
+            label: control.label || "Wert"
+            value: Fmt.apply(rawValue, {
+                format: control.format,
+                unit: control.unit,
+                decimals: control.decimals,
+                scale: control.scale,
+                valueMap: control.valueMap
+            })
+            secondary: control.secondary || ""
+            iconText: control.iconText || ""
+            accentColor: statusAccent.length > 0 ? statusAccent : (control.accentColor || "#f59e0b")
+            active: controlMethods.isOnState(rawValue)
+            interactive: !!(control.command || control.onCommand || control.offCommand)
+            onClicked: controlMethods.toggleSwitch(control)
         }
     }
 }

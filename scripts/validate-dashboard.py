@@ -7,7 +7,7 @@ from pathlib import Path
 
 VALID_PANEL_TYPES = {
     "room", "energy", "camera", "mode", "controls", "mqtt",
-    "sonos", "grafana", "irrigationFloorplan",
+    "sonos", "grafana", "irrigationFloorplan", "schematic",
 }
 VALID_CONTROL_KINDS = {
     "switch", "dimmer", "color", "shutter", "thermostat", "scene",
@@ -126,6 +126,51 @@ def validate_panel(panel: dict, path: str, errors: list[str]) -> None:
                         errors.append(f"{sensor_path}.label must be set")
                     if not str(sensor.get("item", "")).strip():
                         errors.append(f"{sensor_path}.item must be set")
+
+    if panel_type == "schematic":
+        labels = panel.get("labels")
+        controls = panel.get("controls")
+        has_labels = isinstance(labels, list) and len(labels) > 0
+        has_controls = isinstance(controls, list) and len(controls) > 0
+        if not has_labels and not has_controls:
+            errors.append(f"{path} must define labels and/or controls arrays")
+        if has_labels:
+            for index, label in enumerate(labels):
+                label_path = f"{path}.labels[{index}]"
+                if not isinstance(label, dict):
+                    errors.append(f"{label_path} must be an object")
+                    continue
+                if not str(label.get("label", "")).strip():
+                    errors.append(f"{label_path}.label must be set")
+                for coord in ("x", "y"):
+                    value = label.get(coord)
+                    if not isinstance(value, (int, float)) or value < 0 or value > 1:
+                        errors.append(
+                            f"{label_path}.x and {label_path}.y must be numbers between 0 and 1"
+                        )
+                if not str(label.get("item", "")).strip() and "value" not in label:
+                    errors.append(f"{label_path}.item must be set unless value is provided")
+        if has_controls:
+            for index, control in enumerate(controls):
+                control_path = f"{path}.controls[{index}]"
+                if not isinstance(control, dict):
+                    errors.append(f"{control_path} must be an object")
+                    continue
+                if not str(control.get("label", "")).strip():
+                    errors.append(f"{control_path}.label must be set")
+                for coord in ("x", "y"):
+                    value = control.get(coord)
+                    if not isinstance(value, (int, float)) or value < 0 or value > 1:
+                        errors.append(
+                            f"{control_path}.x and {control_path}.y must be numbers between 0 and 1"
+                        )
+                kind = (control.get("kind") or control.get("widget") or "").lower()
+                if kind in ("selector", "dropdown"):
+                    options = control.get("options")
+                    if not isinstance(options, list) or not options:
+                        errors.append(
+                            f"{control_path}.options must be a non-empty array for {kind} controls"
+                        )
 
 
 def validate_page(page: dict, page_path: str, errors: list[str]) -> None:

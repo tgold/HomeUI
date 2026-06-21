@@ -204,10 +204,12 @@ Item {
 
         SchematicPanel {
             openhab: root.openhab
+            mqtt: root.mqtt
             title: root.value(["title"], "Schema")
             imageSource: root.value(["imageSource"], "")
             backgroundStyle: root.value(["backgroundStyle"], "heatPump")
             labels: root.value(["labels"], [])
+            controls: root.value(["controls"], [])
         }
     }
 

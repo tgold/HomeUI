@@ -26,6 +26,7 @@ Rectangle {
     property int pageIndex: 0
 
     signal debugClicked()
+    signal pageIndexClicked(int index)
 
     height: 72
     color: "#0b1220"
@@ -127,6 +128,7 @@ Rectangle {
                 Layout.alignment: Qt.AlignHCenter
                 count: root.pageCount
                 currentIndex: root.pageIndex
+                onDotClicked: function(index) { root.pageIndexClicked(index) }
             }
 
             Text {

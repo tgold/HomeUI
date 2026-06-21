@@ -251,6 +251,11 @@ ApplicationWindow {
         pageCount: dashboardConfig.valid ? dashboardConfig.pages.length : 0
         pageIndex: swipeView.currentIndex
         onDebugClicked: debugModal.open()
+        onPageIndexClicked: function(index) {
+            if (index >= 0 && index < swipeView.count) {
+                swipeView.currentIndex = index
+            }
+        }
     }
 
     ListModel {
