@@ -70,6 +70,7 @@ const QStringList ValidPanelTypes = {
     QStringLiteral("sonos"),
     QStringLiteral("grafana"),
     QStringLiteral("irrigationFloorplan"),
+    QStringLiteral("schematic"),
 };
 
 const QStringList ValidControlKinds = {
@@ -530,6 +531,45 @@ bool DashboardConfig::validatePanel(const QVariantMap &panel, const QString &pat
                     *errorText = QStringLiteral("%1.item must be set").arg(sensorPath);
                     return false;
                 }
+            }
+        }
+    }
+
+    if (type == QStringLiteral("schematic")) {
+        if (!hasObjectList(panel, QStringLiteral("labels"))) {
+            *errorText = QStringLiteral("%1.labels must be an array of label objects").arg(path);
+            return false;
+        }
+
+        const QVariantList labels = panel.value(QStringLiteral("labels")).toList();
+        if (labels.isEmpty()) {
+            *errorText = QStringLiteral("%1.labels must contain at least one label").arg(path);
+            return false;
+        }
+
+        for (int labelIndex = 0; labelIndex < labels.size(); ++labelIndex) {
+            const QVariantMap label = labels.at(labelIndex).toMap();
+            const QString labelPath = QStringLiteral("%1.labels[%2]").arg(path).arg(labelIndex);
+            if (label.value(QStringLiteral("label")).toString().trimmed().isEmpty()) {
+                *errorText = QStringLiteral("%1.label must be set").arg(labelPath);
+                return false;
+            }
+
+            const QVariant xValue = label.value(QStringLiteral("x"));
+            const QVariant yValue = label.value(QStringLiteral("y"));
+            bool xOk = false;
+            bool yOk = false;
+            const double x = xValue.toDouble(&xOk);
+            const double y = yValue.toDouble(&yOk);
+            if (!xOk || !yOk || x < 0.0 || x > 1.0 || y < 0.0 || y > 1.0) {
+                *errorText = QStringLiteral("%1.x and %1.y must be numbers between 0 and 1").arg(labelPath);
+                return false;
+            }
+
+            const QString item = label.value(QStringLiteral("item")).toString().trimmed();
+            if (item.isEmpty() && !label.contains(QStringLiteral("value"))) {
+                *errorText = QStringLiteral("%1.item must be set unless value is provided").arg(labelPath);
+                return false;
             }
         }
     }

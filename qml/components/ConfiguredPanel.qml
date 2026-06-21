@@ -56,6 +56,8 @@ Item {
                 return grafanaPanelComponent
             case "irrigationFloorplan":
                 return irrigationFloorplanPanelComponent
+            case "schematic":
+                return schematicPanelComponent
             default:
                 return unsupportedPanelComponent
             }
@@ -194,6 +196,18 @@ Item {
             durationItem: root.value(["durationItem"], "")
             durationOptions: root.value(["durationOptions"], [3, 30, 45, 60, 90])
             history: root.value(["history"], ({}))
+        }
+    }
+
+    Component {
+        id: schematicPanelComponent
+
+        SchematicPanel {
+            openhab: root.openhab
+            title: root.value(["title"], "Schema")
+            imageSource: root.value(["imageSource"], "")
+            backgroundStyle: root.value(["backgroundStyle"], "heatPump")
+            labels: root.value(["labels"], [])
         }
     }
 
