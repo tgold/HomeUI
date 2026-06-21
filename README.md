@@ -28,6 +28,8 @@ See `docs/deployment.md` for the production kiosk install guide.
 CMakeLists.txt
 config/
   dashboard.json
+editor/
+  README.md
 src/
   DashboardConfig.cpp
   DashboardConfig.h
@@ -184,6 +186,18 @@ HOMEUI_CONFIG=/path/to/dashboard.json ./build-gcc/homeui
 ```
 
 See `docs/dashboard-config.md` for the schema and examples.
+
+### Web layout editor
+
+For rearranging panels and schematic overlay positions from your dev PC, use the standalone editor in `editor/`:
+
+```sh
+cd editor
+npm install
+npm run dev
+```
+
+Open http://127.0.0.1:5173 — it edits `config/dashboard.json`, validates with `scripts/validate-dashboard.py` on save, and renders placeholders only (no live OpenHAB data). See `editor/README.md` for details.
 
 ## OpenHAB connection
 
