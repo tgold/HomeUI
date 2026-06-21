@@ -1564,7 +1564,15 @@
               "unit": "kWh"
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "energie-netz",
+      "title": "ENERGIE & NETZ",
+      "layout": "masonry",
+      "columns": 3,
+      "panels": [
         {
           "type": "controls",
           "title": "Verbrauchszaehler",
