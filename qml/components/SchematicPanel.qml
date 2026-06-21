@@ -16,9 +16,12 @@ Rectangle {
     property int rightGutterWidth: 172
     property int stateRevision: openhab ? openhab.stateRevision : 0
 
+    readonly property string bundledSchematicSource:
+            "qrc:/qt/qml/HomeUI/assets/heat-pump-schematic.png"
+
     readonly property string resolvedImageSource: {
         if (!imageSource || imageSource.length === 0) {
-            return ""
+            return bundledSchematicSource
         }
         if (typeof dashboardConfig !== "undefined" && dashboardConfig.resolveAssetUrl) {
             var resolved = dashboardConfig.resolveAssetUrl(imageSource)
@@ -28,7 +31,7 @@ Rectangle {
         } else if (imageSource.indexOf("://") >= 0 || imageSource.indexOf("qrc:") === 0) {
             return imageSource
         }
-        return ""
+        return bundledSchematicSource
     }
     readonly property bool hasImage: resolvedImageSource.length > 0
     readonly property bool imageReady: hasImage
@@ -256,18 +259,19 @@ Rectangle {
             }
         }
 
-        RowLayout {
+        Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 8
+            Layout.minimumHeight: 300
 
             ColumnLayout {
                 id: leftGutterColumn
-                Layout.preferredWidth: root.leftGutterWidth
-                Layout.fillHeight: true
-                Layout.alignment: Qt.AlignTop
-                spacing: 8
                 visible: root.leftGutterControls.length > 0
+                width: root.leftGutterWidth
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                spacing: 8
 
                 Repeater {
                     model: root.leftGutterControls
@@ -299,11 +303,53 @@ Rectangle {
                 Item { Layout.fillHeight: true }
             }
 
+            ColumnLayout {
+                id: rightGutterColumn
+                visible: root.rightGutterControls.length > 0
+                width: root.rightGutterWidth
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                spacing: 8
+
+                Repeater {
+                    model: root.rightGutterControls
+
+                    Loader {
+                        required property var modelData
+                        readonly property var control: modelData
+                        readonly property string kind: controlMethods.controlKind(modelData)
+                        readonly property string rawValue: controlMethods.controlValue(modelData)
+                        readonly property string currentValue: controlMethods.controlSecondary(modelData)
+                        readonly property string powerValue: modelData.powerItem
+                                ? controlMethods.valueForItem(modelData.powerItem, "")
+                                : ""
+                        readonly property string sceneValue: modelData.sceneItem
+                                ? controlMethods.valueForItem(modelData.sceneItem, "")
+                                : ""
+                        readonly property string footerValue: modelData.footerItem
+                                ? controlMethods.valueForItem(modelData.footerItem, "")
+                                : ""
+
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: root.rightGutterWidth
+                        Layout.preferredHeight: item ? item.implicitHeight : root.numericValue(modelData, "height", 108)
+
+                        sourceComponent: root.controlComponentForKind(kind)
+                    }
+                }
+
+                Item { Layout.fillHeight: true }
+            }
+
             Rectangle {
             id: schematicHost
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.minimumHeight: 300
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: leftGutterColumn.visible ? leftGutterColumn.right : parent.left
+            anchors.right: rightGutterColumn.visible ? rightGutterColumn.left : parent.right
+            anchors.leftMargin: leftGutterColumn.visible ? 8 : 0
+            anchors.rightMargin: rightGutterColumn.visible ? 8 : 0
             radius: 14
             color: "#0b1220"
             border.color: "#1f2d44"
@@ -318,14 +364,14 @@ Rectangle {
                 cache: true
                 smooth: true
                 fillMode: Image.PreserveAspectFit
-                visible: root.hasImage
-                opacity: root.imageReady ? 0.92 : 0.35
+                visible: root.imageReady
+                opacity: 0.92
             }
 
             Canvas {
                 id: defaultSchematic
                 anchors.fill: parent
-                visible: !root.hasImage || schematicImage.status === Image.Error
+                visible: !root.imageReady
                 opacity: 0.96
 
                 onWidthChanged: requestPaint()
@@ -604,44 +650,6 @@ Rectangle {
                     }
                 }
             }
-            }
-
-            ColumnLayout {
-                id: rightGutterColumn
-                Layout.preferredWidth: root.rightGutterWidth
-                Layout.fillHeight: true
-                Layout.alignment: Qt.AlignTop
-                spacing: 8
-                visible: root.rightGutterControls.length > 0
-
-                Repeater {
-                    model: root.rightGutterControls
-
-                    Loader {
-                        required property var modelData
-                        readonly property var control: modelData
-                        readonly property string kind: controlMethods.controlKind(modelData)
-                        readonly property string rawValue: controlMethods.controlValue(modelData)
-                        readonly property string currentValue: controlMethods.controlSecondary(modelData)
-                        readonly property string powerValue: modelData.powerItem
-                                ? controlMethods.valueForItem(modelData.powerItem, "")
-                                : ""
-                        readonly property string sceneValue: modelData.sceneItem
-                                ? controlMethods.valueForItem(modelData.sceneItem, "")
-                                : ""
-                        readonly property string footerValue: modelData.footerItem
-                                ? controlMethods.valueForItem(modelData.footerItem, "")
-                                : ""
-
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: root.rightGutterWidth
-                        Layout.preferredHeight: item ? item.implicitHeight : root.numericValue(modelData, "height", 108)
-
-                        sourceComponent: root.controlComponentForKind(kind)
-                    }
-                }
-
-                Item { Layout.fillHeight: true }
             }
         }
     }
