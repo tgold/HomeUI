@@ -210,6 +210,8 @@ Item {
             backgroundStyle: root.value(["backgroundStyle"], "heatPump")
             labels: root.value(["labels"], [])
             controls: root.value(["controls"], [])
+            leftGutterWidth: root.value(["leftGutterWidth"], 168)
+            rightGutterWidth: root.value(["rightGutterWidth"], 172)
         }
     }
 

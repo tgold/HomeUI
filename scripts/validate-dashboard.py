@@ -158,12 +158,16 @@ def validate_panel(panel: dict, path: str, errors: list[str]) -> None:
                     continue
                 if not str(control.get("label", "")).strip():
                     errors.append(f"{control_path}.label must be set")
-                for coord in ("x", "y"):
-                    value = control.get(coord)
-                    if not isinstance(value, (int, float)) or value < 0 or value > 1:
-                        errors.append(
-                            f"{control_path}.x and {control_path}.y must be numbers between 0 and 1"
-                        )
+                gutter = str(control.get("gutter", "")).strip().lower()
+                if gutter and gutter not in ("left", "right"):
+                    errors.append(f"{control_path}.gutter must be 'left' or 'right' when set")
+                if gutter not in ("left", "right"):
+                    for coord in ("x", "y"):
+                        value = control.get(coord)
+                        if not isinstance(value, (int, float)) or value < 0 or value > 1:
+                            errors.append(
+                                f"{control_path}.x and {control_path}.y must be numbers between 0 and 1"
+                            )
                 kind = (control.get("kind") or control.get("widget") or "").lower()
                 if kind in ("selector", "dropdown"):
                     options = control.get("options")

@@ -360,9 +360,14 @@ Fields:
   - `anchor` (`left`, `center`, `right`) and `anchorY` (`top`, `center`,
     `bottom`) adjust how the badge attaches to its `x`/`y` coordinate.
 - `controls` (optional): array of positioned control widgets (same kinds as a
-  controls panel). Each entry requires `label`, `x`, `y`, and the usual control
-  fields (`kind`, `item`, `options`, …). Optional `width` and `height` set the
-  overlay size (defaults `168`×`84`).
+  controls panel). Each entry requires `label` and the usual control fields
+  (`kind`, `item`, `options`, …). Use either:
+  - `gutter: "left"` or `gutter: "right"` to stack controls beside the
+    schematic (no `x`/`y` needed), or
+  - normalized `x`/`y` coordinates to overlay the image. Optional `width` and
+    `height` tune size (defaults `168`×`84`).
+- `leftGutterWidth` / `rightGutterWidth` (optional, defaults `168` / `172`):
+  width of the side columns when gutter controls are used.
 
 ### Controls panel
 

@@ -1033,12 +1033,59 @@
           "controls": [
             {
               "kind": "dropdown",
+              "label": "Lueftung Tag",
+              "item": "thz_lueftung_tag",
+              "gutter": "left",
+              "accentColor": "#22c55e",
+              "options": [
+                {
+                  "label": "Stufe 0",
+                  "value": 0
+                },
+                {
+                  "label": "Stufe 1",
+                  "value": 1
+                },
+                {
+                  "label": "Stufe 2",
+                  "value": 2
+                },
+                {
+                  "label": "Stufe 3",
+                  "value": 3
+                }
+              ]
+            },
+            {
+              "kind": "dropdown",
+              "label": "Lueftung Nacht",
+              "item": "thz_lueftung_nacht",
+              "gutter": "left",
+              "accentColor": "#64748b",
+              "options": [
+                {
+                  "label": "Stufe 0",
+                  "value": 0
+                },
+                {
+                  "label": "Stufe 1",
+                  "value": 1
+                },
+                {
+                  "label": "Stufe 2",
+                  "value": 2
+                },
+                {
+                  "label": "Stufe 3",
+                  "value": 3
+                }
+              ]
+            },
+            {
+              "kind": "dropdown",
               "label": "Betriebsart",
               "item": "thz_betriebsart_string",
-              "x": 0.44,
-              "y": 0.02,
-              "width": 168,
-              "height": 84,
+              "gutter": "left",
               "accentColor": "#f59e0b",
               "options": [
                 {
@@ -1072,70 +1119,11 @@
               ]
             },
             {
-              "kind": "dropdown",
-              "label": "Lueftung Tag",
-              "item": "thz_lueftung_tag",
-              "x": 0.24,
-              "y": 0.02,
-              "width": 148,
-              "height": 84,
-              "accentColor": "#22c55e",
-              "options": [
-                {
-                  "label": "Stufe 0",
-                  "value": 0
-                },
-                {
-                  "label": "Stufe 1",
-                  "value": 1
-                },
-                {
-                  "label": "Stufe 2",
-                  "value": 2
-                },
-                {
-                  "label": "Stufe 3",
-                  "value": 3
-                }
-              ]
-            },
-            {
-              "kind": "dropdown",
-              "label": "Lueftung Nacht",
-              "item": "thz_lueftung_nacht",
-              "x": 0.24,
-              "y": 0.14,
-              "width": 148,
-              "height": 84,
-              "accentColor": "#64748b",
-              "options": [
-                {
-                  "label": "Stufe 0",
-                  "value": 0
-                },
-                {
-                  "label": "Stufe 1",
-                  "value": 1
-                },
-                {
-                  "label": "Stufe 2",
-                  "value": 2
-                },
-                {
-                  "label": "Stufe 3",
-                  "value": 3
-                }
-              ]
-            },
-            {
               "kind": "thermostat",
               "label": "Raum Tag",
               "item": "thz_raumtemp_tag",
               "currentItem": "thz_raumisttemp_hk1",
-              "x": 0.78,
-              "y": 0.3,
-              "width": 156,
-              "height": 108,
+              "gutter": "right",
               "min": 15,
               "max": 26,
               "step": 0.5,
@@ -1146,10 +1134,7 @@
               "label": "Raum Nacht",
               "item": "thz_raumtemp_nacht",
               "currentItem": "thz_raumisttemp_hk1",
-              "x": 0.78,
-              "y": 0.46,
-              "width": 156,
-              "height": 108,
+              "gutter": "right",
               "min": 15,
               "max": 24,
               "step": 0.5,
@@ -1160,10 +1145,7 @@
               "label": "Warmwasser",
               "item": "thz_ww_solltemp",
               "currentItem": "thz_ww_isttemp",
-              "x": 0.58,
-              "y": 0.48,
-              "width": 156,
-              "height": 108,
+              "gutter": "right",
               "min": 30,
               "max": 60,
               "step": 1,
@@ -1175,50 +1157,58 @@
               "label": "Zuluft Soll",
               "item": "zuluft_soll_volumenstrom",
               "unit": "m3",
-              "x": 0.34,
-              "y": 0.08,
-              "width": 118,
-              "height": 44,
-              "accentColor": "#22c55e"
+              "x": 0.3,
+              "y": 0.05,
+              "width": 108,
+              "height": 40,
+              "accentColor": "#22c55e",
+              "anchor": "center",
+              "anchorY": "top"
             },
             {
               "label": "Zuluft Hz",
               "item": "zuluft_ist_luefterdrehzahl",
               "unit": "Hz",
-              "x": 0.34,
-              "y": 0.18,
-              "width": 118,
-              "height": 44,
-              "accentColor": "#22c55e"
+              "x": 0.3,
+              "y": 0.13,
+              "width": 108,
+              "height": 40,
+              "accentColor": "#22c55e",
+              "anchor": "center",
+              "anchorY": "top"
             },
             {
               "label": "Abluft Soll",
               "item": "abluft_soll_volumenstrom",
               "unit": "m3",
-              "x": 0.34,
-              "y": 0.28,
-              "width": 118,
-              "height": 44,
-              "accentColor": "#64748b"
+              "x": 0.4,
+              "y": 0.05,
+              "width": 108,
+              "height": 40,
+              "accentColor": "#64748b",
+              "anchor": "center",
+              "anchorY": "top"
             },
             {
               "label": "Abluft Hz",
               "item": "abluft_ist_luefterdrehzahl",
               "unit": "Hz",
-              "x": 0.34,
-              "y": 0.38,
-              "width": 118,
-              "height": 44,
-              "accentColor": "#64748b"
+              "x": 0.4,
+              "y": 0.13,
+              "width": 108,
+              "height": 40,
+              "accentColor": "#64748b",
+              "anchor": "center",
+              "anchorY": "top"
             },
             {
               "label": "Verdampfer",
               "item": "thz_verdampfertemp",
               "format": "temperature",
-              "x": 0.1,
-              "y": 0.4,
-              "width": 112,
-              "height": 44,
+              "x": 0.14,
+              "y": 0.36,
+              "width": 104,
+              "height": 40,
               "accentColor": "#38bdf8",
               "anchor": "center"
             },
@@ -1226,10 +1216,10 @@
               "label": "Niederdruck",
               "item": "thz_niederdruck",
               "unit": "bar",
-              "x": 0.1,
-              "y": 0.54,
-              "width": 112,
-              "height": 44,
+              "x": 0.14,
+              "y": 0.48,
+              "width": 104,
+              "height": 40,
               "accentColor": "#38bdf8",
               "anchor": "center"
             },
@@ -1237,10 +1227,10 @@
               "label": "Fortluft Ist",
               "item": "thz_fortluft_ist",
               "unit": "Hz",
-              "x": 0.1,
-              "y": 0.66,
-              "width": 112,
-              "height": 44,
+              "x": 0.14,
+              "y": 0.6,
+              "width": 104,
+              "height": 40,
               "accentColor": "#64748b",
               "anchor": "center"
             },
@@ -1248,20 +1238,20 @@
               "label": "Fortluft Soll",
               "item": "thz_fortluft_soll",
               "unit": "Hz",
-              "x": 0.1,
-              "y": 0.76,
-              "width": 112,
-              "height": 44,
+              "x": 0.14,
+              "y": 0.7,
+              "width": 104,
+              "height": 40,
               "accentColor": "#64748b",
               "anchor": "center"
             },
             {
               "label": "Abtauen",
               "item": "thz_abtauen_ll_wt",
-              "x": 0.1,
-              "y": 0.88,
-              "width": 100,
-              "height": 44,
+              "x": 0.14,
+              "y": 0.82,
+              "width": 96,
+              "height": 40,
               "accentColor": "#38bdf8",
               "status": true,
               "valueMap": {
@@ -1274,166 +1264,179 @@
               "label": "Verdichter",
               "item": "thz_verdichter",
               "x": 0.46,
-              "y": 0.34,
-              "width": 108,
-              "height": 44,
+              "y": 0.28,
+              "width": 100,
+              "height": 40,
               "accentColor": "#a855f7",
               "status": true,
               "valueMap": {
                 "ON": "AN",
                 "OFF": "AUS"
-              }
+              },
+              "anchor": "center"
             },
             {
               "label": "Verfluessiger",
               "item": "thz_verfluessigertemp",
               "format": "temperature",
               "x": 0.52,
-              "y": 0.44,
-              "width": 118,
-              "height": 44,
-              "accentColor": "#ef4444"
+              "y": 0.38,
+              "width": 112,
+              "height": 40,
+              "accentColor": "#ef4444",
+              "anchor": "center"
             },
             {
               "label": "Hochdruck",
               "item": "thz_hochdruck",
               "unit": "bar",
               "x": 0.4,
-              "y": 0.54,
-              "width": 108,
-              "height": 44,
-              "accentColor": "#ef4444"
+              "y": 0.46,
+              "width": 100,
+              "height": 40,
+              "accentColor": "#ef4444",
+              "anchor": "center"
             },
             {
               "label": "Heizen",
               "item": "thz_heizen",
               "x": 0.46,
-              "y": 0.64,
-              "width": 96,
-              "height": 44,
+              "y": 0.54,
+              "width": 92,
+              "height": 40,
               "accentColor": "#ef4444",
               "status": true,
               "valueMap": {
                 "ON": "AN",
                 "OFF": "AUS"
-              }
+              },
+              "anchor": "center"
             },
             {
-              "label": "Warmwasser",
+              "label": "WW Bereit.",
               "item": "thz_warmwasserbereitung",
-              "x": 0.58,
-              "y": 0.64,
-              "width": 118,
-              "height": 44,
+              "x": 0.56,
+              "y": 0.54,
+              "width": 108,
+              "height": 40,
               "accentColor": "#38bdf8",
               "status": true,
               "valueMap": {
                 "ON": "AN",
                 "OFF": "AUS"
-              }
+              },
+              "anchor": "center"
             },
             {
               "label": "WW Ist",
               "item": "thz_ww_isttemp",
               "format": "temperature",
-              "x": 0.62,
+              "x": 0.64,
               "y": 0.38,
-              "width": 104,
-              "height": 44,
-              "accentColor": "#38bdf8"
+              "width": 100,
+              "height": 40,
+              "accentColor": "#38bdf8",
+              "anchor": "center"
             },
             {
               "label": "Heizkreis",
               "item": "thz_heizkreispumpe",
-              "x": 0.72,
-              "y": 0.2,
-              "width": 104,
-              "height": 44,
+              "x": 0.74,
+              "y": 0.16,
+              "width": 100,
+              "height": 40,
               "accentColor": "#fbbf24",
               "status": true,
               "valueMap": {
                 "ON": "AN",
                 "OFF": "AUS"
-              }
+              },
+              "anchor": "center"
             },
             {
               "label": "Vorlauf",
               "item": "thz_vorlauftemp",
               "format": "temperature",
-              "x": 0.84,
-              "y": 0.12,
-              "width": 104,
-              "height": 44,
+              "x": 0.76,
+              "y": 0.08,
+              "width": 100,
+              "height": 40,
               "accentColor": "#ef4444",
-              "anchor": "right"
+              "anchor": "center",
+              "anchorY": "top"
             },
             {
               "label": "Ruecklauf",
               "item": "thz_ruecklauftemp",
               "format": "temperature",
-              "x": 0.84,
-              "y": 0.22,
-              "width": 104,
-              "height": 44,
+              "x": 0.76,
+              "y": 0.24,
+              "width": 100,
+              "height": 40,
               "accentColor": "#f97316",
-              "anchor": "right"
+              "anchor": "center"
             },
             {
               "label": "HK1 Ist",
               "item": "thz_istwert_hk1",
               "format": "temperature",
-              "x": 0.84,
-              "y": 0.58,
-              "width": 104,
-              "height": 44,
+              "x": 0.76,
+              "y": 0.48,
+              "width": 100,
+              "height": 40,
               "accentColor": "#f97316",
-              "anchor": "right"
+              "anchor": "center"
             },
             {
               "label": "HK1 Soll",
               "item": "thz_sollwert_hk1",
               "format": "temperature",
-              "x": 0.84,
-              "y": 0.68,
-              "width": 104,
-              "height": 44,
+              "x": 0.76,
+              "y": 0.58,
+              "width": 100,
+              "height": 40,
               "accentColor": "#f97316",
-              "anchor": "right"
+              "anchor": "center"
             },
             {
               "label": "Energie Heizen",
               "item": "thz_p_heizung_tag",
               "unit": "kWh",
-              "x": 0.4,
-              "y": 0.88,
-              "width": 128,
-              "height": 44,
+              "x": 0.38,
+              "y": 0.92,
+              "width": 120,
+              "height": 40,
               "accentColor": "#22c55e",
+              "anchor": "center",
               "anchorY": "bottom"
             },
             {
               "label": "Energie WW",
               "item": "thz_p_ww_tag",
               "unit": "kWh",
-              "x": 0.54,
-              "y": 0.88,
-              "width": 128,
-              "height": 44,
+              "x": 0.52,
+              "y": 0.92,
+              "width": 120,
+              "height": 40,
               "accentColor": "#22c55e",
+              "anchor": "center",
               "anchorY": "bottom"
             },
             {
               "label": "WM Heizen",
               "item": "thz_wm_heizen_tag",
               "unit": "kWh",
-              "x": 0.68,
-              "y": 0.88,
-              "width": 128,
-              "height": 44,
+              "x": 0.66,
+              "y": 0.92,
+              "width": 120,
+              "height": 40,
               "accentColor": "#22c55e",
+              "anchor": "center",
               "anchorY": "bottom"
             }
-          ]
+          ],
+          "leftGutterWidth": 168,
+          "rightGutterWidth": 172
         },
         {
           "type": "controls",

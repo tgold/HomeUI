@@ -12,6 +12,8 @@ Rectangle {
     property var controls: []
     property var openhab: null
     property var mqtt: null
+    property int leftGutterWidth: 168
+    property int rightGutterWidth: 172
     property int stateRevision: openhab ? openhab.stateRevision : 0
 
     readonly property string resolvedImageSource: {
@@ -139,6 +141,67 @@ Rectangle {
                      schematicHost.height - labelHeight - 6)
     }
 
+    function gutterSide(controlData) {
+        return String(controlData && controlData.gutter ? controlData.gutter : "").toLowerCase()
+    }
+
+    readonly property var leftGutterControls: {
+        var result = []
+        var list = controls || []
+        for (var i = 0; i < list.length; ++i) {
+            if (gutterSide(list[i]) === "left") {
+                result.push(list[i])
+            }
+        }
+        return result
+    }
+    readonly property var rightGutterControls: {
+        var result = []
+        var list = controls || []
+        for (var i = 0; i < list.length; ++i) {
+            if (gutterSide(list[i]) === "right") {
+                result.push(list[i])
+            }
+        }
+        return result
+    }
+    readonly property var overlayControls: {
+        var result = []
+        var list = controls || []
+        for (var i = 0; i < list.length; ++i) {
+            var side = gutterSide(list[i])
+            if (side !== "left" && side !== "right") {
+                result.push(list[i])
+            }
+        }
+        return result
+    }
+
+    function controlComponentForKind(kind) {
+        switch (kind) {
+        case "dimmer":
+            return schematicDimmerComponent
+        case "color":
+            return schematicColorComponent
+        case "shutter":
+            return schematicShutterComponent
+        case "thermostat":
+            return schematicThermostatComponent
+        case "scene":
+            return schematicSceneComponent
+        case "progress":
+            return schematicProgressComponent
+        case "selector":
+            return schematicSelectorComponent
+        case "dropdown":
+            return schematicDropdownComponent
+        case "value":
+            return schematicValueComponent
+        default:
+            return schematicSwitchComponent
+        }
+    }
+
     implicitWidth: 620
     implicitHeight: 420
     radius: 18
@@ -193,7 +256,50 @@ Rectangle {
             }
         }
 
-        Rectangle {
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: 8
+
+            ColumnLayout {
+                id: leftGutterColumn
+                Layout.preferredWidth: root.leftGutterWidth
+                Layout.fillHeight: true
+                Layout.alignment: Qt.AlignTop
+                spacing: 8
+                visible: root.leftGutterControls.length > 0
+
+                Repeater {
+                    model: root.leftGutterControls
+
+                    Loader {
+                        required property var modelData
+                        readonly property var control: modelData
+                        readonly property string kind: controlMethods.controlKind(modelData)
+                        readonly property string rawValue: controlMethods.controlValue(modelData)
+                        readonly property string currentValue: controlMethods.controlSecondary(modelData)
+                        readonly property string powerValue: modelData.powerItem
+                                ? controlMethods.valueForItem(modelData.powerItem, "")
+                                : ""
+                        readonly property string sceneValue: modelData.sceneItem
+                                ? controlMethods.valueForItem(modelData.sceneItem, "")
+                                : ""
+                        readonly property string footerValue: modelData.footerItem
+                                ? controlMethods.valueForItem(modelData.footerItem, "")
+                                : ""
+
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: root.leftGutterWidth
+                        Layout.preferredHeight: item ? item.implicitHeight : root.numericValue(modelData, "height", 84)
+
+                        sourceComponent: root.controlComponentForKind(kind)
+                    }
+                }
+
+                Item { Layout.fillHeight: true }
+            }
+
+            Rectangle {
             id: schematicHost
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -405,7 +511,7 @@ Rectangle {
             }
 
             Repeater {
-                model: root.controls
+                model: root.overlayControls
 
                 Item {
                     required property var modelData
@@ -417,7 +523,6 @@ Rectangle {
                     z: 2
 
                     Loader {
-                        id: controlLoader
                         anchors.fill: parent
                         readonly property var control: parent.controlData
                         readonly property string kind: controlMethods.controlKind(parent.controlData)
@@ -433,30 +538,7 @@ Rectangle {
                                 ? controlMethods.valueForItem(parent.controlData.footerItem, "")
                                 : ""
 
-                        sourceComponent: {
-                            switch (kind) {
-                            case "dimmer":
-                                return schematicDimmerComponent
-                            case "color":
-                                return schematicColorComponent
-                            case "shutter":
-                                return schematicShutterComponent
-                            case "thermostat":
-                                return schematicThermostatComponent
-                            case "scene":
-                                return schematicSceneComponent
-                            case "progress":
-                                return schematicProgressComponent
-                            case "selector":
-                                return schematicSelectorComponent
-                            case "dropdown":
-                                return schematicDropdownComponent
-                            case "value":
-                                return schematicValueComponent
-                            default:
-                                return schematicSwitchComponent
-                            }
-                        }
+                        sourceComponent: root.controlComponentForKind(kind)
                     }
                 }
             }
@@ -521,6 +603,45 @@ Rectangle {
                         }
                     }
                 }
+            }
+            }
+
+            ColumnLayout {
+                id: rightGutterColumn
+                Layout.preferredWidth: root.rightGutterWidth
+                Layout.fillHeight: true
+                Layout.alignment: Qt.AlignTop
+                spacing: 8
+                visible: root.rightGutterControls.length > 0
+
+                Repeater {
+                    model: root.rightGutterControls
+
+                    Loader {
+                        required property var modelData
+                        readonly property var control: modelData
+                        readonly property string kind: controlMethods.controlKind(modelData)
+                        readonly property string rawValue: controlMethods.controlValue(modelData)
+                        readonly property string currentValue: controlMethods.controlSecondary(modelData)
+                        readonly property string powerValue: modelData.powerItem
+                                ? controlMethods.valueForItem(modelData.powerItem, "")
+                                : ""
+                        readonly property string sceneValue: modelData.sceneItem
+                                ? controlMethods.valueForItem(modelData.sceneItem, "")
+                                : ""
+                        readonly property string footerValue: modelData.footerItem
+                                ? controlMethods.valueForItem(modelData.footerItem, "")
+                                : ""
+
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: root.rightGutterWidth
+                        Layout.preferredHeight: item ? item.implicitHeight : root.numericValue(modelData, "height", 108)
+
+                        sourceComponent: root.controlComponentForKind(kind)
+                    }
+                }
+
+                Item { Layout.fillHeight: true }
             }
         }
     }

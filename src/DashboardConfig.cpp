@@ -582,15 +582,22 @@ bool DashboardConfig::validatePanel(const QVariantMap &panel, const QString &pat
                     return false;
                 }
 
-                const QVariant xValue = control.value(QStringLiteral("x"));
-                const QVariant yValue = control.value(QStringLiteral("y"));
-                bool xOk = false;
-                bool yOk = false;
-                const double x = xValue.toDouble(&xOk);
-                const double y = yValue.toDouble(&yOk);
-                if (!xOk || !yOk || x < 0.0 || x > 1.0 || y < 0.0 || y > 1.0) {
-                    *errorText = QStringLiteral("%1.x and %1.y must be numbers between 0 and 1").arg(controlPath);
+                const QString gutter = control.value(QStringLiteral("gutter")).toString().trimmed().toLower();
+                if (!gutter.isEmpty() && gutter != QStringLiteral("left") && gutter != QStringLiteral("right")) {
+                    *errorText = QStringLiteral("%1.gutter must be 'left' or 'right' when set").arg(controlPath);
                     return false;
+                }
+                if (gutter != QStringLiteral("left") && gutter != QStringLiteral("right")) {
+                    const QVariant xValue = control.value(QStringLiteral("x"));
+                    const QVariant yValue = control.value(QStringLiteral("y"));
+                    bool xOk = false;
+                    bool yOk = false;
+                    const double x = xValue.toDouble(&xOk);
+                    const double y = yValue.toDouble(&yOk);
+                    if (!xOk || !yOk || x < 0.0 || x > 1.0 || y < 0.0 || y > 1.0) {
+                        *errorText = QStringLiteral("%1.x and %1.y must be numbers between 0 and 1").arg(controlPath);
+                        return false;
+                    }
                 }
 
                 const QString kind = control.value(QStringLiteral("kind")).toString().trimmed().toLower();
