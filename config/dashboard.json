@@ -1541,8 +1541,8 @@
         {
           "type": "controls",
           "title": "Verbrauchszaehler",
-          "columnSpan": 3,
-          "tilesPerRow": 2,
+          "columnSpan": 2,
+          "tilesPerRow": 4,
           "controls": [
             {
               "kind": "value",
@@ -1609,9 +1609,39 @@
         },
         {
           "type": "controls",
+          "title": "NAS",
+          "columnSpan": 1,
+          "tilesPerRow": 1,
+          "controls": [
+            {
+              "kind": "progress",
+              "label": "NAS Volume",
+              "accentColor": "#fbbf24",
+              "item": "nasVolumeUsed",
+              "maxItem": "nasVolumeSize",
+              "scale": 0.000003814697265625,
+              "unit": "GB",
+              "decimals": 2
+            },
+            {
+              "kind": "progress",
+              "label": "NAS CPU Usage",
+              "accentColor": "#22c55e",
+              "item": "nasCpuIdle",
+              "invert": true,
+              "invertBase": 100,
+              "min": 0,
+              "max": 100,
+              "unit": "%",
+              "decimals": 2
+            }
+          ]
+        },
+        {
+          "type": "controls",
           "title": "Fritzbox",
           "columnSpan": 3,
-          "tilesPerRow": 3,
+          "tilesPerRow": 5,
           "controls": [
             {
               "kind": "value",
@@ -1694,36 +1724,6 @@
               "iconText": "N",
               "accentColor": "#a855f7",
               "item": "fb_tam_newmessages"
-            }
-          ]
-        },
-        {
-          "type": "controls",
-          "title": "NAS",
-          "columnSpan": 3,
-          "tilesPerRow": 2,
-          "controls": [
-            {
-              "kind": "progress",
-              "label": "NAS Volume",
-              "accentColor": "#fbbf24",
-              "item": "nasVolumeUsed",
-              "maxItem": "nasVolumeSize",
-              "scale": 0.000003814697265625,
-              "unit": "GB",
-              "decimals": 2
-            },
-            {
-              "kind": "progress",
-              "label": "NAS CPU Usage",
-              "accentColor": "#22c55e",
-              "item": "nasCpuIdle",
-              "invert": true,
-              "invertBase": 100,
-              "min": 0,
-              "max": 100,
-              "unit": "%",
-              "decimals": 2
             }
           ]
         }
