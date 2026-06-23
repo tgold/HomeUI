@@ -87,6 +87,7 @@ set(_homeui_qml_module_args
         qml/components/PowerButtons.qml
         qml/components/SwitchTile.qml
         qml/components/DimmerTile.qml
+        qml/components/TunableWhiteTile.qml
         qml/components/DropdownTile.qml
         qml/components/EnergyPanel.qml
         qml/components/Format.js

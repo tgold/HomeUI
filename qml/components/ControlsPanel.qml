@@ -200,6 +200,9 @@ Rectangle {
         case "dropdown":
         case "value":
             return kind === "gauge" ? "progress" : kind
+        case "tunablewhite":
+        case "whitelight":
+            return "tunablewhite"
         default:
             return "switch"
         }
@@ -246,6 +249,9 @@ Rectangle {
                     readonly property string powerValue: modelData.powerItem
                             ? root.valueForItem(modelData.powerItem, "")
                             : ""
+                    readonly property string temperatureValue: modelData.temperatureItem
+                            ? root.valueForItem(modelData.temperatureItem, "")
+                            : ""
                     readonly property string sceneValue: modelData.sceneItem
                             ? root.valueForItem(modelData.sceneItem, "")
                             : ""
@@ -264,6 +270,8 @@ Rectangle {
                         switch (kind) {
                         case "dimmer":
                             return dimmerComponent
+                        case "tunablewhite":
+                            return tunableWhiteComponent
                         case "color":
                             return colorComponent
                         case "shutter":
@@ -307,6 +315,18 @@ Rectangle {
             control: parent.control
             panel: root
             rawValue: parent.rawValue
+            powerValue: parent.powerValue
+        }
+    }
+
+    Component {
+        id: tunableWhiteComponent
+
+        TunableWhiteTile {
+            control: parent.control
+            panel: root
+            rawValue: parent.rawValue
+            temperatureValue: parent.temperatureValue
             powerValue: parent.powerValue
         }
     }

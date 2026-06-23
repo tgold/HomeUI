@@ -10,7 +10,7 @@ VALID_PANEL_TYPES = {
     "sonos", "grafana", "irrigationFloorplan", "schematic",
 }
 VALID_CONTROL_KINDS = {
-    "switch", "dimmer", "color", "shutter", "thermostat", "scene",
+    "switch", "dimmer", "tunablewhite", "whitelight", "color", "shutter", "thermostat", "scene",
     "progress", "gauge", "selector", "dropdown", "value",
 }
 VALID_CAMERA_FORMATS = {"mjpeg", "snapshot", "placeholder"}

@@ -20,18 +20,12 @@
               "item": "GF_LivingRoom_Temperature"
             },
             {
-              "kind": "dimmer",
+              "kind": "tunableWhite",
               "label": "Licht",
-              "iconText": "%",
+              "iconText": "L",
               "accentColor": "#fbbf24",
-              "item": "GF_DiningRoom_Light_Dimmer"
-            },
-            {
-              "kind": "dimmer",
-              "label": "Licht Hue",
-              "iconText": "%",
-              "accentColor": "#fbbf24",
-              "item": "GF_DiningRoom_Light_Temperature"
+              "item": "GF_DiningRoom_Light_Dimmer",
+              "temperatureItem": "GF_DiningRoom_Light_Temperature"
             },
             {
               "kind": "shutter",
@@ -395,18 +389,12 @@
               "item": "GF_LivingRoom_Temperature"
             },
             {
-              "kind": "dimmer",
+              "kind": "tunableWhite",
               "label": "Licht",
-              "iconText": "%",
+              "iconText": "L",
               "accentColor": "#fbbf24",
-              "item": "GF_DiningRoom_Light_Dimmer"
-            },
-            {
-              "kind": "dimmer",
-              "label": "Licht Hue",
-              "iconText": "%",
-              "accentColor": "#fbbf24",
-              "item": "GF_DiningRoom_Light_Temperature"
+              "item": "GF_DiningRoom_Light_Dimmer",
+              "temperatureItem": "GF_DiningRoom_Light_Temperature"
             },
             {
               "kind": "shutter",

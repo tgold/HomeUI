@@ -184,6 +184,8 @@ Rectangle {
         switch (kind) {
         case "dimmer":
             return schematicDimmerComponent
+        case "tunablewhite":
+            return schematicTunableWhiteComponent
         case "color":
             return schematicColorComponent
         case "shutter":
@@ -285,6 +287,9 @@ Rectangle {
                         readonly property string powerValue: modelData.powerItem
                                 ? controlMethods.valueForItem(modelData.powerItem, "")
                                 : ""
+                        readonly property string temperatureValue: modelData.temperatureItem
+                                ? controlMethods.valueForItem(modelData.temperatureItem, "")
+                                : ""
                         readonly property string sceneValue: modelData.sceneItem
                                 ? controlMethods.valueForItem(modelData.sceneItem, "")
                                 : ""
@@ -323,6 +328,9 @@ Rectangle {
                         readonly property string currentValue: controlMethods.controlSecondary(modelData)
                         readonly property string powerValue: modelData.powerItem
                                 ? controlMethods.valueForItem(modelData.powerItem, "")
+                                : ""
+                        readonly property string temperatureValue: modelData.temperatureItem
+                                ? controlMethods.valueForItem(modelData.temperatureItem, "")
                                 : ""
                         readonly property string sceneValue: modelData.sceneItem
                                 ? controlMethods.valueForItem(modelData.sceneItem, "")
@@ -577,6 +585,9 @@ Rectangle {
                         readonly property string powerValue: parent.controlData.powerItem
                                 ? controlMethods.valueForItem(parent.controlData.powerItem, "")
                                 : ""
+                        readonly property string temperatureValue: parent.controlData.temperatureItem
+                                ? controlMethods.valueForItem(parent.controlData.temperatureItem, "")
+                                : ""
                         readonly property string sceneValue: parent.controlData.sceneItem
                                 ? controlMethods.valueForItem(parent.controlData.sceneItem, "")
                                 : ""
@@ -672,6 +683,18 @@ Rectangle {
             control: parent.control
             panel: controlMethods
             rawValue: parent.rawValue
+            powerValue: parent.powerValue
+        }
+    }
+
+    Component {
+        id: schematicTunableWhiteComponent
+
+        TunableWhiteTile {
+            control: parent.control
+            panel: controlMethods
+            rawValue: parent.rawValue
+            temperatureValue: parent.temperatureValue
             powerValue: parent.powerValue
         }
     }
