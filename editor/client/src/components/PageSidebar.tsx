@@ -1,5 +1,5 @@
 import type { DashboardPage } from "@shared/types";
-import { pageLayout } from "./pageUtils";
+import { pageLayout } from "../pageUtils";
 
 interface PageSidebarProps {
   pages: DashboardPage[];
