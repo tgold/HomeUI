@@ -1876,6 +1876,18 @@
           },
           "programItem": "gardena_start_irrigation_switch",
           "useCisternItem": "gardena_use_cistern_switch",
+          "autoIrrigationItem": "gardena_auto_irrigation_switch",
+          "autoIrrigationDaysItem": "gardena_auto_irrigation_daysbetween",
+          "autoIrrigationDaysOptions": [
+            1,
+            2,
+            3,
+            5,
+            7,
+            10,
+            14
+          ],
+          "lastIrrigationItem": "gardena_last_irrigation",
           "durationItem": "gardena_irrigatino_duration",
           "durationOptions": [
             3,

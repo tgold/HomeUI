@@ -195,6 +195,10 @@ Item {
             useCisternItem: root.value(["useCisternItem"], "")
             durationItem: root.value(["durationItem"], "")
             durationOptions: root.value(["durationOptions"], [3, 30, 45, 60, 90])
+            autoIrrigationItem: root.value(["autoIrrigationItem"], "")
+            autoIrrigationDaysItem: root.value(["autoIrrigationDaysItem"], "")
+            autoIrrigationDaysOptions: root.value(["autoIrrigationDaysOptions"], [1, 2, 3, 5, 7, 10, 14])
+            lastIrrigationItem: root.value(["lastIrrigationItem"], "")
             history: root.value(["history"], ({}))
         }
     }

@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import "Format.js" as Fmt
 
@@ -17,6 +18,10 @@ Rectangle {
     property string useCisternItem: ""
     property string durationItem: ""
     property var durationOptions: [3, 30, 45, 60, 90]
+    property string autoIrrigationItem: ""
+    property string autoIrrigationDaysItem: ""
+    property var autoIrrigationDaysOptions: [1, 2, 3, 5, 7, 10, 14]
+    property string lastIrrigationItem: ""
     property var history: ({})
     property int stateRevision: openhab ? openhab.stateRevision : 0
 
@@ -176,6 +181,65 @@ Rectangle {
         var raw = normalized(itemState(durationItem, ""))
         var number = Number(raw.split(" ")[0])
         return isNaN(number) ? -1 : number
+    }
+
+    function currentDaysBetweenNumber() {
+        var raw = normalized(itemState(autoIrrigationDaysItem, ""))
+        var number = Number(raw.split(" ")[0])
+        return isNaN(number) ? -1 : number
+    }
+
+    readonly property var daysBetweenOptionsModel: {
+        var out = []
+        var opts = Fmt.asArray(autoIrrigationDaysOptions)
+        for (var i = 0; i < opts.length; ++i) {
+            var days = Number(opts[i])
+            if (!isNaN(days)) {
+                out.push({
+                    label: days === 1 ? "alle 1 Tag" : ("alle " + days + " Tage"),
+                    value: days
+                })
+            }
+        }
+        return out
+    }
+
+    readonly property bool autoIrrigationConfigured:
+            autoIrrigationItem.length > 0
+            || autoIrrigationDaysItem.length > 0
+            || lastIrrigationItem.length > 0
+
+    function daysBetweenIndexFor(value) {
+        var key = String(value)
+        for (var i = 0; i < daysBetweenOptionsModel.length; ++i) {
+            if (String(daysBetweenOptionsModel[i].value) === key) {
+                return i
+            }
+        }
+        return -1
+    }
+
+    function toggleAutoIrrigation() {
+        if (!autoIrrigationItem || autoIrrigationItem.length === 0) {
+            return
+        }
+        var current = itemState(autoIrrigationItem, "OFF")
+        send(autoIrrigationItem, isOnState(current) ? "OFF" : "ON")
+    }
+
+    function formatLastIrrigation(state) {
+        if (state === undefined || state === null) {
+            return "--"
+        }
+        var raw = String(state).trim()
+        if (raw.length === 0 || raw === "NULL" || raw === "UNDEF") {
+            return "--"
+        }
+        var date = new Date(raw)
+        if (isNaN(date.getTime())) {
+            return raw
+        }
+        return Qt.formatDateTime(date, "dd.MM.yyyy hh:mm")
     }
 
     function startProgram() {
@@ -606,6 +670,121 @@ Rectangle {
                 font.pixelSize: 10
                 wrapMode: Text.Wrap
                 verticalAlignment: Text.AlignVCenter
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 8
+            visible: root.autoIrrigationConfigured
+
+            Rectangle {
+                Layout.preferredHeight: 34
+                Layout.preferredWidth: 168
+                visible: root.autoIrrigationItem.length > 0
+                radius: 8
+                color: root.isOnState(root.itemState(root.autoIrrigationItem, "OFF")) ? "#163924" : "#2b3343"
+                border.color: root.isOnState(root.itemState(root.autoIrrigationItem, "OFF")) ? "#22c55e" : "#475569"
+                border.width: 1
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "Auto: " + root.itemState(root.autoIrrigationItem, "OFF")
+                    color: "#e2e8f0"
+                    font.pixelSize: 11
+                    font.bold: true
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.autoIrrigationItem.length > 0
+                    onClicked: root.toggleAutoIrrigation()
+                }
+            }
+
+            Rectangle {
+                Layout.preferredWidth: 156
+                Layout.preferredHeight: 34
+                visible: root.autoIrrigationDaysItem.length > 0
+                radius: 8
+                color: "#273449"
+                border.color: "#475569"
+                border.width: 1
+
+                ComboBox {
+                    id: daysBetweenCombo
+                    anchors.fill: parent
+                    anchors.margins: 4
+                    enabled: root.autoIrrigationDaysItem.length > 0
+                            && root.daysBetweenOptionsModel.length > 0
+                    model: root.daysBetweenOptionsModel
+                    textRole: "label"
+                    valueRole: "value"
+                    displayText: {
+                        var current = root.currentDaysBetweenNumber()
+                        if (current < 0) {
+                            return "Intervall"
+                        }
+                        return current === 1 ? "alle 1 Tag" : ("alle " + current + " Tage")
+                    }
+
+                    background: Rectangle {
+                        radius: 6
+                        color: "transparent"
+                    }
+
+                    contentItem: Text {
+                        leftPadding: 6
+                        rightPadding: daysBetweenCombo.indicator.width + daysBetweenCombo.spacing
+                        text: daysBetweenCombo.displayText
+                        color: "#f1f5f9"
+                        font.pixelSize: 11
+                        font.bold: true
+                        verticalAlignment: Text.AlignVCenter
+                        elide: Text.ElideRight
+                    }
+
+                    indicator: Text {
+                        x: daysBetweenCombo.width - width - 4
+                        y: daysBetweenCombo.topPadding + (daysBetweenCombo.availableHeight - height) / 2
+                        text: "▾"
+                        color: "#94a3b8"
+                        font.pixelSize: 10
+                    }
+
+                    currentIndex: root.daysBetweenOptionsModel.length > 0 && !popup.visible
+                                  ? root.daysBetweenIndexFor(root.currentDaysBetweenNumber())
+                                  : currentIndex
+
+                    onActivated: function(index) {
+                        if (index < 0 || index >= root.daysBetweenOptionsModel.length) {
+                            return
+                        }
+                        root.send(root.autoIrrigationDaysItem,
+                                  root.daysBetweenOptionsModel[index].value)
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 34
+                visible: root.lastIrrigationItem.length > 0
+                radius: 8
+                color: "#1e293b"
+                border.color: "#475569"
+                border.width: 1
+
+                Text {
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    text: "Zuletzt: " + root.formatLastIrrigation(root.itemState(root.lastIrrigationItem, ""))
+                    color: "#cbd5e1"
+                    font.pixelSize: 11
+                    font.bold: true
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+                }
             }
         }
 
