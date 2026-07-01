@@ -227,6 +227,14 @@ Rectangle {
         send(autoIrrigationItem, isOnState(current) ? "OFF" : "ON")
     }
 
+    function toggleUseCistern() {
+        if (!useCisternItem || useCisternItem.length === 0) {
+            return
+        }
+        var current = itemState(useCisternItem, "OFF")
+        send(useCisternItem, isOnState(current) ? "OFF" : "ON")
+    }
+
     function formatLastIrrigation(state) {
         if (state === undefined || state === null) {
             return "--"
@@ -799,6 +807,7 @@ Rectangle {
                 color: root.isOnState(root.itemState(root.useCisternItem, "OFF")) ? "#1b3850" : "#2b3343"
                 border.color: "#38bdf8"
                 border.width: 1
+                opacity: root.useCisternItem.length > 0 ? 1 : 0.45
 
                 Text {
                     anchors.centerIn: parent
@@ -806,6 +815,12 @@ Rectangle {
                     color: "#e0f2fe"
                     font.pixelSize: 11
                     font.bold: true
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.useCisternItem.length > 0
+                    onClicked: root.toggleUseCistern()
                 }
             }
 
