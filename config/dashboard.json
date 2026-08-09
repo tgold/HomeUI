@@ -1795,6 +1795,60 @@
               "upCommand": "ON",
               "downCommand": "OFF",
               "hideStop": true
+            },
+            {
+              "kind": "switch",
+              "label": "AC Power",
+              "iconText": "AC",
+              "accentColor": "#38bdf8",
+              "item": "Esp32Ac_Power"
+            },
+            {
+              "kind": "dimmer",
+              "label": "AC Soll",
+              "iconText": "°",
+              "accentColor": "#38bdf8",
+              "item": "Esp32Ac_Setpoint",
+              "min": 16,
+              "max": 30,
+              "step": 1,
+              "unit": "°C",
+              "hidePower": true
+            },
+            {
+              "kind": "dropdown",
+              "label": "AC Mode",
+              "accentColor": "#38bdf8",
+              "item": "Esp32Ac_Mode",
+              "options": [
+                { "label": "Auto", "value": "AUTO" },
+                { "label": "Heat", "value": "HEAT" },
+                { "label": "Cool", "value": "COOL" },
+                { "label": "Dry", "value": "DRY" },
+                { "label": "Fan", "value": "FAN" }
+              ]
+            },
+            {
+              "kind": "dropdown",
+              "label": "AC Fan",
+              "accentColor": "#38bdf8",
+              "item": "Esp32Ac_Fan",
+              "options": [
+                { "label": "Auto", "value": "AUTO" },
+                { "label": "Quiet", "value": "QUIET" },
+                { "label": "Low", "value": "1" },
+                { "label": "Med", "value": "2" },
+                { "label": "Mid", "value": "3" },
+                { "label": "High", "value": "4" }
+              ]
+            },
+            {
+              "kind": "value",
+              "format": "temperature",
+              "label": "AC Raum",
+              "iconText": "T",
+              "accentColor": "#38bdf8",
+              "item": "Esp32Ac_RoomTemp"
             }
           ]
         },

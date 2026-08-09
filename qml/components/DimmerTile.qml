@@ -14,6 +14,9 @@ Rectangle {
     readonly property int minValue: control.min !== undefined ? control.min : 0
     readonly property int maxValue: control.max !== undefined ? control.max : 100
     readonly property int onLevel: control.onLevel !== undefined ? control.onLevel : maxValue
+    readonly property real stepSize: control.step !== undefined ? Number(control.step) : 1
+    readonly property bool hidePower: !!(control.hidePower)
+    readonly property string unitSuffix: control.unit !== undefined ? String(control.unit) : "%"
     readonly property real currentValue: {
         var raw = String(rawValue).trim()
         if (raw.length === 0) {
@@ -28,6 +31,9 @@ Rectangle {
     }
     readonly property bool hasPowerItem: !!(control.powerItem && control.powerItem.length > 0)
     readonly property bool isActive: {
+        if (hidePower) {
+            return false
+        }
         if (hasPowerItem && panel) {
             return panel.isOnState(powerValue)
         }
@@ -35,6 +41,14 @@ Rectangle {
     }
     readonly property color accent: control.accentColor || "#fbbf24"
     readonly property bool hasBinding: !!(control.item || control.mqttTopic)
+
+    function formatDisplayValue(value) {
+        var rounded = Math.round(value)
+        if (control.unit !== undefined) {
+            return unitSuffix.length > 0 ? (rounded + " " + unitSuffix) : String(rounded)
+        }
+        return rounded + "%"
+    }
 
     function powerControl() {
         return {
@@ -86,7 +100,7 @@ Rectangle {
             }
 
             Text {
-                text: Math.round(root.currentValue) + "%"
+                text: root.formatDisplayValue(root.currentValue)
                 color: "#f8fafc"
                 font.pixelSize: 11
                 font.bold: true
@@ -95,6 +109,7 @@ Rectangle {
 
         PowerButtons {
             Layout.fillWidth: true
+            visible: !root.hidePower
             panel: root.panel
             targetControl: root.hasPowerItem ? root.powerControl() : root.control
             powerOn: root.isActive
@@ -114,7 +129,7 @@ Rectangle {
             Layout.preferredHeight: 22
             from: root.minValue
             to: root.maxValue
-            stepSize: 1
+            stepSize: root.stepSize
             value: Math.max(root.minValue, Math.min(root.maxValue, root.currentValue))
             enabled: root.hasBinding
             live: false
