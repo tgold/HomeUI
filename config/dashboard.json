@@ -255,7 +255,7 @@
             "pv": "evcc_pvPower",
             "grid": "evcc_gridPower",
             "consumption": "evcc_homePower",
-            "battery": "SE10K_Live_Level",
+            "battery": "evcc_batterySoC",
             "pvDay": "SE10K_Day_Production",
             "consumptionDay": "SE10K_Day_Consumption"
           }
