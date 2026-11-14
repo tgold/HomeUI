@@ -83,6 +83,12 @@
               "powerItem": "GF_LivingRoom_StandLight_Toggle"
             },
             {
+              "label": "Vase",
+              "iconText": "V",
+              "accentColor": "#fbbf24",
+              "item": "GF_LivingRoom_Vase_Toggle"
+            },
+            {
               "kind": "shutter",
               "label": "Rollo",
               "item": "GF_LivingRoom_Shutter",
@@ -352,6 +358,12 @@
               "accentColor": "#fbbf24",
               "item": "GF_LivingRoom_StandLight_Color",
               "powerItem": "GF_LivingRoom_StandLight_Toggle"
+            },
+            {
+              "label": "Vase",
+              "iconText": "V",
+              "accentColor": "#fbbf24",
+              "item": "GF_LivingRoom_Vase_Toggle"
             },
             {
               "kind": "shutter",
