@@ -4,6 +4,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QRegularExpression>
+#include <QStringList>
 #include <QUrl>
 #include <QUrlQuery>
 #include <QXmlStreamReader>
@@ -100,6 +101,131 @@ bool hasTrackLevelMetadata(const QString &artist, const QString &title)
         || (!title.trimmed().isEmpty() && !isGenericSourceLabel(title));
 }
 
+bool isRadioTransport(const QString &itemClass, const QString &uri)
+{
+    if (itemClass.contains(QStringLiteral("audiobroadcast"), Qt::CaseInsensitive)) {
+        return true;
+    }
+    const QString value = uri.trimmed().toLower();
+    if (value.isEmpty()) {
+        return false;
+    }
+    return value.contains(QStringLiteral("x-sonosapi-stream:"))
+        || value.contains(QStringLiteral("x-sonosapi-radio:"))
+        || value.contains(QStringLiteral("x-sonosapi-hls:radioapp_"))
+        || value.contains(QStringLiteral("x-rincon-mp3radio:"));
+}
+
+bool looksLikeStationCredit(const QString &artist, const QString &title)
+{
+    const QString credit = artist.trimmed();
+    const QString name = title.trimmed();
+    if (credit.isEmpty() || name.isEmpty()) {
+        return false;
+    }
+    return credit.compare(name, Qt::CaseInsensitive) == 0
+        || name.startsWith(credit, Qt::CaseInsensitive);
+}
+
+bool splitStreamArtistTitle(const QString &streamContent, QString &artist, QString &title)
+{
+    const QString value = streamContent.trimmed();
+    const QString separators[] = {
+        QStringLiteral(" - "),
+        QStringLiteral(" – "),
+        QStringLiteral(" — "),
+        QStringLiteral(" / "),
+        QStringLiteral(": "),
+    };
+    for (const QString &separator : separators) {
+        const int index = value.indexOf(separator);
+        if (index <= 0) {
+            continue;
+        }
+        const QString parsedArtist = value.left(index).trimmed();
+        const QString parsedTitle = value.mid(index + separator.size()).trimmed();
+        if (parsedArtist.isEmpty() || parsedTitle.isEmpty()
+            || looksLikeUrlOrUri(parsedArtist) || looksLikeUrlOrUri(parsedTitle)
+            || isGenericSourceLabel(parsedArtist) || isGenericSourceLabel(parsedTitle)) {
+            continue;
+        }
+        artist = parsedArtist;
+        title = parsedTitle;
+        return true;
+    }
+    return false;
+}
+
+bool takeStreamField(const QString &field, const QString &key, QString &dest)
+{
+    const QString spaced = key + QStringLiteral(" ");
+    const QString equals = key + QStringLiteral("=");
+    if (field.startsWith(spaced, Qt::CaseInsensitive)) {
+        dest = field.mid(spaced.size()).trimmed();
+        return true;
+    }
+    if (field.startsWith(equals, Qt::CaseInsensitive)) {
+        dest = field.mid(equals.size()).trimmed();
+        return true;
+    }
+    return false;
+}
+
+bool parseKeyedStreamContent(const QString &streamContent, QString &artist, QString &title, QString &album)
+{
+    const QString value = streamContent.trimmed();
+    if (!value.contains(QLatin1Char('|'))) {
+        return false;
+    }
+
+    QString parsedArtist;
+    QString parsedTitle;
+    QString parsedAlbum;
+    bool found = false;
+    const QStringList parts = value.split(QLatin1Char('|'), Qt::SkipEmptyParts);
+    for (const QString &part : parts) {
+        const QString field = part.trimmed();
+        found = takeStreamField(field, QStringLiteral("TITLE"), parsedTitle) || found;
+        found = takeStreamField(field, QStringLiteral("ARTIST"), parsedArtist) || found;
+        found = takeStreamField(field, QStringLiteral("ALBUM"), parsedAlbum) || found;
+    }
+    if (!found || parsedTitle.startsWith(QStringLiteral("Advertisement"), Qt::CaseInsensitive)) {
+        return false;
+    }
+    if (parsedArtist.isEmpty() && !parsedTitle.isEmpty()) {
+        QString splitArtist;
+        QString splitTitle;
+        if (splitStreamArtistTitle(parsedTitle, splitArtist, splitTitle)) {
+            parsedArtist = splitArtist;
+            parsedTitle = splitTitle;
+        }
+    }
+    if (parsedTitle.isEmpty() && parsedArtist.isEmpty()) {
+        return false;
+    }
+    artist = parsedArtist;
+    title = parsedTitle;
+    album = parsedAlbum;
+    return true;
+}
+
+bool shouldReplaceStation(const QString &candidate, const QString &current)
+{
+    const QString next = candidate.trimmed();
+    const QString cur = current.trimmed();
+    if (next.isEmpty() || isGenericSourceLabel(next) || looksLikeUrlOrUri(next)) {
+        return false;
+    }
+    if (cur.isEmpty()) {
+        return true;
+    }
+    if (next.compare(cur, Qt::CaseInsensitive) == 0) {
+        return false;
+    }
+    // Favorite labels are often a short prefix of the full station name.
+    return next.contains(cur, Qt::CaseInsensitive) && next.size() > cur.size();
+}
+
 }
 
 SonosClient::SonosClient(QObject *parent)
@@ -165,6 +291,7 @@ QVariantMap SonosClient::zoneState(const QString &hostOrUrl) const
         { QStringLiteral("artist"), zone.artist },
         { QStringLiteral("album"), zone.album },
         { QStringLiteral("track"), zone.track },
+        { QStringLiteral("station"), zone.station },
         { QStringLiteral("albumArt"), zone.albumArtUrl },
         { QStringLiteral("state"), zone.state },
         { QStringLiteral("volume"), zone.volume },
@@ -329,6 +456,7 @@ void SonosClient::playFavorite(const QString &hostOrUrl, const QString &favorite
         ++zone.metadataEpoch;
         zone.currentUri = playbackUri;
         zone.title = label;
+        zone.station = label;
         zone.artist.clear();
         zone.album.clear();
         zone.track = label;
@@ -750,64 +878,167 @@ void SonosClient::requestPositionInfo(const QString &host)
                      QString albumArt = parseMetaField(metadata, QStringLiteral("albumArtURI"));
                      const QString streamContent = parseMetaField(metadata, QStringLiteral("streamContent"));
                      const QString radioShow = parseMetaField(metadata, QStringLiteral("radioShowMd"));
-                     QString track = firstTagText(xml, QStringLiteral("TrackURI"));
+                     const QString itemClass = parseMetaField(metadata, QStringLiteral("class"));
+                     const QString trackUri = firstTagText(xml, QStringLiteral("TrackURI"));
+                     QString track = trackUri;
 
                      if (!albumArt.isEmpty() && albumArt.startsWith('/')) {
                          albumArt = QStringLiteral("http://%1:1400%2").arg(host, albumArt);
                      }
                      albumArt = normalizeSonosAlbumArtUrl(albumArt);
-                     if (title.isEmpty() && !streamContent.isEmpty() && !isGenericSourceLabel(streamContent)) {
-                         title = streamContent;
-                     }
-                     if (title.isEmpty() && !radioShow.isEmpty()) {
-                         title = radioShow;
-                     }
-                     if (track.isEmpty()) {
-                         if (!title.isEmpty()) {
-                             track = title;
-                         } else if (!streamContent.isEmpty() && !isGenericSourceLabel(streamContent)) {
-                             track = streamContent;
+
+                     // TuneIn and other radio sources put the station in dc:title and the
+                     // current song in r:streamContent ("Artist - Title" or TITLE|ARTIST).
+                     const bool musicTrack = itemClass.contains(QStringLiteral("musicTrack"), Qt::CaseInsensitive);
+                     const bool radio = !musicTrack
+                         && (isRadioTransport(itemClass, trackUri)
+                             || (!streamContent.trimmed().isEmpty()
+                                 && streamContent.trimmed().compare(title.trimmed(), Qt::CaseInsensitive) != 0
+                                 && !looksLikeUrlOrUri(streamContent)));
+                     QString station;
+                     bool authoritativeTrack = false;
+                     if (radio) {
+                         QString streamArtist;
+                         QString streamTitle;
+                         QString streamAlbum;
+                         const bool parsedSong = parseKeyedStreamContent(streamContent, streamArtist, streamTitle, streamAlbum)
+                             || splitStreamArtistTitle(streamContent, streamArtist, streamTitle);
+                         if (parsedSong) {
+                             // dc:title is the station unless it is already the song title
+                             // or a copy of the whole stream string.
+                             const bool titleIsStation = !title.trimmed().isEmpty()
+                                 && !looksLikeUrlOrUri(title)
+                                 && !isGenericSourceLabel(title)
+                                 && title.trimmed().compare(streamTitle, Qt::CaseInsensitive) != 0
+                                 && title.trimmed().compare(streamContent.trimmed(), Qt::CaseInsensitive) != 0;
+                             if (titleIsStation) {
+                                 station = title.trimmed();
+                             }
+                             artist = streamArtist;
+                             title = streamTitle;
+                             if (!streamAlbum.isEmpty()) {
+                                 album = streamAlbum;
+                             }
+                             authoritativeTrack = true;
+                         } else if (!streamContent.trimmed().isEmpty()
+                                    && !isGenericSourceLabel(streamContent)
+                                    && !looksLikeUrlOrUri(streamContent)
+                                    && !streamContent.trimmed().startsWith(QStringLiteral("Advertisement"), Qt::CaseInsensitive)
+                                    && streamContent.trimmed().compare(title.trimmed(), Qt::CaseInsensitive) != 0) {
+                             if (!title.trimmed().isEmpty()
+                                 && !looksLikeUrlOrUri(title)
+                                 && !isGenericSourceLabel(title)) {
+                                 station = title.trimmed();
+                             }
+                             artist.clear();
+                             title = streamContent.trimmed();
+                             authoritativeTrack = true;
+                         } else if (!artist.trimmed().isEmpty()
+                                    && !title.trimmed().isEmpty()
+                                    && !isGenericSourceLabel(artist)
+                                    && !isGenericSourceLabel(title)
+                                    && !looksLikeUrlOrUri(title)
+                                    && !looksLikeStationCredit(artist, title)) {
+                             authoritativeTrack = true;
+                         } else if (!title.trimmed().isEmpty()
+                                    && !looksLikeUrlOrUri(title)
+                                    && !isGenericSourceLabel(title)) {
+                             station = title.trimmed();
+                             if (looksLikeStationCredit(artist, station) || isGenericSourceLabel(artist)) {
+                                 artist.clear();
+                             }
+                         }
+                     } else {
+                         if (title.isEmpty() && !streamContent.isEmpty() && !isGenericSourceLabel(streamContent)) {
+                             title = streamContent;
+                         }
+                         if (title.isEmpty() && !radioShow.isEmpty() && !radioShow.contains(QLatin1Char('<'))) {
+                             title = radioShow;
                          }
                      }
-                     if (looksLikeUrlOrUri(track)) {
-                         if (!title.isEmpty()) {
-                             track = title;
-                         } else if (!streamContent.isEmpty() && !isGenericSourceLabel(streamContent)) {
-                             track = streamContent;
-                         } else if (!radioShow.isEmpty()) {
-                             track = radioShow;
-                         }
-                     }
+
                      if (looksLikeUrlOrUri(title) || isGenericSourceLabel(title)) {
                          title.clear();
                      }
+                     if (looksLikeUrlOrUri(artist) || isGenericSourceLabel(artist)) {
+                         artist.clear();
+                     }
+                     if (track.isEmpty() || looksLikeUrlOrUri(track)) {
+                         if (!title.isEmpty()) {
+                             track = title;
+                         } else if (!station.isEmpty()) {
+                             track = station;
+                         } else if (!streamContent.isEmpty() && !isGenericSourceLabel(streamContent)
+                                    && !looksLikeUrlOrUri(streamContent)) {
+                             track = streamContent;
+                         } else if (!radioShow.isEmpty() && !radioShow.contains(QLatin1Char('<'))) {
+                             track = radioShow;
+                         }
+                     }
 
-                     applyZoneUpdate(host, [title, artist, album, albumArt, track](ZoneData &zone) {
+                     applyZoneUpdate(host, [=](ZoneData &zone) {
+                         // TrackURI and CurrentURI often differ for radio (stream URI vs
+                         // x-sonosapi-stream). Only ignore a payload that is still a URI
+                         // and does not match the source we just selected.
                          if (!zone.currentUri.isEmpty() && !track.isEmpty()
                              && track != zone.currentUri
                              && looksLikeUrlOrUri(track) && looksLikeUrlOrUri(zone.currentUri)) {
                              return false;
                          }
 
+                         const bool zoneRadio = radio || isRadioTransport(QString(), zone.currentUri);
+                         const bool keepCurrentSong = !authoritativeTrack
+                             && zoneRadio
+                             && hasTrackLevelMetadata(zone.artist, zone.title)
+                             && !zone.station.isEmpty()
+                             && zone.title.compare(zone.station, Qt::CaseInsensitive) != 0
+                             && (title.isEmpty()
+                                 || title.compare(zone.station, Qt::CaseInsensitive) == 0
+                                 || (!station.isEmpty()
+                                     && title.compare(station, Qt::CaseInsensitive) == 0));
+
                          bool changed = false;
-                         if (isBetterMetadata(title, zone.title)) {
-                             zone.title = title;
+                         if (shouldReplaceStation(station, zone.station)) {
+                             zone.station = station.trimmed();
                              changed = true;
                          }
-                         if (isBetterMetadata(artist, zone.artist)) {
-                             zone.artist = artist;
-                             changed = true;
-                         }
-                         if (isBetterMetadata(album, zone.album)) {
-                             zone.album = album;
-                             changed = true;
+                         if (authoritativeTrack) {
+                             if (zone.title != title) {
+                                 zone.title = title;
+                                 changed = true;
+                             }
+                             if (zone.artist != artist) {
+                                 zone.artist = artist;
+                                 changed = true;
+                             }
+                             if (zone.album != album) {
+                                 zone.album = album;
+                                 changed = true;
+                             }
+                             if (!title.isEmpty() && zone.track != title) {
+                                 zone.track = title;
+                                 changed = true;
+                             }
+                         } else if (!keepCurrentSong) {
+                             if (isBetterMetadata(title, zone.title)) {
+                                 zone.title = title;
+                                 changed = true;
+                             }
+                             if (isBetterMetadata(artist, zone.artist)) {
+                                 zone.artist = artist;
+                                 changed = true;
+                             }
+                             if (isBetterMetadata(album, zone.album)) {
+                                 zone.album = album;
+                                 changed = true;
+                             }
+                             if (isBetterMetadata(track, zone.track)) {
+                                 zone.track = track;
+                                 changed = true;
+                             }
                          }
                          if (isBetterMetadata(albumArt, zone.albumArtUrl)) {
                              zone.albumArtUrl = albumArt;
-                             changed = true;
-                         }
-                         if (isBetterMetadata(track, zone.track)) {
-                             zone.track = track;
                              changed = true;
                          }
                          return changed;
@@ -859,14 +1090,27 @@ void SonosClient::requestMediaInfo(const QString &host)
                  applyZoneUpdate(host, [stationTitle, stationArt, uri](ZoneData &zone) {
                      bool changed = false;
                      const bool sourceChanged = !uri.isEmpty() && uri != zone.currentUri;
+                     const bool radioSource = isRadioTransport(QString(), uri);
 
                      if (sourceChanged) {
                          zone.currentUri = uri;
                          zone.artist.clear();
                          zone.album.clear();
-                         if (!stationTitle.isEmpty() && !isGenericSourceLabel(stationTitle)) {
+                         if (radioSource && !stationTitle.isEmpty()) {
+                             zone.station = stationTitle;
                              zone.title = stationTitle;
                              zone.track = stationTitle;
+                             changed = true;
+                         } else {
+                             if (!zone.station.isEmpty()) {
+                                 zone.title.clear();
+                                 zone.track.clear();
+                             }
+                             zone.station.clear();
+                             if (!stationTitle.isEmpty() && !isGenericSourceLabel(stationTitle)) {
+                                 zone.title = stationTitle;
+                                 zone.track = stationTitle;
+                             }
                              changed = true;
                          }
                          if (!stationArt.isEmpty()) {
@@ -879,12 +1123,17 @@ void SonosClient::requestMediaInfo(const QString &host)
                          return changed;
                      }
 
-                     const bool trackMetadataKnown = hasTrackLevelMetadata(zone.artist, zone.title);
+                     if (radioSource && shouldReplaceStation(stationTitle, zone.station)) {
+                         zone.station = stationTitle.trimmed();
+                         changed = true;
+                     }
 
-                     // MediaInfo often carries radio station metadata/logo even when
-                     // PositionInfo only has stream URLs. For Spotify and similar
-                     // sources it can also report the service name ("Spotify") and
-                     // overwrite the current track title on every other poll.
+                     // A station name stored as the title is not the current song.
+                     // Spotify-style service labels must not overwrite a real track.
+                     const bool trackMetadataKnown = hasTrackLevelMetadata(zone.artist, zone.title)
+                         && (zone.station.isEmpty()
+                             || zone.title.compare(zone.station, Qt::CaseInsensitive) != 0);
+
                      if (!trackMetadataKnown && isBetterMetadata(stationTitle, zone.title)) {
                          zone.title = stationTitle;
                          changed = true;

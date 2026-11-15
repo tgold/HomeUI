@@ -18,6 +18,7 @@ Rectangle {
     // - titleItem:      String item with the current title
     // - artistItem:     String item with the current artist
     // - albumItem:      String item with the current album
+    // - stationItem:    String item with the radio station name
     // - albumArtItem:   String item containing the album-art URL
     // - stateItem:      String item that reports PLAY/PAUSE/STOP for icon hint
     // - favoriteItem:   String item that triggers favourite playback
@@ -125,6 +126,78 @@ Rectangle {
         return ""
     }
 
+    function sameText(left, right) {
+        return String(left || "").trim().toLowerCase() === String(right || "").trim().toLowerCase()
+    }
+
+    function resolvedStationText() {
+        var station = String(root.stationText || "").trim()
+        if (station.length === 0 || root.isGenericSourceLabel(station)) {
+            return ""
+        }
+        return station
+    }
+
+    function songTitleText() {
+        var title = root.resolvedTitleText()
+        var station = root.resolvedStationText()
+        if (title.length === 0 || (station.length > 0 && root.sameText(title, station))) {
+            return ""
+        }
+        return title
+    }
+
+    function nowPlayingHeadline() {
+        var station = root.resolvedStationText()
+        if (station.length > 0) {
+            return station
+        }
+        var title = root.resolvedTitleText()
+        var artist = root.resolvedArtistText()
+        if (title.length > 0 && artist.length > 0) {
+            return artist + " – " + title
+        }
+        if (title.length > 0) {
+            return title
+        }
+        if (artist.length > 0) {
+            return artist
+        }
+        return "—"
+    }
+
+    function nowPlayingSongTitle() {
+        if (root.resolvedStationText().length === 0) {
+            return ""
+        }
+        return root.songTitleText()
+    }
+
+    function nowPlayingSongArtist() {
+        if (root.resolvedStationText().length === 0) {
+            return ""
+        }
+        var artist = root.resolvedArtistText()
+        if (artist.length === 0 || root.sameText(artist, root.songTitleText())) {
+            return ""
+        }
+        return artist
+    }
+
+    function nowPlayingAlbumLine() {
+        var album = String(root.albumText || "").trim()
+        if (album.length === 0 || root.isGenericSourceLabel(album)) {
+            return ""
+        }
+        if (root.sameText(album, root.nowPlayingHeadline())
+                || root.sameText(album, root.resolvedStationText())
+                || root.sameText(album, root.nowPlayingSongTitle())
+                || root.sameText(album, root.nowPlayingSongArtist())) {
+            return ""
+        }
+        return album
+    }
+
     function sendTransport(command) {
         if (usingDirectSonos && sonosClient) {
             sonosClient.sendTransport(host, String(command))
@@ -175,6 +248,9 @@ Rectangle {
     }
     readonly property string albumText: {
         return usingDirectSonos ? String(directStateValue("album", "")) : itemState(_item("album"), "")
+    }
+    readonly property string stationText: {
+        return usingDirectSonos ? String(directStateValue("station", "")) : itemState(_item("station"), "")
     }
     readonly property string albumArtUrl: {
         var url = usingDirectSonos ? String(directStateValue("albumArt", "")) : itemState(_item("albumArt"), "")
@@ -383,20 +459,7 @@ Rectangle {
                     font.bold: true
                 }
                 Text {
-                    text: {
-                        var title = root.resolvedTitleText()
-                        var artist = root.resolvedArtistText()
-                        if (title.length > 0 && artist.length > 0) {
-                            return artist + " – " + title
-                        }
-                        if (title.length > 0) {
-                            return title
-                        }
-                        if (artist.length > 0) {
-                            return artist
-                        }
-                        return "—"
-                    }
+                    text: root.nowPlayingHeadline()
                     color: root.accentColor
                     font.pixelSize: 14
                     font.bold: true
@@ -406,8 +469,27 @@ Rectangle {
                     elide: Text.ElideRight
                 }
                 Text {
-                    text: root.albumText
-                    visible: root.albumText.length > 0
+                    text: root.nowPlayingSongTitle()
+                    visible: text.length > 0
+                    color: "#f8fafc"
+                    font.pixelSize: 13
+                    font.bold: true
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    maximumLineCount: 2
+                    elide: Text.ElideRight
+                }
+                Text {
+                    text: root.nowPlayingSongArtist()
+                    visible: text.length > 0
+                    color: "#cbd5e1"
+                    font.pixelSize: 12
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
+                }
+                Text {
+                    text: root.nowPlayingAlbumLine()
+                    visible: text.length > 0
                     color: "#94a3b8"
                     font.pixelSize: 11
                     Layout.fillWidth: true

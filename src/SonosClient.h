@@ -56,6 +56,7 @@ private:
         QString artist;
         QString album;
         QString track;
+        QString station;
         QString albumArtUrl;
         QString currentUri;
         int metadataEpoch = 0;
