@@ -17,8 +17,67 @@ Rectangle {
     property int tilesPerRow: 0
     property int minTileWidth: 140
 
+    // A room temperature sitting next to real controls is drawn as header text.
+    // Panels that are only temperature readings keep every value as a tile.
+    function isTemperatureValueControl(control) {
+        if (!control) {
+            return false
+        }
+        var kind = String(control.kind || control.widget || "switch").toLowerCase()
+        var format = String(control.format || "").toLowerCase()
+        return kind === "value" && format === "temperature"
+    }
+
+    function findHeaderTemperatureIndex(list) {
+        if (!list) {
+            return -1
+        }
+        var firstTemp = -1
+        var hasOther = false
+        for (var i = 0; i < list.length; ++i) {
+            if (isTemperatureValueControl(list[i])) {
+                if (firstTemp < 0) {
+                    firstTemp = i
+                }
+            } else {
+                hasOther = true
+            }
+        }
+        return hasOther ? firstTemp : -1
+    }
+
+    readonly property int headerTemperatureIndex: findHeaderTemperatureIndex(controls)
+
+    readonly property var tileControls: {
+        var list = controls || []
+        var skip = headerTemperatureIndex
+        var out = []
+        for (var i = 0; i < list.length; ++i) {
+            if (i !== skip) {
+                out.push(list[i])
+            }
+        }
+        return out
+    }
+
+    readonly property string headerTemperatureText: {
+        var list = controls
+        var index = headerTemperatureIndex
+        if (!list || index < 0 || index >= list.length) {
+            return ""
+        }
+        var control = list[index]
+        return Fmt.apply(controlValue(control), {
+            format: control.format,
+            unit: control.unit,
+            decimals: control.decimals,
+            scale: control.scale,
+            valueMap: control.valueMap
+        })
+    }
+
     readonly property int effectiveColumns: {
-        var count = controls ? controls.length : 0
+        var count = tileControls ? tileControls.length : 0
         if (count === 0) {
             return 1
         }
@@ -221,13 +280,29 @@ Rectangle {
         anchors.margins: Fmt.panelMargin
         spacing: Fmt.panelSpacing
 
-        Text {
-            text: root.title
-            color: "#e2e8f0"
-            font.pixelSize: 18
-            font.bold: true
-            elide: Text.ElideRight
+        RowLayout {
             Layout.fillWidth: true
+            spacing: 12
+
+            Text {
+                text: root.title
+                color: "#e2e8f0"
+                font.pixelSize: 18
+                font.bold: true
+                elide: Text.ElideRight
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignVCenter
+            }
+
+            Text {
+                text: root.headerTemperatureText
+                visible: root.headerTemperatureText.length > 0
+                color: "#f8fafc"
+                font.pixelSize: 16
+                font.bold: true
+                Layout.alignment: Qt.AlignVCenter
+                horizontalAlignment: Text.AlignRight
+            }
         }
 
         GridLayout {
@@ -238,7 +313,7 @@ Rectangle {
             columns: root.effectiveColumns
 
             Repeater {
-                model: root.controls
+                model: root.tileControls
 
                 Loader {
                     id: tileLoader

@@ -675,6 +675,8 @@ Read-only display tile. Renders the OpenHAB / MQTT state with the standard forma
 }
 ```
 
+On a controls panel that also has other controls, the first `format: "temperature"` value is not drawn as a tile. It is shown as plain text in the top-right of the panel header (`21.6 °C`). A panel whose controls are all temperature values still renders every reading as a tile. Later temperature values in a mixed panel, such as an AC room sensor, stay tiles.
+
 Optional formatting hints (also honoured by the `progress` tile):
 
 - `format` - one of `temperature` (1 decimal + `°C`), `humidity` (0 decimals + `%`), `power` (0 decimals + `W`), `energy` (2 decimals + `kWh`), `fraction` (0..1 scaled to %). When set, `decimals` overrides the default precision.

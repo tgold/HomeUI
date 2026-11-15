@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { masonryLayout, masonryContentHeight } from "./masonry.js";
+import { estimatePanelHeight } from "./panelHeights.js";
 import {
   computePaintedRect,
   normFromOverlayX,
@@ -36,6 +37,43 @@ describe("masonryLayout", () => {
     };
     const placed = masonryLayout(page, page.panels!, 800);
     expect(masonryContentHeight(placed)).toBe(12 + 200 + 12);
+  });
+});
+
+describe("estimatePanelHeight", () => {
+  it("drops a room temperature from the tile rows", () => {
+    const withTemperature = estimatePanelHeight({
+      type: "controls",
+      tilesPerRow: 2,
+      controls: [
+        { kind: "value", format: "temperature" },
+        { kind: "switch" },
+        { kind: "shutter" },
+      ],
+    });
+    const withoutTemperature = estimatePanelHeight({
+      type: "controls",
+      tilesPerRow: 2,
+      controls: [{ kind: "switch" }, { kind: "shutter" }],
+    });
+    expect(withTemperature).toBe(withoutTemperature);
+  });
+
+  it("keeps a temperature list as tiles", () => {
+    const list = estimatePanelHeight({
+      type: "controls",
+      tilesPerRow: 2,
+      controls: [
+        { kind: "value", format: "temperature" },
+        { kind: "value", format: "temperature" },
+      ],
+    });
+    const tiles = estimatePanelHeight({
+      type: "controls",
+      tilesPerRow: 2,
+      controls: [{ kind: "switch" }, { kind: "switch" }],
+    });
+    expect(list).toBe(tiles);
   });
 });
 

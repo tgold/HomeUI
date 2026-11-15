@@ -106,19 +106,14 @@ Rectangle {
                 }
             }
 
-            Rectangle {
-                Layout.preferredWidth: 70
-                Layout.preferredHeight: 34
-                radius: 10
-                color: "#16243a"
-
-                Text {
-                    anchors.centerIn: parent
-                    text: root.effectiveTemperature
-                    color: "#f97316"
-                    font.pixelSize: 14
-                    font.bold: true
-                }
+            Text {
+                text: root.effectiveTemperature
+                visible: root.effectiveTemperature.length > 0
+                color: "#f8fafc"
+                font.pixelSize: 16
+                font.bold: true
+                Layout.alignment: Qt.AlignVCenter
+                horizontalAlignment: Text.AlignRight
             }
         }
 
