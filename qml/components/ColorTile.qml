@@ -45,11 +45,19 @@ Rectangle {
     }
     readonly property bool hasBinding: !!(control.item || control.mqttTopic)
     readonly property color accent: control.accentColor || "#fbbf24"
-    readonly property color currentColor: Qt.hsva(
-        Math.max(0, Math.min(1, hue / 360)),
-        Math.max(0.2, Math.min(1, saturation / 100)),
-        Math.max(0.35, Math.min(1, brightness / 100)),
-        1)
+    readonly property color currentColor: colorForHue(hue)
+
+    // Hue shown inside the picker. Kept separate so a drag is not snapped
+    // back by the live OpenHAB state until the popup opens again.
+    property real popupHue: 0
+
+    function colorForHue(h) {
+        return Qt.hsva(
+            Math.max(0, Math.min(1, h / 360)),
+            Math.max(0.2, Math.min(1, saturation / 100)),
+            Math.max(0.35, Math.min(1, brightness / 100)),
+            1)
+    }
 
     function sendHsb(h, s, b) {
         if (!panel) { return }
@@ -125,6 +133,23 @@ Rectangle {
                 font.pixelSize: 11
                 font.bold: true
             }
+
+            Rectangle {
+                id: colorButton
+                Layout.preferredWidth: 40
+                Layout.preferredHeight: 40
+                radius: width / 2
+                color: root.currentColor
+                border.color: "#f8fafc"
+                border.width: 2
+                opacity: root.hasBinding ? 1 : 0.5
+
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.hasBinding
+                    onClicked: huePopup.open()
+                }
+            }
         }
 
         PowerButtons {
@@ -136,68 +161,6 @@ Rectangle {
             offCommand: root.offCmd
             accent: root.accent
             enabled: root.hasBinding || root.hasPowerItem
-        }
-
-        Rectangle {
-            id: hueStrip
-            Layout.fillWidth: true
-            Layout.preferredHeight: 18
-            radius: 9
-            border.color: "#304158"
-            border.width: 1
-            clip: true
-            opacity: root.hasBinding ? 1 : 0.5
-
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0.000; color: "#ff0000" }
-                GradientStop { position: 0.167; color: "#ffff00" }
-                GradientStop { position: 0.333; color: "#00ff00" }
-                GradientStop { position: 0.500; color: "#00ffff" }
-                GradientStop { position: 0.667; color: "#0000ff" }
-                GradientStop { position: 0.833; color: "#ff00ff" }
-                GradientStop { position: 1.000; color: "#ff0000" }
-            }
-
-            Rectangle {
-                id: hueMarker
-                width: 6
-                height: parent.height + 4
-                anchors.verticalCenter: parent.verticalCenter
-                x: Math.max(-width / 2,
-                            Math.min(parent.width - width / 2,
-                                     (root.hue / 360) * parent.width - width / 2))
-                color: "transparent"
-                border.color: "#f8fafc"
-                border.width: 2
-                radius: 3
-            }
-
-            MouseArea {
-                id: hueArea
-                anchors.fill: parent
-                enabled: root.hasBinding
-                preventStealing: true
-                property bool dragging: false
-
-                onPressed: { dragging = true; updateLocal(mouse) }
-                onPositionChanged: if (dragging) { updateLocal(mouse) }
-                onReleased: { if (dragging) { commit(mouse) } dragging = false }
-                onCanceled: dragging = false
-
-                function updateLocal(mouse) {
-                    var x = Math.max(0, Math.min(width, mouse.x))
-                    hueMarker.x = x - hueMarker.width / 2
-                }
-
-                function commit(mouse) {
-                    var x = Math.max(0, Math.min(width, mouse.x))
-                    var h = (x / width) * 360
-                    var s = root.saturation > 0 ? root.saturation : 100
-                    var b = root.brightness > 0 ? root.brightness : 100
-                    root.sendHsb(h, s, b)
-                }
-            }
         }
 
         Slider {
@@ -213,6 +176,145 @@ Rectangle {
             onPressedChanged: {
                 if (!pressed) {
                     root.sendBrightness(value)
+                }
+            }
+        }
+    }
+
+    Popup {
+        id: huePopup
+        parent: Overlay.overlay
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        padding: 0
+        width: Math.max(520, Math.min(880, (parent ? parent.width : 880) - 64))
+        height: huePopupContent.implicitHeight + 36
+        anchors.centerIn: parent
+
+        onAboutToShow: root.popupHue = root.hue
+
+        background: Rectangle {
+            radius: 18
+            color: "#0f1726"
+            border.color: "#334155"
+            border.width: 1
+        }
+
+        ColumnLayout {
+            id: huePopupContent
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.margins: 18
+            spacing: 16
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 12
+
+                Text {
+                    text: (root.control.label || "Licht")
+                    color: "#f8fafc"
+                    font.pixelSize: 20
+                    font.bold: true
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                }
+
+                Rectangle {
+                    Layout.preferredWidth: 44
+                    Layout.preferredHeight: 44
+                    radius: 12
+                    color: closeArea.pressed ? "#334155" : "#1e293b"
+                    border.color: "#475569"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "✕"
+                        color: "#f8fafc"
+                        font.pixelSize: 18
+                        font.bold: true
+                    }
+
+                    MouseArea {
+                        id: closeArea
+                        anchors.fill: parent
+                        onClicked: huePopup.close()
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.preferredWidth: 104
+                Layout.preferredHeight: 104
+                radius: width / 2
+                color: root.colorForHue(root.popupHue)
+                border.color: "#f8fafc"
+                border.width: 3
+            }
+
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                text: Math.round(root.popupHue) + "°"
+                color: "#cbd5e1"
+                font.pixelSize: 16
+                font.bold: true
+            }
+
+            Rectangle {
+                id: hueBar
+                Layout.fillWidth: true
+                Layout.preferredHeight: 84
+                radius: 42
+                border.color: "#0b1220"
+                border.width: 2
+                clip: true
+
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0.000; color: "#ff0000" }
+                    GradientStop { position: 0.167; color: "#ffff00" }
+                    GradientStop { position: 0.333; color: "#00ff00" }
+                    GradientStop { position: 0.500; color: "#00ffff" }
+                    GradientStop { position: 0.667; color: "#0000ff" }
+                    GradientStop { position: 0.833; color: "#ff00ff" }
+                    GradientStop { position: 1.000; color: "#ff0000" }
+                }
+
+                Rectangle {
+                    id: hueThumb
+                    width: 68
+                    height: 68
+                    radius: width / 2
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: {
+                        var travel = Math.max(0, parent.width - width)
+                        return (Math.max(0, Math.min(360, root.popupHue)) / 360) * travel
+                    }
+                    color: root.colorForHue(root.popupHue)
+                    border.color: "#f8fafc"
+                    border.width: 4
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    preventStealing: true
+
+                    function hueFromMouse(mouse) {
+                        var travel = Math.max(1, width - hueThumb.width)
+                        var left = Math.max(0, Math.min(travel, mouse.x - hueThumb.width / 2))
+                        return (left / travel) * 360
+                    }
+
+                    onPressed: root.popupHue = hueFromMouse(mouse)
+                    onPositionChanged: if (pressed) root.popupHue = hueFromMouse(mouse)
+                    onReleased: {
+                        var s = root.saturation > 0 ? root.saturation : 100
+                        var b = root.brightness > 0 ? root.brightness : 100
+                        root.sendHsb(root.popupHue, s, b)
+                    }
                 }
             }
         }

@@ -431,7 +431,7 @@ Renders a slider 0..100 plus separate **ON** / **OFF** buttons (`onLevel` / `0`,
 
 #### Color (`kind: "color"`)
 
-Hue + brightness picker for OpenHAB `Color` items: power icon, label, hue strip, and brightness slider in one compact tile.
+Hue + brightness picker for OpenHAB `Color` items: power icon, label, a color circle, and a brightness slider. Tapping the circle opens a large hue slider.
 
 ```json
 {
@@ -449,7 +449,7 @@ Set `powerItem` when on/off is a separate `Switch` item from the `Color` item (r
 State / command encoding:
 
 - The tile expects the OpenHAB Color state in the standard `"H,S,B"` form (hue 0..360, saturation 0..100, brightness 0..100). Plain numeric / `ON` / `OFF` states are also tolerated so this kind degrades cleanly when bound to a `Dimmer` or `Switch` item.
-- Hue strip releases publish a full `"H,S,B"` command, preserving the current saturation (defaults to `100` when off) and brightness (defaults to `100` when off).
+- Releasing the popup hue slider publishes a full `"H,S,B"` command, preserving the current saturation (defaults to `100` when off) and brightness (defaults to `100` when off).
 - The brightness slider publishes the raw integer percentage on release, which OpenHAB treats as a `PercentType` command on `Color` items - hue and saturation are kept.
 - Separate **ON** / **OFF** buttons publish `ON` / `OFF` (or `onCommand` / `offCommand` when set).
 
