@@ -25,7 +25,8 @@
               "iconText": "L",
               "accentColor": "#fbbf24",
               "item": "GF_DiningRoom_Light_Dimmer",
-              "temperatureItem": "GF_DiningRoom_Light_Temperature"
+              "temperatureItem": "GF_DiningRoom_Light_Temperature",
+              "powerItem": "GF_Dining_Light"
             },
             {
               "kind": "shutter",
@@ -410,7 +411,8 @@
               "iconText": "L",
               "accentColor": "#fbbf24",
               "item": "GF_DiningRoom_Light_Dimmer",
-              "temperatureItem": "GF_DiningRoom_Light_Temperature"
+              "temperatureItem": "GF_DiningRoom_Light_Temperature",
+              "powerItem": "GF_Dining_Light"
             },
             {
               "kind": "shutter",
