@@ -397,10 +397,10 @@ Rectangle {
 
     implicitWidth: 620
     implicitHeight: 520
-    radius: 18
-    color: "#0f1726"
-    border.color: "#26364d"
-    border.width: 1
+    radius: Theme.panelRadius
+    color: Theme.panel
+    border.color: Theme.panelBorder
+    border.width: Theme.panelBorderWidth
     clip: true
 
     ColumnLayout {
@@ -411,13 +411,9 @@ Rectangle {
         RowLayout {
             Layout.fillWidth: true
 
-            Text {
-                text: root.title
-                color: "#e2e8f0"
-                font.pixelSize: 18
-                font.bold: true
+            PanelHeader {
                 Layout.fillWidth: true
-                elide: Text.ElideRight
+                title: root.title
             }
 
             Rectangle {
@@ -431,7 +427,7 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: "Programm: " + root.itemState(root.programItem, "OFF")
-                    color: "#e2e8f0"
+                    color: Theme.text
                     font.pixelSize: 11
                     font.bold: true
                 }
@@ -525,7 +521,7 @@ Rectangle {
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.Wrap
                     text: root.resolvedImageSource
-                    color: "#94a3b8"
+                    color: Theme.muted
                     font.pixelSize: 10
                 }
             }
@@ -552,7 +548,7 @@ Rectangle {
 
                         Text {
                             text: sensor.label || "Sensor"
-                            color: "#8fa4bf"
+                            color: Theme.subtle
                             font.pixelSize: 10
                             elide: Text.ElideRight
                             width: parent.width
@@ -565,7 +561,7 @@ Rectangle {
                                 decimals: sensor.decimals,
                                 scale: sensor.scale
                             })
-                            color: "#f8fafc"
+                            color: Theme.value
                             font.pixelSize: 13
                             font.bold: true
                             elide: Text.ElideRight
@@ -698,7 +694,7 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: "Auto: " + root.itemState(root.autoIrrigationItem, "OFF")
-                    color: "#e2e8f0"
+                    color: Theme.text
                     font.pixelSize: 11
                     font.bold: true
                 }
@@ -756,7 +752,7 @@ Rectangle {
                         x: daysBetweenCombo.width - width - 4
                         y: daysBetweenCombo.topPadding + (daysBetweenCombo.availableHeight - height) / 2
                         text: "▾"
-                        color: "#94a3b8"
+                        color: Theme.muted
                         font.pixelSize: 10
                     }
 
@@ -787,7 +783,7 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 8
                     text: "Zuletzt: " + root.formatLastIrrigation(root.itemState(root.lastIrrigationItem, ""))
-                    color: "#cbd5e1"
+                    color: Theme.label
                     font.pixelSize: 11
                     font.bold: true
                     verticalAlignment: Text.AlignVCenter

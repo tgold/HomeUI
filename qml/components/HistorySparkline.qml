@@ -74,7 +74,7 @@ Rectangle {
 
         Text {
             text: root.label
-            color: "#94a3b8"
+            color: Theme.muted
             font.pixelSize: 10
             font.bold: true
             elide: Text.ElideRight

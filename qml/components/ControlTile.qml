@@ -17,10 +17,10 @@ Rectangle {
 
     implicitWidth: 132
     implicitHeight: 76
-    radius: 12
-    color: active ? "#26364d" : "#172235"
-    border.color: active ? accentColor : "#304158"
-    border.width: 1
+    radius: Theme.tileRadius
+    color: Theme.tileFill(active)
+    border.color: Theme.tileStroke(active, accentColor)
+    border.width: Theme.tileBorderWidth
 
     MouseArea {
         anchors.fill: parent
@@ -35,7 +35,7 @@ Rectangle {
 
         Text {
             text: root.label
-            color: "#8fa4bf"
+            color: Theme.subtle
             font.pixelSize: 12
             elide: Text.ElideRight
             Layout.fillWidth: true
@@ -67,7 +67,7 @@ Rectangle {
 
                 Text {
                     text: root.value
-                    color: "#f8fafc"
+                    color: Theme.value
                     font.pixelSize: 14
                     font.bold: true
                     elide: Text.ElideRight
@@ -77,7 +77,7 @@ Rectangle {
                 Text {
                     text: root.secondary
                     visible: root.secondary.length > 0
-                    color: "#94a3b8"
+                    color: Theme.muted
                     font.pixelSize: 10
                     elide: Text.ElideRight
                     Layout.fillWidth: true

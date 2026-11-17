@@ -19,11 +19,30 @@ You can also pass a path explicitly:
 
 ```json
 {
+  "theme": "default",
+  "title": "HOME OPERATIONS",
   "pages": []
 }
 ```
 
 `pages` must be a non-empty array.
+
+`theme` (optional) selects the visual skin:
+
+- `"default"` — the dark panel skin. This is used when `theme` is omitted.
+- `"lcars"` — a separate Star Trek LCARS skin. Black ground, gold condensed type, a left elbow rail for the pages, pill controls, and colored section bars. Same pages, panels, and commands as the default skin.
+
+`title` (optional) is the masthead shown in the LCARS skin. When it is omitted, LCARS uses `HOME OPERATIONS` and the default skin keeps its `OPENHAB` status title.
+
+Switch skins by editing `config/dashboard.json` and saving. HomeUI reloads the file on change:
+
+```json
+{ "theme": "lcars", "title": "HOME OPERATIONS", "pages": [] }
+```
+
+```json
+{ "theme": "default", "pages": [] }
+```
 
 ## Page layouts
 

@@ -12,7 +12,9 @@ ApplicationWindow {
     visible: true
     visibility: Window.FullScreen
     title: "HomeUI"
-    color: "#070d18"
+    color: Theme.ground
+    font.family: Theme.lcars ? Theme.fontFamily : Qt.application.font.family
+    font.capitalization: Theme.lcars ? Font.AllUppercase : Font.MixedCase
     property int maxDebugEvents: 300
     property string doorbellItemName: "Doorbell_Pressed"
     property bool lastDoorbellPressed: false
@@ -179,6 +181,15 @@ ApplicationWindow {
         return openhabClient.itemIsOn("thz_warmwasserbereitung", false)
     }
 
+    FontLoader {
+        source: "qrc:/HomeUI/assets/fonts/Antonio-Bold.ttf"
+        onStatusChanged: {
+            if (status === FontLoader.Ready) {
+                Theme.loadedFontFamily = name
+            }
+        }
+    }
+
     Shortcut {
         sequences: ["Ctrl+Q", "Esc"]
         context: Qt.ApplicationShortcut
@@ -222,7 +233,31 @@ ApplicationWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: "#070d18"
+        color: Theme.ground
+    }
+
+    LcarsChrome {
+        id: lcarsChrome
+        anchors.fill: parent
+        visible: Theme.lcars
+        enabled: Theme.lcars
+        title: Theme.displayTitle
+        section: root.currentPageTitle()
+        openhabConnected: openhabClient.connected
+        statusText: openhabClient.statusText
+                + (openhabClient.itemCount > 0 ? " · " + openhabClient.itemCount + " items" : "")
+        indicators: statusBar.indicators
+        showDebugButton: true
+        debugActive: debugModal.visible
+        pageCount: dashboardConfig.valid ? dashboardConfig.pages.length : 0
+        pageIndex: swipeView.currentIndex
+        pages: dashboardConfig.pages
+        onDebugClicked: debugModal.open()
+        onPageIndexClicked: function(index) {
+            if (index >= 0 && index < swipeView.count) {
+                swipeView.currentIndex = index
+            }
+        }
     }
 
     StatusBar {
@@ -230,6 +265,8 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
+        visible: !Theme.lcars
+        height: Theme.lcars ? 0 : 72
         title: "OPENHAB"
         section: root.currentPageTitle()
         openhabConnected: openhabClient.connected
@@ -288,7 +325,7 @@ ApplicationWindow {
 
                 Text {
                     text: "OpenHAB raw events (" + debugEventModel.count + ")"
-                    color: "#f8fafc"
+                    color: Theme.value
                     font.pixelSize: 16
                     font.bold: true
                     Layout.fillWidth: true
@@ -303,7 +340,7 @@ ApplicationWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "Clear"
-                        color: "#e2e8f0"
+                        color: Theme.text
                         font.pixelSize: 12
                         font.bold: true
                     }
@@ -343,7 +380,7 @@ ApplicationWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "Close"
-                        color: "#f8fafc"
+                        color: Theme.value
                         font.pixelSize: 12
                         font.bold: true
                     }
@@ -387,9 +424,10 @@ ApplicationWindow {
                             anchors.top: parent.top
                             anchors.margins: 6
                             text: "[" + timestamp + "] " + payload
-                            color: "#cbd5e1"
+                            color: Theme.label
                             font.pixelSize: 12
                             font.family: "monospace"
+                            font.capitalization: Font.MixedCase
                             wrapMode: Text.WrapAnywhere
                         }
                     }
@@ -419,7 +457,7 @@ ApplicationWindow {
         background: Rectangle {
             radius: 14
             color: "#020617"
-            border.color: "#38bdf8"
+            border.color: Theme.lcars ? "#FFCC66" : "#38bdf8"
             border.width: 2
         }
 
@@ -434,7 +472,7 @@ ApplicationWindow {
 
                 Text {
                     text: "Doorbell"
-                    color: "#e2e8f0"
+                    color: Theme.text
                     font.pixelSize: 18
                     font.bold: true
                     Layout.fillWidth: true
@@ -450,7 +488,7 @@ ApplicationWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "Close"
-                        color: "#f8fafc"
+                        color: Theme.value
                         font.pixelSize: 12
                         font.bold: true
                     }
@@ -479,8 +517,12 @@ ApplicationWindow {
         id: swipeView
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: statusBar.bottom
+        anchors.top: Theme.lcars ? parent.top : statusBar.bottom
         anchors.bottom: parent.bottom
+        anchors.leftMargin: Theme.lcars ? lcarsChrome.contentLeft : 0
+        anchors.rightMargin: Theme.lcars ? 12 : 0
+        anchors.topMargin: Theme.lcars ? lcarsChrome.contentTop : 0
+        anchors.bottomMargin: Theme.lcars ? 8 : 0
         clip: true
         interactive: dashboardConfig.valid && dashboardConfig.pages.length > 1
         visible: dashboardConfig.valid
@@ -504,10 +546,10 @@ ApplicationWindow {
     Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: statusBar.bottom
+        anchors.top: Theme.lcars ? parent.top : statusBar.bottom
         anchors.bottom: parent.bottom
         visible: !dashboardConfig.valid
-        color: "#070d18"
+        color: Theme.ground
 
         Rectangle {
             anchors.centerIn: parent
@@ -532,7 +574,7 @@ ApplicationWindow {
 
                 Text {
                     text: dashboardConfig.errorText
-                    color: "#f8fafc"
+                    color: Theme.value
                     font.pixelSize: 14
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true

@@ -69,10 +69,10 @@ Rectangle {
 
     implicitWidth: 292
     implicitHeight: 250
-    radius: 18
-    color: "#0f1726"
-    border.color: "#26364d"
-    border.width: 1
+    radius: Theme.panelRadius
+    color: Theme.panel
+    border.color: Theme.panelBorder
+    border.width: Theme.panelBorderWidth
 
     ColumnLayout {
         anchors.fill: parent
@@ -83,37 +83,11 @@ Rectangle {
             Layout.fillWidth: true
             spacing: 8
 
-            ColumnLayout {
+            PanelHeader {
                 Layout.fillWidth: true
-                spacing: 2
-
-                Text {
-                    text: root.title
-                    color: "#e2e8f0"
-                    font.pixelSize: 18
-                    font.bold: true
-                    elide: Text.ElideRight
-                    Layout.fillWidth: true
-                }
-
-                Text {
-                    text: root.subtitle
-                    color: "#7d90aa"
-                    font.pixelSize: 11
-                    visible: root.subtitle.length > 0
-                    elide: Text.ElideRight
-                    Layout.fillWidth: true
-                }
-            }
-
-            Text {
-                text: root.effectiveTemperature
-                visible: root.effectiveTemperature.length > 0
-                color: "#f8fafc"
-                font.pixelSize: 16
-                font.bold: true
-                Layout.alignment: Qt.AlignVCenter
-                horizontalAlignment: Text.AlignRight
+                title: root.title
+                subtitle: root.subtitle
+                detail: root.effectiveTemperature
             }
         }
 

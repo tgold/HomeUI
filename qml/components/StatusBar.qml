@@ -69,7 +69,7 @@ Rectangle {
 
             Text {
                 text: root.section
-                color: "#8fa4bf"
+                color: Theme.subtle
                 font.pixelSize: 12
                 font.bold: true
             }

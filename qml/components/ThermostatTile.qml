@@ -41,10 +41,10 @@ Rectangle {
 
     implicitWidth: 160
     implicitHeight: 108
-    radius: 12
-    color: "#172235"
-    border.color: "#304158"
-    border.width: 1
+    radius: Theme.tileRadius
+    color: Theme.tileFill(false)
+    border.color: Theme.tileStroke(false, "#38bdf8")
+    border.width: Theme.tileBorderWidth
 
     ColumnLayout {
         anchors.fill: parent
@@ -56,7 +56,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Thermostat"
-                color: "#cbd5e1"
+                color: Theme.label
                 font.pixelSize: 12
                 elide: Text.ElideRight
                 Layout.fillWidth: true
@@ -64,7 +64,7 @@ Rectangle {
 
             Text {
                 text: root.currentValue.length > 0 ? Fmt.temperature(root.currentValue) : ""
-                color: "#94a3b8"
+                color: Theme.muted
                 font.pixelSize: 11
             }
         }

@@ -78,10 +78,10 @@ Rectangle {
 
     implicitWidth: 200
     implicitHeight: contentLayout.implicitHeight + 2 * Fmt.tileMargin
-    radius: 12
-    color: isActive ? "#26364d" : "#172235"
-    border.color: isActive ? accent : "#304158"
-    border.width: 1
+    radius: Theme.tileRadius
+    color: Theme.tileFill(isActive)
+    border.color: Theme.tileStroke(isActive, accent)
+    border.width: Theme.tileBorderWidth
     clip: true
 
     ColumnLayout {
@@ -111,7 +111,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Licht"
-                color: "#cbd5e1"
+                color: Theme.label
                 font.pixelSize: 11
                 font.bold: true
                 elide: Text.ElideRight
@@ -120,7 +120,7 @@ Rectangle {
 
             Text {
                 text: Math.round(root.currentValue) + "%"
-                color: "#f8fafc"
+                color: Theme.value
                 font.pixelSize: 11
                 font.bold: true
             }
@@ -133,7 +133,7 @@ Rectangle {
 
             Text {
                 text: "Kalt"
-                color: "#94a3b8"
+                color: Theme.muted
                 font.pixelSize: 9
                 font.bold: true
             }
@@ -164,7 +164,7 @@ Rectangle {
                                           / Math.max(1, root.temperatureMax - root.temperatureMin))
                                          * parent.width - width / 2))
                     color: "transparent"
-                    border.color: "#f8fafc"
+                    border.color: Theme.value
                     border.width: 2
                     radius: 3
                 }
@@ -197,7 +197,7 @@ Rectangle {
 
             Text {
                 text: "Warm"
-                color: "#94a3b8"
+                color: Theme.muted
                 font.pixelSize: 9
                 font.bold: true
             }

@@ -7,21 +7,19 @@ Rectangle {
 
     implicitWidth: 292
     implicitHeight: 210
-    radius: 18
-    color: "#0f1726"
-    border.color: "#26364d"
-    border.width: 1
+    radius: Theme.panelRadius
+    color: Theme.panel
+    border.color: Theme.panelBorder
+    border.width: Theme.panelBorderWidth
 
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: Fmt.panelMargin
         spacing: Fmt.panelSpacing
 
-        Text {
-            text: "Betrieb"
-            color: "#e2e8f0"
-            font.pixelSize: 18
-            font.bold: true
+        PanelHeader {
+            Layout.fillWidth: true
+            title: "Betrieb"
         }
 
         RowLayout {

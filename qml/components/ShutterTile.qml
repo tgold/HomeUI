@@ -85,10 +85,10 @@ Rectangle {
 
     implicitWidth: 160
     implicitHeight: contentLayout.implicitHeight + 2 * Fmt.tileMargin
-    radius: 12
-    color: isClosed ? "#26364d" : "#172235"
-    border.color: isClosed ? accent : "#304158"
-    border.width: 1
+    radius: Theme.tileRadius
+    color: Theme.tileFill(isClosed)
+    border.color: Theme.tileStroke(isClosed, accent)
+    border.width: Theme.tileBorderWidth
     clip: true
 
     ColumnLayout {
@@ -103,7 +103,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Rollo"
-                color: "#cbd5e1"
+                color: Theme.label
                 font.pixelSize: 11
                 font.bold: true
                 elide: Text.ElideRight
@@ -112,7 +112,7 @@ Rectangle {
 
             Text {
                 text: root.positionLabel()
-                color: "#94a3b8"
+                color: Theme.muted
                 font.pixelSize: 10
                 Layout.alignment: Qt.AlignVCenter
             }
@@ -137,15 +137,19 @@ Rectangle {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: root.buttonHeight
-                    radius: 8
-                    color: movePress.pressed ? root.accent : "#1f2d44"
-                    border.color: "#304158"
-                    border.width: 1
+                    radius: Theme.lcars ? 16 : 8
+                    color: Theme.lcars
+                           ? (movePress.pressed ? "#FFCC66" : "#000000")
+                           : (movePress.pressed ? root.accent : "#1f2d44")
+                    border.color: Theme.lcars ? "#FFCC66" : "#304158"
+                    border.width: Theme.lcars ? 2 : 1
 
                     Text {
                         anchors.centerIn: parent
                         text: modelData.icon
-                        color: movePress.pressed ? "#111827" : "#e2e8f0"
+                        color: Theme.lcars
+                               ? (movePress.pressed ? "#000000" : "#FFCC66")
+                               : (movePress.pressed ? "#111827" : "#e2e8f0")
                         font.pixelSize: 14
                         font.bold: true
                     }
@@ -178,10 +182,12 @@ Rectangle {
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: root.buttonHeight
-                    radius: 6
-                    color: sceneActive ? root.accent : "#0f1726"
-                    border.color: sceneActive ? root.accent : "#304158"
-                    border.width: 1
+                    radius: Theme.lcars ? 14 : 6
+                    color: Theme.lcars
+                           ? (sceneActive ? "#99CCFF" : "#000000")
+                           : (sceneActive ? root.accent : "#0f1726")
+                    border.color: Theme.lcars ? "#99CCFF" : (sceneActive ? root.accent : "#304158")
+                    border.width: Theme.lcars && sceneActive ? 0 : 1
 
                     Text {
                         anchors.centerIn: parent
@@ -189,7 +195,9 @@ Rectangle {
                         text: parent.opt && parent.opt.label !== undefined
                               ? parent.opt.label
                               : (parent.opt ? parent.opt.value : "")
-                        color: parent.sceneActive ? "#111827" : "#cbd5e1"
+                        color: Theme.lcars
+                               ? (parent.sceneActive ? "#000000" : "#99CCFF")
+                               : (parent.sceneActive ? "#111827" : Theme.label)
                         font.pixelSize: 10
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter

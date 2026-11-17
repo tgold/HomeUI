@@ -187,6 +187,8 @@ HOMEUI_CONFIG=/path/to/dashboard.json ./build-gcc/homeui
 
 See `docs/dashboard-config.md` for the schema and examples.
 
+Set `"theme": "lcars"` for the Star Trek LCARS skin, or `"theme": "default"` for the original dark panels. Optional `"title"` is the LCARS masthead (`HOME OPERATIONS` when omitted).
+
 ### Web layout editor
 
 For rearranging panels and schematic overlay positions from your dev PC, use the standalone editor in `editor/`:

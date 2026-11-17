@@ -73,10 +73,10 @@ Rectangle {
 
     implicitWidth: 200
     implicitHeight: 80
-    radius: 12
-    color: "#172235"
-    border.color: "#304158"
-    border.width: 1
+    radius: Theme.tileRadius
+    color: Theme.tileFill(false)
+    border.color: Theme.tileStroke(false, "#38bdf8")
+    border.width: Theme.tileBorderWidth
 
     ColumnLayout {
         anchors.fill: parent
@@ -85,7 +85,7 @@ Rectangle {
 
         Text {
             text: root.control.label || "Modus"
-            color: "#cbd5e1"
+            color: Theme.label
             font.pixelSize: 12
             elide: Text.ElideRight
             Layout.fillWidth: true
@@ -102,16 +102,17 @@ Rectangle {
             displayText: root.currentLabel.length > 0 ? root.currentLabel : "—"
 
             background: Rectangle {
-                radius: 6
-                color: "#0f1726"
-                border.color: "#304158"
+                radius: Theme.lcars ? 14 : 6
+                color: Theme.lcars ? "#000000" : "#0f1726"
+                border.color: Theme.lcars ? "#FFCC66" : "#304158"
+                border.width: Theme.lcars ? 2 : 1
             }
 
             contentItem: Text {
                 leftPadding: 8
                 rightPadding: comboBox.indicator.width + comboBox.spacing
                 text: comboBox.displayText
-                color: "#f8fafc"
+                color: Theme.value
                 font.pixelSize: 12
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
@@ -121,7 +122,7 @@ Rectangle {
                 x: comboBox.width - width - 8
                 y: comboBox.topPadding + (comboBox.availableHeight - height) / 2
                 text: "▾"
-                color: "#94a3b8"
+                color: Theme.muted
                 font.pixelSize: 10
             }
 

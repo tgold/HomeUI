@@ -15,10 +15,10 @@ Rectangle {
 
     implicitWidth: 140
     implicitHeight: 76
-    radius: 12
-    color: pressed ? root.accent : "#172235"
-    border.color: pressed ? "#f8fafc" : root.accent
-    border.width: 1
+    radius: Theme.lcars ? 28 : 12
+    color: pressed ? root.accent : Theme.tileFill(false)
+    border.color: Theme.lcars ? root.accent : (pressed ? "#f8fafc" : root.accent)
+    border.width: Theme.tileBorderWidth
 
     MouseArea {
         id: pressArea

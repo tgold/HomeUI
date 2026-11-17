@@ -46,10 +46,10 @@ Rectangle {
 
     implicitWidth: Math.max(140, options.length * 72 + 20)
     implicitHeight: contentColumn.implicitHeight + 2 * contentColumn.anchors.margins
-    radius: 12
-    color: "#172235"
-    border.color: "#304158"
-    border.width: 1
+    radius: Theme.tileRadius
+    color: Theme.tileFill(false)
+    border.color: Theme.tileStroke(false, accent)
+    border.width: Theme.tileBorderWidth
 
     ColumnLayout {
         id: contentColumn
@@ -59,7 +59,7 @@ Rectangle {
 
         Text {
             text: root.control.label || "Auswahl"
-            color: "#cbd5e1"
+            color: Theme.label
             font.pixelSize: 11
             font.bold: true
             elide: Text.ElideRight
@@ -80,15 +80,19 @@ Rectangle {
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: root.buttonHeight
-                    radius: 8
-                    color: active ? root.accent : "#0f1726"
-                    border.color: active ? root.accent : "#304158"
-                    border.width: 1
+                    radius: Theme.lcars ? 16 : 8
+                    color: Theme.lcars
+                           ? (active ? "#FFCC66" : "#000000")
+                           : (active ? root.accent : "#0f1726")
+                    border.color: Theme.lcars ? "#FFCC66" : (active ? root.accent : "#304158")
+                    border.width: Theme.lcars && active ? 0 : 1
 
                     Text {
                         anchors.centerIn: parent
                         text: btn.opt && btn.opt.label !== undefined ? btn.opt.label : (btn.opt ? btn.opt.value : "")
-                        color: btn.active ? "#111827" : "#cbd5e1"
+                        color: Theme.lcars
+                               ? (btn.active ? "#000000" : "#FFCC66")
+                               : (btn.active ? "#111827" : "#cbd5e1")
                         font.pixelSize: 12
                         font.bold: true
                     }

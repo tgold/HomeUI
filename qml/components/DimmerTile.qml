@@ -59,10 +59,10 @@ Rectangle {
 
     implicitWidth: 160
     implicitHeight: contentLayout.implicitHeight + 2 * Fmt.tileMargin
-    radius: 12
-    color: isActive ? "#26364d" : "#172235"
-    border.color: isActive ? accent : "#304158"
-    border.width: 1
+    radius: Theme.tileRadius
+    color: Theme.tileFill(isActive)
+    border.color: Theme.tileStroke(isActive, accent)
+    border.width: Theme.tileBorderWidth
     clip: true
 
     ColumnLayout {
@@ -92,7 +92,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Dimmer"
-                color: "#cbd5e1"
+                color: Theme.label
                 font.pixelSize: 11
                 font.bold: true
                 elide: Text.ElideRight
@@ -101,7 +101,7 @@ Rectangle {
 
             Text {
                 text: root.formatDisplayValue(root.currentValue)
-                color: "#f8fafc"
+                color: Theme.value
                 font.pixelSize: 11
                 font.bold: true
             }

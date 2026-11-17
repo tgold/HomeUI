@@ -30,10 +30,10 @@ Rectangle {
 
     implicitWidth: 420
     implicitHeight: 260
-    radius: 18
-    color: "#0f1726"
-    border.color: "#26364d"
-    border.width: 1
+    radius: Theme.panelRadius
+    color: Theme.panel
+    border.color: Theme.panelBorder
+    border.width: Theme.panelBorderWidth
     clip: true
 
     ColumnLayout {
@@ -44,21 +44,10 @@ Rectangle {
         RowLayout {
             Layout.fillWidth: true
 
-            Text {
-                text: root.title
-                color: "#e2e8f0"
-                font.pixelSize: 18
-                font.bold: true
+            PanelHeader {
                 Layout.fillWidth: true
-                elide: Text.ElideRight
-            }
-
-            Text {
-                text: root.location
-                color: "#8fa4bf"
-                font.pixelSize: 12
-                visible: root.location.length > 0
-                elide: Text.ElideRight
+                title: root.title
+                detail: root.location
             }
         }
 
@@ -144,8 +133,8 @@ Rectangle {
                     y: parent.height * 0.22
                     width: parent.width * 0.24
                     height: parent.height * 0.22
-                    color: "#e2e8f0"
-                    border.color: "#94a3b8"
+                    color: Theme.text
+                    border.color: Theme.muted
                 }
 
                 Rectangle {
@@ -153,8 +142,8 @@ Rectangle {
                     y: parent.height * 0.18
                     width: parent.width * 0.28
                     height: parent.height * 0.26
-                    color: "#f8fafc"
-                    border.color: "#94a3b8"
+                    color: Theme.value
+                    border.color: Theme.muted
                 }
 
                 Rectangle {

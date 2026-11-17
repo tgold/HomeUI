@@ -96,10 +96,10 @@ Rectangle {
     // ---- Visual styling ----------------------------------------------------
     implicitWidth: 420
     implicitHeight: 280
-    radius: 18
-    color: "#0f1726"
-    border.color: "#26364d"
-    border.width: 1
+    radius: Theme.panelRadius
+    color: Theme.panel
+    border.color: Theme.panelBorder
+    border.width: Theme.panelBorderWidth
     clip: true
 
     onWidthChanged: if (root.active) resizeDebounce.restart()
@@ -149,20 +149,10 @@ Rectangle {
         RowLayout {
             Layout.fillWidth: true
 
-            Text {
-                text: root.title
-                color: "#e2e8f0"
-                font.pixelSize: 18
-                font.bold: true
+            PanelHeader {
                 Layout.fillWidth: true
-                elide: Text.ElideRight
-            }
-
-            Text {
-                text: "Panel " + root.panelId
-                color: "#8fa4bf"
-                font.pixelSize: 11
-                visible: !root._missingConfig
+                title: root.title
+                detail: root._missingConfig ? "" : ("Panel " + root.panelId)
             }
         }
 
@@ -197,7 +187,7 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: "Lade Grafana..."
-                    color: "#cbd5e1"
+                    color: Theme.label
                     font.pixelSize: 13
                 }
             }

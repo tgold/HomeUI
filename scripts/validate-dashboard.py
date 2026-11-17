@@ -206,6 +206,12 @@ def validate_page(page: dict, page_path: str, errors: list[str]) -> None:
 
 def validate_config(config: dict) -> list[str]:
     errors: list[str] = []
+    theme = config.get("theme", "default")
+    if not isinstance(theme, str) or theme.strip().lower() not in ("", "default", "lcars"):
+        errors.append("'theme' must be \"default\" or \"lcars\"")
+    title = config.get("title")
+    if title is not None and not isinstance(title, str):
+        errors.append("'title' must be a string")
     pages = config.get("pages")
     if not isinstance(pages, list) or not pages:
         errors.append("'pages' must be a non-empty array of page objects")

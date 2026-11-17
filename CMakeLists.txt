@@ -78,7 +78,10 @@ set(_homeui_qml_module_args
     VERSION 1.0
     QML_FILES
         qml/Main.qml
+        qml/Theme.qml
         qml/components/ConfiguredPage.qml
+        qml/components/LcarsChrome.qml
+        qml/components/PanelHeader.qml
         qml/components/ConfiguredPanel.qml
         qml/components/CameraTile.qml
         qml/components/ColorTile.qml
@@ -110,10 +113,12 @@ set(_homeui_qml_module_args
     RESOURCES
         assets/irrigation-floorplan.png
         assets/heat-pump-schematic.png
+        assets/fonts/Antonio-Bold.ttf
 )
 if(HOMEUI_NO_QML_CACHEGEN)
     list(APPEND _homeui_qml_module_args NO_CACHEGEN)
 endif()
+set_source_files_properties(qml/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 qt_add_qml_module(homeui ${_homeui_qml_module_args})
 
 target_include_directories(homeui

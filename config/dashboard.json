@@ -1,4 +1,6 @@
 {
+  "theme": "lcars",
+  "title": "HOME OPERATIONS",
   "pages": [
     {
       "id": "uebersicht",

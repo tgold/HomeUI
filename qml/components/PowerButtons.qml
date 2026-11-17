@@ -32,15 +32,15 @@ RowLayout {
     Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: root.buttonHeight
-        radius: 8
-        color: root.powerOn ? root.accent : "#0f1726"
-        border.color: root.powerOn ? root.accent : "#304158"
-        border.width: 1
+        radius: Theme.lcars ? 18 : 8
+        color: Theme.lcars ? (root.powerOn ? "#FFCC66" : "#000000") : (root.powerOn ? root.accent : "#0f1726")
+        border.color: Theme.lcars ? "#FFCC66" : (root.powerOn ? root.accent : "#304158")
+        border.width: Theme.lcars && root.powerOn ? 0 : 1
 
         Text {
             anchors.centerIn: parent
             text: "ON"
-            color: root.powerOn ? "#111827" : "#cbd5e1"
+            color: Theme.lcars ? (root.powerOn ? "#000000" : "#FFCC66") : (root.powerOn ? "#111827" : "#cbd5e1")
             font.pixelSize: 12
             font.bold: true
         }
@@ -55,15 +55,15 @@ RowLayout {
     Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: root.buttonHeight
-        radius: 8
-        color: !root.powerOn ? "#334155" : "#0f1726"
-        border.color: !root.powerOn ? "#64748b" : "#304158"
-        border.width: 1
+        radius: Theme.lcars ? 18 : 8
+        color: Theme.lcars ? (!root.powerOn ? "#CC99CC" : "#000000") : (!root.powerOn ? "#334155" : "#0f1726")
+        border.color: Theme.lcars ? "#CC99CC" : (!root.powerOn ? "#64748b" : "#304158")
+        border.width: Theme.lcars && !root.powerOn ? 0 : 1
 
         Text {
             anchors.centerIn: parent
             text: "OFF"
-            color: !root.powerOn ? "#f8fafc" : "#cbd5e1"
+            color: Theme.lcars ? (!root.powerOn ? "#000000" : "#CC99CC") : (!root.powerOn ? "#f8fafc" : "#cbd5e1")
             font.pixelSize: 12
             font.bold: true
         }

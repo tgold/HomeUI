@@ -269,10 +269,10 @@ Rectangle {
 
     implicitWidth: 292
     implicitHeight: contentColumn.implicitHeight + 2 * contentColumn.anchors.margins
-    radius: 18
-    color: "#0f1726"
-    border.color: "#26364d"
-    border.width: 1
+    radius: Theme.panelRadius
+    color: Theme.panel
+    border.color: Theme.panelBorder
+    border.width: Theme.panelBorderWidth
 
     ColumnLayout {
         id: contentColumn
@@ -280,29 +280,10 @@ Rectangle {
         anchors.margins: Fmt.panelMargin
         spacing: Fmt.panelSpacing
 
-        RowLayout {
+        PanelHeader {
             Layout.fillWidth: true
-            spacing: 12
-
-            Text {
-                text: root.title
-                color: "#e2e8f0"
-                font.pixelSize: 18
-                font.bold: true
-                elide: Text.ElideRight
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            Text {
-                text: root.headerTemperatureText
-                visible: root.headerTemperatureText.length > 0
-                color: "#f8fafc"
-                font.pixelSize: 16
-                font.bold: true
-                Layout.alignment: Qt.AlignVCenter
-                horizontalAlignment: Text.AlignRight
-            }
+            title: root.title
+            detail: root.headerTemperatureText
         }
 
         GridLayout {

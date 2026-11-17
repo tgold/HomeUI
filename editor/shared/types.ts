@@ -44,7 +44,11 @@ export interface DashboardPage {
   panels?: DashboardPanel[];
 }
 
+export type DashboardTheme = "default" | "lcars";
+
 export interface DashboardConfig {
+  theme?: DashboardTheme;
+  title?: string;
   pages: DashboardPage[];
 }
 

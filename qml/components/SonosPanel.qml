@@ -307,10 +307,10 @@ Rectangle {
 
     implicitWidth: 480
     implicitHeight: contentLayout.implicitHeight + 2 * contentLayout.anchors.margins
-    radius: 18
-    color: "#0f1726"
-    border.color: "#26364d"
-    border.width: 1
+    radius: Theme.panelRadius
+    color: Theme.panel
+    border.color: Theme.panelBorder
+    border.width: Theme.panelBorderWidth
 
     Component.onCompleted: {
         if (usingDirectSonos && sonosClient) {
@@ -362,13 +362,9 @@ Rectangle {
             Layout.fillWidth: true
             Layout.columnSpan: root.compactLayout ? 2 : 1
             spacing: 10
-            Text {
-                text: root.title
-                color: "#e2e8f0"
-                font.pixelSize: 18
-                font.bold: true
+            PanelHeader {
                 Layout.fillWidth: true
-                elide: Text.ElideRight
+                title: root.title
             }
             Rectangle {
                 Layout.preferredWidth: 10
@@ -380,7 +376,7 @@ Rectangle {
             Text {
                 text: root.stateText
                 visible: root.stateText.length > 0
-                color: "#94a3b8"
+                color: Theme.muted
                 font.pixelSize: 11
             }
         }
@@ -471,7 +467,7 @@ Rectangle {
                 Text {
                     text: root.nowPlayingSongTitle()
                     visible: text.length > 0
-                    color: "#f8fafc"
+                    color: Theme.value
                     font.pixelSize: 13
                     font.bold: true
                     Layout.fillWidth: true
@@ -482,7 +478,7 @@ Rectangle {
                 Text {
                     text: root.nowPlayingSongArtist()
                     visible: text.length > 0
-                    color: "#cbd5e1"
+                    color: Theme.label
                     font.pixelSize: 12
                     Layout.fillWidth: true
                     elide: Text.ElideRight
@@ -490,7 +486,7 @@ Rectangle {
                 Text {
                     text: root.nowPlayingAlbumLine()
                     visible: text.length > 0
-                    color: "#94a3b8"
+                    color: Theme.muted
                     font.pixelSize: 11
                     Layout.fillWidth: true
                     elide: Text.ElideRight
@@ -551,7 +547,7 @@ Rectangle {
 
                 Text {
                     text: "VOL"
-                    color: "#94a3b8"
+                    color: Theme.muted
                     font.pixelSize: 11
                     font.bold: true
                 }
@@ -571,7 +567,7 @@ Rectangle {
                 }
                 Text {
                     text: Math.round(root.volumeValue) + "%"
-                    color: "#f8fafc"
+                    color: Theme.value
                     font.pixelSize: 13
                     font.bold: true
                     horizontalAlignment: Text.AlignRight

@@ -12,6 +12,8 @@ class DashboardConfig : public QObject
     Q_PROPERTY(bool valid READ valid NOTIFY validChanged)
     Q_PROPERTY(QString errorText READ errorText NOTIFY errorTextChanged)
     Q_PROPERTY(QVariantList pages READ pages NOTIFY pagesChanged)
+    Q_PROPERTY(QString theme READ theme NOTIFY themeChanged)
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(int revision READ revision NOTIFY revisionChanged)
     Q_PROPERTY(bool watching READ watching WRITE setWatching NOTIFY watchingChanged)
 
@@ -24,6 +26,8 @@ public:
     bool valid() const;
     QString errorText() const;
     QVariantList pages() const;
+    QString theme() const;
+    QString title() const;
     int revision() const;
     bool watching() const;
     void setWatching(bool watching);
@@ -36,6 +40,8 @@ signals:
     void validChanged();
     void errorTextChanged();
     void pagesChanged();
+    void themeChanged();
+    void titleChanged();
     void revisionChanged();
     void watchingChanged();
     void configFileChanged();
@@ -47,6 +53,8 @@ private:
     void setValid(bool valid);
     void setErrorText(const QString &errorText);
     void setPages(const QVariantList &pages);
+    void setTheme(const QString &theme);
+    void setTitle(const QString &title);
     void refreshWatchedPath();
     void onPathChanged(const QString &path);
 
@@ -54,6 +62,8 @@ private:
     bool m_valid = false;
     QString m_errorText;
     QVariantList m_pages;
+    QString m_theme = QStringLiteral("default");
+    QString m_title;
     int m_revision = 0;
     bool m_watching = false;
 

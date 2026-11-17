@@ -140,10 +140,10 @@ Rectangle {
 
     implicitWidth: 160
     implicitHeight: 78
-    radius: 12
-    color: "#172235"
-    border.color: "#304158"
-    border.width: 1
+    radius: Theme.tileRadius
+    color: Theme.tileFill(false)
+    border.color: Theme.tileStroke(false, accent)
+    border.width: Theme.tileBorderWidth
 
     ColumnLayout {
         anchors.fill: parent
@@ -156,7 +156,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Wert"
-                color: "#cbd5e1"
+                color: Theme.label
                 font.pixelSize: 12
                 elide: Text.ElideRight
                 Layout.fillWidth: true
@@ -169,7 +169,7 @@ Rectangle {
                     }
                     return root._formattedValue()
                 }
-                color: "#f8fafc"
+                color: Theme.value
                 font.pixelSize: 14
                 font.bold: true
             }
@@ -178,9 +178,9 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: root.footerText.length > 0 ? 22 : 10
-            radius: 5
-            color: "#0b1322"
-            border.color: "#26364d"
+            radius: Theme.lcars ? 8 : 5
+            color: Theme.lcars ? "#1A1208" : "#0b1322"
+            border.color: Theme.lcars ? "#FF9966" : "#26364d"
             border.width: 1
             clip: true
 
@@ -200,7 +200,7 @@ Rectangle {
                 anchors.rightMargin: 6
                 text: root.footerText
                 visible: root.footerText.length > 0
-                color: "#e2e8f0"
+                color: Theme.text
                 font.pixelSize: 11
                 font.bold: true
             }

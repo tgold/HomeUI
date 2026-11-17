@@ -11,6 +11,7 @@
 #include <QLoggingCategory>
 #include <QProcessEnvironment>
 #include <QStringList>
+#include <QMetaType>
 #include <QVariantMap>
 
 namespace {
@@ -209,6 +210,16 @@ QVariantList DashboardConfig::pages() const
     return m_pages;
 }
 
+QString DashboardConfig::theme() const
+{
+    return m_theme;
+}
+
+QString DashboardConfig::title() const
+{
+    return m_title;
+}
+
 int DashboardConfig::revision() const
 {
     return m_revision;
@@ -253,6 +264,8 @@ bool DashboardConfig::reload()
     QFile file(m_sourcePath);
     if (!file.open(QIODevice::ReadOnly)) {
         setPages({});
+        setTheme(QStringLiteral("default"));
+        setTitle({});
         setValid(false);
         setErrorText(QStringLiteral("Unable to open dashboard config '%1': %2").arg(m_sourcePath, file.errorString()));
         return false;
@@ -262,6 +275,8 @@ bool DashboardConfig::reload()
     const QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
     if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
         setPages({});
+        setTheme(QStringLiteral("default"));
+        setTitle({});
         setValid(false);
         setErrorText(QStringLiteral("Dashboard config '%1' is not valid JSON: %2").arg(m_sourcePath, parseError.errorString()));
         return false;
@@ -271,11 +286,16 @@ bool DashboardConfig::reload()
     QString validationError;
     if (!validateConfig(config, &validationError)) {
         setPages({});
+        setTheme(QStringLiteral("default"));
+        setTitle({});
         setValid(false);
         setErrorText(QStringLiteral("Dashboard config '%1' failed validation: %2").arg(m_sourcePath, validationError));
         return false;
     }
 
+    const QString theme = config.value(QStringLiteral("theme")).toString().trimmed().toLower();
+    setTheme(theme.isEmpty() ? QStringLiteral("default") : theme);
+    setTitle(config.value(QStringLiteral("title")).toString());
     setPages(config.value(QStringLiteral("pages")).toList());
     setValid(true);
     setErrorText({});
@@ -304,6 +324,20 @@ QString DashboardConfig::defaultConfigPath()
 
 bool DashboardConfig::validateConfig(const QVariantMap &config, QString *errorText) const
 {
+    if (config.contains(QStringLiteral("theme"))) {
+        const QString theme = config.value(QStringLiteral("theme")).toString().trimmed().toLower();
+        if (!theme.isEmpty() && theme != QLatin1String("default") && theme != QLatin1String("lcars")) {
+            *errorText = QStringLiteral("'theme' must be \"default\" or \"lcars\"");
+            return false;
+        }
+    }
+
+    if (config.contains(QStringLiteral("title"))
+        && config.value(QStringLiteral("title")).userType() != QMetaType::QString) {
+        *errorText = QStringLiteral("'title' must be a string");
+        return false;
+    }
+
     if (!hasObjectList(config, QStringLiteral("pages"))) {
         *errorText = QStringLiteral("'pages' must be a non-empty array of page objects");
         return false;
@@ -641,4 +675,24 @@ void DashboardConfig::setPages(const QVariantList &pages)
 {
     m_pages = pages;
     emit pagesChanged();
+}
+
+void DashboardConfig::setTheme(const QString &theme)
+{
+    if (m_theme == theme) {
+        return;
+    }
+
+    m_theme = theme;
+    emit themeChanged();
+}
+
+void DashboardConfig::setTitle(const QString &title)
+{
+    if (m_title == title) {
+        return;
+    }
+
+    m_title = title;
+    emit titleChanged();
 }
