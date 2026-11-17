@@ -30,10 +30,10 @@ Rectangle {
 
     implicitWidth: 420
     implicitHeight: 260
-    radius: Theme.panelRadius
-    color: Theme.panel
-    border.color: Theme.panelBorder
-    border.width: Theme.panelBorderWidth
+    radius: dashboardConfig.lcars ? 0 : 18
+    color: dashboardConfig.lcars ? "#000000" : "#0f1726"
+    border.color: dashboardConfig.lcars ? "#000000" : "#26364d"
+    border.width: dashboardConfig.lcars ? 0 : 1
     clip: true
 
     ColumnLayout {
@@ -133,8 +133,8 @@ Rectangle {
                     y: parent.height * 0.22
                     width: parent.width * 0.24
                     height: parent.height * 0.22
-                    color: Theme.text
-                    border.color: Theme.muted
+                    color: (dashboardConfig.lcars ? "#FFCC66" : "#e2e8f0")
+                    border.color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                 }
 
                 Rectangle {
@@ -142,8 +142,8 @@ Rectangle {
                     y: parent.height * 0.18
                     width: parent.width * 0.28
                     height: parent.height * 0.26
-                    color: Theme.value
-                    border.color: Theme.muted
+                    color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
+                    border.color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                 }
 
                 Rectangle {

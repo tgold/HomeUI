@@ -215,6 +215,11 @@ QString DashboardConfig::theme() const
     return m_theme;
 }
 
+bool DashboardConfig::lcars() const
+{
+    return m_theme == QLatin1String("lcars");
+}
+
 QString DashboardConfig::title() const
 {
     return m_title;

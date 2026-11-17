@@ -140,10 +140,10 @@ Rectangle {
 
     implicitWidth: 160
     implicitHeight: 78
-    radius: Theme.tileRadius
-    color: Theme.tileFill(false)
-    border.color: Theme.tileStroke(false, accent)
-    border.width: Theme.tileBorderWidth
+    radius: (dashboardConfig.lcars ? 18 : 12)
+    color: (dashboardConfig.lcars ? "#000000" : "#172235")
+    border.color: (dashboardConfig.lcars ? "#FF9966" : "#304158")
+    border.width: (dashboardConfig.lcars ? 2 : 1)
 
     ColumnLayout {
         anchors.fill: parent
@@ -156,7 +156,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Wert"
-                color: Theme.label
+                color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                 font.pixelSize: 12
                 elide: Text.ElideRight
                 Layout.fillWidth: true
@@ -169,7 +169,7 @@ Rectangle {
                     }
                     return root._formattedValue()
                 }
-                color: Theme.value
+                color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                 font.pixelSize: 14
                 font.bold: true
             }
@@ -178,9 +178,9 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: root.footerText.length > 0 ? 22 : 10
-            radius: Theme.lcars ? 8 : 5
-            color: Theme.lcars ? "#1A1208" : "#0b1322"
-            border.color: Theme.lcars ? "#FF9966" : "#26364d"
+            radius: dashboardConfig.lcars ? 8 : 5
+            color: dashboardConfig.lcars ? "#1A1208" : "#0b1322"
+            border.color: dashboardConfig.lcars ? "#FF9966" : "#26364d"
             border.width: 1
             clip: true
 
@@ -200,7 +200,7 @@ Rectangle {
                 anchors.rightMargin: 6
                 text: root.footerText
                 visible: root.footerText.length > 0
-                color: Theme.text
+                color: (dashboardConfig.lcars ? "#FFCC66" : "#e2e8f0")
                 font.pixelSize: 11
                 font.bold: true
             }

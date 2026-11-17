@@ -69,10 +69,10 @@ Rectangle {
 
     implicitWidth: 292
     implicitHeight: 250
-    radius: Theme.panelRadius
-    color: Theme.panel
-    border.color: Theme.panelBorder
-    border.width: Theme.panelBorderWidth
+    radius: dashboardConfig.lcars ? 0 : 18
+    color: dashboardConfig.lcars ? "#000000" : "#0f1726"
+    border.color: dashboardConfig.lcars ? "#000000" : "#26364d"
+    border.width: dashboardConfig.lcars ? 0 : 1
 
     ColumnLayout {
         anchors.fill: parent

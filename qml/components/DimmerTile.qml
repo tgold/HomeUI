@@ -59,10 +59,10 @@ Rectangle {
 
     implicitWidth: 160
     implicitHeight: contentLayout.implicitHeight + 2 * Fmt.tileMargin
-    radius: Theme.tileRadius
-    color: Theme.tileFill(isActive)
-    border.color: Theme.tileStroke(isActive, accent)
-    border.width: Theme.tileBorderWidth
+    radius: (dashboardConfig.lcars ? 18 : 12)
+    color: (dashboardConfig.lcars ? "#000000" : (isActive ? "#26364d" : "#172235"))
+    border.color: (dashboardConfig.lcars ? (isActive ? "#FFCC66" : "#FF9966") : (isActive ? accent : "#304158"))
+    border.width: (dashboardConfig.lcars ? 2 : 1)
     clip: true
 
     ColumnLayout {
@@ -92,7 +92,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Dimmer"
-                color: Theme.label
+                color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                 font.pixelSize: 11
                 font.bold: true
                 elide: Text.ElideRight
@@ -101,7 +101,7 @@ Rectangle {
 
             Text {
                 text: root.formatDisplayValue(root.currentValue)
-                color: Theme.value
+                color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                 font.pixelSize: 11
                 font.bold: true
             }

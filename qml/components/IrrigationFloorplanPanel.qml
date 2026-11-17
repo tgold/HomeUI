@@ -397,10 +397,10 @@ Rectangle {
 
     implicitWidth: 620
     implicitHeight: 520
-    radius: Theme.panelRadius
-    color: Theme.panel
-    border.color: Theme.panelBorder
-    border.width: Theme.panelBorderWidth
+    radius: dashboardConfig.lcars ? 0 : 18
+    color: dashboardConfig.lcars ? "#000000" : "#0f1726"
+    border.color: dashboardConfig.lcars ? "#000000" : "#26364d"
+    border.width: dashboardConfig.lcars ? 0 : 1
     clip: true
 
     ColumnLayout {
@@ -427,7 +427,7 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: "Programm: " + root.itemState(root.programItem, "OFF")
-                    color: Theme.text
+                    color: (dashboardConfig.lcars ? "#FFCC66" : "#e2e8f0")
                     font.pixelSize: 11
                     font.bold: true
                 }
@@ -521,7 +521,7 @@ Rectangle {
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.Wrap
                     text: root.resolvedImageSource
-                    color: Theme.muted
+                    color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                     font.pixelSize: 10
                 }
             }
@@ -548,7 +548,7 @@ Rectangle {
 
                         Text {
                             text: sensor.label || "Sensor"
-                            color: Theme.subtle
+                            color: (dashboardConfig.lcars ? "#FF9966" : "#8fa4bf")
                             font.pixelSize: 10
                             elide: Text.ElideRight
                             width: parent.width
@@ -561,7 +561,7 @@ Rectangle {
                                 decimals: sensor.decimals,
                                 scale: sensor.scale
                             })
-                            color: Theme.value
+                            color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                             font.pixelSize: 13
                             font.bold: true
                             elide: Text.ElideRight
@@ -694,7 +694,7 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: "Auto: " + root.itemState(root.autoIrrigationItem, "OFF")
-                    color: Theme.text
+                    color: (dashboardConfig.lcars ? "#FFCC66" : "#e2e8f0")
                     font.pixelSize: 11
                     font.bold: true
                 }
@@ -752,7 +752,7 @@ Rectangle {
                         x: daysBetweenCombo.width - width - 4
                         y: daysBetweenCombo.topPadding + (daysBetweenCombo.availableHeight - height) / 2
                         text: "▾"
-                        color: Theme.muted
+                        color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                         font.pixelSize: 10
                     }
 
@@ -783,7 +783,7 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 8
                     text: "Zuletzt: " + root.formatLastIrrigation(root.itemState(root.lastIrrigationItem, ""))
-                    color: Theme.label
+                    color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                     font.pixelSize: 11
                     font.bold: true
                     verticalAlignment: Text.AlignVCenter

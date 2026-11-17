@@ -351,7 +351,7 @@ ApplicationWindow {
 
                 Text {
                     text: "OpenHAB raw events (" + debugEventModel.count + ")"
-                    color: Theme.value
+                    color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                     font.pixelSize: 16
                     font.bold: true
                     Layout.fillWidth: true
@@ -366,7 +366,7 @@ ApplicationWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "Clear"
-                        color: Theme.text
+                        color: (dashboardConfig.lcars ? "#FFCC66" : "#e2e8f0")
                         font.pixelSize: 12
                         font.bold: true
                     }
@@ -406,7 +406,7 @@ ApplicationWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "Close"
-                        color: Theme.value
+                        color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                         font.pixelSize: 12
                         font.bold: true
                     }
@@ -450,7 +450,7 @@ ApplicationWindow {
                             anchors.top: parent.top
                             anchors.margins: 6
                             text: "[" + timestamp + "] " + payload
-                            color: Theme.label
+                            color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                             font.pixelSize: 12
                             font.family: "monospace"
                             font.capitalization: Font.MixedCase
@@ -498,7 +498,7 @@ ApplicationWindow {
 
                 Text {
                     text: "Doorbell"
-                    color: Theme.text
+                    color: (dashboardConfig.lcars ? "#FFCC66" : "#e2e8f0")
                     font.pixelSize: 18
                     font.bold: true
                     Layout.fillWidth: true
@@ -514,7 +514,7 @@ ApplicationWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "Close"
-                        color: Theme.value
+                        color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                         font.pixelSize: 12
                         font.bold: true
                     }
@@ -603,7 +603,7 @@ ApplicationWindow {
 
                 Text {
                     text: dashboardConfig.errorText
-                    color: Theme.value
+                    color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                     font.pixelSize: 14
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true

@@ -74,7 +74,7 @@ Rectangle {
 
         Text {
             text: root.label
-            color: Theme.muted
+            color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
             font.pixelSize: 10
             font.bold: true
             elide: Text.ElideRight

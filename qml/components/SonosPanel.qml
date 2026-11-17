@@ -307,10 +307,10 @@ Rectangle {
 
     implicitWidth: 480
     implicitHeight: contentLayout.implicitHeight + 2 * contentLayout.anchors.margins
-    radius: Theme.panelRadius
-    color: Theme.panel
-    border.color: Theme.panelBorder
-    border.width: Theme.panelBorderWidth
+    radius: dashboardConfig.lcars ? 0 : 18
+    color: dashboardConfig.lcars ? "#000000" : "#0f1726"
+    border.color: dashboardConfig.lcars ? "#000000" : "#26364d"
+    border.width: dashboardConfig.lcars ? 0 : 1
 
     Component.onCompleted: {
         if (usingDirectSonos && sonosClient) {
@@ -376,7 +376,7 @@ Rectangle {
             Text {
                 text: root.stateText
                 visible: root.stateText.length > 0
-                color: Theme.muted
+                color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                 font.pixelSize: 11
             }
         }
@@ -467,7 +467,7 @@ Rectangle {
                 Text {
                     text: root.nowPlayingSongTitle()
                     visible: text.length > 0
-                    color: Theme.value
+                    color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                     font.pixelSize: 13
                     font.bold: true
                     Layout.fillWidth: true
@@ -478,7 +478,7 @@ Rectangle {
                 Text {
                     text: root.nowPlayingSongArtist()
                     visible: text.length > 0
-                    color: Theme.label
+                    color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                     font.pixelSize: 12
                     Layout.fillWidth: true
                     elide: Text.ElideRight
@@ -486,7 +486,7 @@ Rectangle {
                 Text {
                     text: root.nowPlayingAlbumLine()
                     visible: text.length > 0
-                    color: Theme.muted
+                    color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                     font.pixelSize: 11
                     Layout.fillWidth: true
                     elide: Text.ElideRight
@@ -547,7 +547,7 @@ Rectangle {
 
                 Text {
                     text: "VOL"
-                    color: Theme.muted
+                    color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                     font.pixelSize: 11
                     font.bold: true
                 }
@@ -567,7 +567,7 @@ Rectangle {
                 }
                 Text {
                     text: Math.round(root.volumeValue) + "%"
-                    color: Theme.value
+                    color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                     font.pixelSize: 13
                     font.bold: true
                     horizontalAlignment: Text.AlignRight

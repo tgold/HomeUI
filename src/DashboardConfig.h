@@ -13,6 +13,7 @@ class DashboardConfig : public QObject
     Q_PROPERTY(QString errorText READ errorText NOTIFY errorTextChanged)
     Q_PROPERTY(QVariantList pages READ pages NOTIFY pagesChanged)
     Q_PROPERTY(QString theme READ theme NOTIFY themeChanged)
+    Q_PROPERTY(bool lcars READ lcars NOTIFY themeChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(int revision READ revision NOTIFY revisionChanged)
     Q_PROPERTY(bool watching READ watching WRITE setWatching NOTIFY watchingChanged)
@@ -27,6 +28,7 @@ public:
     QString errorText() const;
     QVariantList pages() const;
     QString theme() const;
+    bool lcars() const;
     QString title() const;
     int revision() const;
     bool watching() const;

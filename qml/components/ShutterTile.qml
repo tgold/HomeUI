@@ -85,10 +85,10 @@ Rectangle {
 
     implicitWidth: 160
     implicitHeight: contentLayout.implicitHeight + 2 * Fmt.tileMargin
-    radius: Theme.tileRadius
-    color: Theme.tileFill(isClosed)
-    border.color: Theme.tileStroke(isClosed, accent)
-    border.width: Theme.tileBorderWidth
+    radius: (dashboardConfig.lcars ? 18 : 12)
+    color: (dashboardConfig.lcars ? "#000000" : (isClosed ? "#26364d" : "#172235"))
+    border.color: (dashboardConfig.lcars ? (isClosed ? "#FFCC66" : "#FF9966") : (isClosed ? accent : "#304158"))
+    border.width: (dashboardConfig.lcars ? 2 : 1)
     clip: true
 
     ColumnLayout {
@@ -103,7 +103,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Rollo"
-                color: Theme.label
+                color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                 font.pixelSize: 11
                 font.bold: true
                 elide: Text.ElideRight
@@ -112,7 +112,7 @@ Rectangle {
 
             Text {
                 text: root.positionLabel()
-                color: Theme.muted
+                color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                 font.pixelSize: 10
                 Layout.alignment: Qt.AlignVCenter
             }
@@ -137,17 +137,17 @@ Rectangle {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: root.buttonHeight
-                    radius: Theme.lcars ? 16 : 8
-                    color: Theme.lcars
+                    radius: dashboardConfig.lcars ? 16 : 8
+                    color: dashboardConfig.lcars
                            ? (movePress.pressed ? "#FFCC66" : "#000000")
                            : (movePress.pressed ? root.accent : "#1f2d44")
-                    border.color: Theme.lcars ? "#FFCC66" : "#304158"
-                    border.width: Theme.lcars ? 2 : 1
+                    border.color: dashboardConfig.lcars ? "#FFCC66" : "#304158"
+                    border.width: dashboardConfig.lcars ? 2 : 1
 
                     Text {
                         anchors.centerIn: parent
                         text: modelData.icon
-                        color: Theme.lcars
+                        color: dashboardConfig.lcars
                                ? (movePress.pressed ? "#000000" : "#FFCC66")
                                : (movePress.pressed ? "#111827" : "#e2e8f0")
                         font.pixelSize: 14
@@ -182,12 +182,12 @@ Rectangle {
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: root.buttonHeight
-                    radius: Theme.lcars ? 14 : 6
-                    color: Theme.lcars
+                    radius: dashboardConfig.lcars ? 14 : 6
+                    color: dashboardConfig.lcars
                            ? (sceneActive ? "#99CCFF" : "#000000")
                            : (sceneActive ? root.accent : "#0f1726")
-                    border.color: Theme.lcars ? "#99CCFF" : (sceneActive ? root.accent : "#304158")
-                    border.width: Theme.lcars && sceneActive ? 0 : 1
+                    border.color: dashboardConfig.lcars ? "#99CCFF" : (sceneActive ? root.accent : "#304158")
+                    border.width: dashboardConfig.lcars && sceneActive ? 0 : 1
 
                     Text {
                         anchors.centerIn: parent
@@ -195,9 +195,9 @@ Rectangle {
                         text: parent.opt && parent.opt.label !== undefined
                               ? parent.opt.label
                               : (parent.opt ? parent.opt.value : "")
-                        color: Theme.lcars
+                        color: dashboardConfig.lcars
                                ? (parent.sceneActive ? "#000000" : "#99CCFF")
-                               : (parent.sceneActive ? "#111827" : Theme.label)
+                               : (parent.sceneActive ? "#111827" : (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1"))
                         font.pixelSize: 10
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter

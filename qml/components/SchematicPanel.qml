@@ -209,10 +209,10 @@ Rectangle {
 
     implicitWidth: 620
     implicitHeight: 420
-    radius: Theme.panelRadius
-    color: Theme.panel
-    border.color: Theme.panelBorder
-    border.width: Theme.panelBorderWidth
+    radius: dashboardConfig.lcars ? 0 : 18
+    color: dashboardConfig.lcars ? "#000000" : "#0f1726"
+    border.color: dashboardConfig.lcars ? "#000000" : "#26364d"
+    border.width: dashboardConfig.lcars ? 0 : 1
     clip: true
 
     ControlsPanel {
@@ -250,7 +250,7 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: root.hasImage ? "Bild-Overlay" : "Abstrakt"
-                    color: Theme.label
+                    color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                     font.pixelSize: 11
                     font.bold: true
                 }
@@ -555,7 +555,7 @@ Rectangle {
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.Wrap
                     text: root.resolvedImageSource
-                    color: Theme.muted
+                    color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                     font.pixelSize: 10
                 }
             }
@@ -639,7 +639,7 @@ Rectangle {
 
                             Text {
                                 text: labelData && labelData.label ? labelData.label : "Wert"
-                                color: Theme.subtle
+                                color: (dashboardConfig.lcars ? "#FF9966" : "#8fa4bf")
                                 font.pixelSize: 10
                                 elide: Text.ElideRight
                                 Layout.fillWidth: true
@@ -647,7 +647,7 @@ Rectangle {
 
                             Text {
                                 text: root.displayValue(labelData)
-                                color: Theme.value
+                                color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                                 font.pixelSize: root.numericValue(labelData, "fontSize", 13)
                                 font.bold: true
                                 elide: Text.ElideRight

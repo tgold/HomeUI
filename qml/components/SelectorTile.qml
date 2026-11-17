@@ -46,10 +46,10 @@ Rectangle {
 
     implicitWidth: Math.max(140, options.length * 72 + 20)
     implicitHeight: contentColumn.implicitHeight + 2 * contentColumn.anchors.margins
-    radius: Theme.tileRadius
-    color: Theme.tileFill(false)
-    border.color: Theme.tileStroke(false, accent)
-    border.width: Theme.tileBorderWidth
+    radius: (dashboardConfig.lcars ? 18 : 12)
+    color: (dashboardConfig.lcars ? "#000000" : "#172235")
+    border.color: (dashboardConfig.lcars ? "#FF9966" : "#304158")
+    border.width: (dashboardConfig.lcars ? 2 : 1)
 
     ColumnLayout {
         id: contentColumn
@@ -59,7 +59,7 @@ Rectangle {
 
         Text {
             text: root.control.label || "Auswahl"
-            color: Theme.label
+            color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
             font.pixelSize: 11
             font.bold: true
             elide: Text.ElideRight
@@ -80,17 +80,17 @@ Rectangle {
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: root.buttonHeight
-                    radius: Theme.lcars ? 16 : 8
-                    color: Theme.lcars
+                    radius: dashboardConfig.lcars ? 16 : 8
+                    color: dashboardConfig.lcars
                            ? (active ? "#FFCC66" : "#000000")
                            : (active ? root.accent : "#0f1726")
-                    border.color: Theme.lcars ? "#FFCC66" : (active ? root.accent : "#304158")
-                    border.width: Theme.lcars && active ? 0 : 1
+                    border.color: dashboardConfig.lcars ? "#FFCC66" : (active ? root.accent : "#304158")
+                    border.width: dashboardConfig.lcars && active ? 0 : 1
 
                     Text {
                         anchors.centerIn: parent
                         text: btn.opt && btn.opt.label !== undefined ? btn.opt.label : (btn.opt ? btn.opt.value : "")
-                        color: Theme.lcars
+                        color: dashboardConfig.lcars
                                ? (btn.active ? "#000000" : "#FFCC66")
                                : (btn.active ? "#111827" : "#cbd5e1")
                         font.pixelSize: 12

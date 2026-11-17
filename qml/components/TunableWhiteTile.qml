@@ -78,10 +78,10 @@ Rectangle {
 
     implicitWidth: 200
     implicitHeight: contentLayout.implicitHeight + 2 * Fmt.tileMargin
-    radius: Theme.tileRadius
-    color: Theme.tileFill(isActive)
-    border.color: Theme.tileStroke(isActive, accent)
-    border.width: Theme.tileBorderWidth
+    radius: (dashboardConfig.lcars ? 18 : 12)
+    color: (dashboardConfig.lcars ? "#000000" : (isActive ? "#26364d" : "#172235"))
+    border.color: (dashboardConfig.lcars ? (isActive ? "#FFCC66" : "#FF9966") : (isActive ? accent : "#304158"))
+    border.width: (dashboardConfig.lcars ? 2 : 1)
     clip: true
 
     ColumnLayout {
@@ -111,7 +111,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Licht"
-                color: Theme.label
+                color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                 font.pixelSize: 11
                 font.bold: true
                 elide: Text.ElideRight
@@ -120,7 +120,7 @@ Rectangle {
 
             Text {
                 text: Math.round(root.currentValue) + "%"
-                color: Theme.value
+                color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                 font.pixelSize: 11
                 font.bold: true
             }
@@ -133,7 +133,7 @@ Rectangle {
 
             Text {
                 text: "Kalt"
-                color: Theme.muted
+                color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                 font.pixelSize: 9
                 font.bold: true
             }
@@ -164,7 +164,7 @@ Rectangle {
                                           / Math.max(1, root.temperatureMax - root.temperatureMin))
                                          * parent.width - width / 2))
                     color: "transparent"
-                    border.color: Theme.value
+                    border.color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                     border.width: 2
                     radius: 3
                 }
@@ -197,7 +197,7 @@ Rectangle {
 
             Text {
                 text: "Warm"
-                color: Theme.muted
+                color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                 font.pixelSize: 9
                 font.bold: true
             }

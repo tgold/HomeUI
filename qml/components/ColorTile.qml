@@ -85,10 +85,10 @@ Rectangle {
 
     implicitWidth: 200
     implicitHeight: contentLayout.implicitHeight + 2 * Fmt.tileMargin
-    radius: Theme.tileRadius
-    color: Theme.tileFill(powerOn)
-    border.color: Theme.tileStroke(powerOn, currentColor)
-    border.width: Theme.tileBorderWidth
+    radius: (dashboardConfig.lcars ? 18 : 12)
+    color: (dashboardConfig.lcars ? "#000000" : (powerOn ? "#26364d" : "#172235"))
+    border.color: (dashboardConfig.lcars ? (powerOn ? "#FFCC66" : "#FF9966") : (powerOn ? currentColor : "#304158"))
+    border.width: (dashboardConfig.lcars ? 2 : 1)
     clip: true
 
     ColumnLayout {
@@ -120,7 +120,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Licht"
-                color: Theme.label
+                color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                 font.pixelSize: 11
                 font.bold: true
                 elide: Text.ElideRight
@@ -129,7 +129,7 @@ Rectangle {
 
             Text {
                 text: Math.round(root.brightness) + "%"
-                color: Theme.value
+                color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                 font.pixelSize: 11
                 font.bold: true
             }
@@ -140,7 +140,7 @@ Rectangle {
                 Layout.preferredHeight: 40
                 radius: width / 2
                 color: root.currentColor
-                border.color: Theme.value
+                border.color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                 border.width: 2
                 opacity: root.hasBinding ? 1 : 0.5
 
@@ -215,7 +215,7 @@ Rectangle {
 
                 Text {
                     text: (root.control.label || "Licht")
-                    color: Theme.value
+                    color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                     font.pixelSize: 20
                     font.bold: true
                     elide: Text.ElideRight
@@ -232,7 +232,7 @@ Rectangle {
                     Text {
                         anchors.centerIn: parent
                         text: "✕"
-                        color: Theme.value
+                        color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                         font.pixelSize: 18
                         font.bold: true
                     }
@@ -251,14 +251,14 @@ Rectangle {
                 Layout.preferredHeight: 104
                 radius: width / 2
                 color: root.colorForHue(root.popupHue)
-                border.color: Theme.value
+                border.color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                 border.width: 3
             }
 
             Text {
                 Layout.alignment: Qt.AlignHCenter
                 text: Math.round(root.popupHue) + "°"
-                color: Theme.label
+                color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                 font.pixelSize: 16
                 font.bold: true
             }
@@ -294,7 +294,7 @@ Rectangle {
                         return (Math.max(0, Math.min(360, root.popupHue)) / 360) * travel
                     }
                     color: root.colorForHue(root.popupHue)
-                    border.color: Theme.value
+                    border.color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                     border.width: 4
                 }
 

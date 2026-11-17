@@ -96,10 +96,10 @@ Rectangle {
     // ---- Visual styling ----------------------------------------------------
     implicitWidth: 420
     implicitHeight: 280
-    radius: Theme.panelRadius
-    color: Theme.panel
-    border.color: Theme.panelBorder
-    border.width: Theme.panelBorderWidth
+    radius: dashboardConfig.lcars ? 0 : 18
+    color: dashboardConfig.lcars ? "#000000" : "#0f1726"
+    border.color: dashboardConfig.lcars ? "#000000" : "#26364d"
+    border.width: dashboardConfig.lcars ? 0 : 1
     clip: true
 
     onWidthChanged: if (root.active) resizeDebounce.restart()
@@ -187,7 +187,7 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: "Lade Grafana..."
-                    color: Theme.label
+                    color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                     font.pixelSize: 13
                 }
             }

@@ -69,7 +69,7 @@ Rectangle {
 
             Text {
                 text: root.section
-                color: Theme.subtle
+                color: (dashboardConfig.lcars ? "#FF9966" : "#8fa4bf")
                 font.pixelSize: 12
                 font.bold: true
             }

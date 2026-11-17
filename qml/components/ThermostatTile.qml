@@ -41,10 +41,10 @@ Rectangle {
 
     implicitWidth: 160
     implicitHeight: 108
-    radius: Theme.tileRadius
-    color: Theme.tileFill(false)
-    border.color: Theme.tileStroke(false, "#38bdf8")
-    border.width: Theme.tileBorderWidth
+    radius: (dashboardConfig.lcars ? 18 : 12)
+    color: (dashboardConfig.lcars ? "#000000" : "#172235")
+    border.color: (dashboardConfig.lcars ? "#FF9966" : "#304158")
+    border.width: (dashboardConfig.lcars ? 2 : 1)
 
     ColumnLayout {
         anchors.fill: parent
@@ -56,7 +56,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Thermostat"
-                color: Theme.label
+                color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                 font.pixelSize: 12
                 elide: Text.ElideRight
                 Layout.fillWidth: true
@@ -64,7 +64,7 @@ Rectangle {
 
             Text {
                 text: root.currentValue.length > 0 ? Fmt.temperature(root.currentValue) : ""
-                color: Theme.muted
+                color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                 font.pixelSize: 11
             }
         }

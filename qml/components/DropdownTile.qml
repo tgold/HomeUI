@@ -73,10 +73,10 @@ Rectangle {
 
     implicitWidth: 200
     implicitHeight: 80
-    radius: Theme.tileRadius
-    color: Theme.tileFill(false)
-    border.color: Theme.tileStroke(false, "#38bdf8")
-    border.width: Theme.tileBorderWidth
+    radius: (dashboardConfig.lcars ? 18 : 12)
+    color: (dashboardConfig.lcars ? "#000000" : "#172235")
+    border.color: (dashboardConfig.lcars ? "#FF9966" : "#304158")
+    border.width: (dashboardConfig.lcars ? 2 : 1)
 
     ColumnLayout {
         anchors.fill: parent
@@ -85,7 +85,7 @@ Rectangle {
 
         Text {
             text: root.control.label || "Modus"
-            color: Theme.label
+            color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
             font.pixelSize: 12
             elide: Text.ElideRight
             Layout.fillWidth: true
@@ -102,17 +102,17 @@ Rectangle {
             displayText: root.currentLabel.length > 0 ? root.currentLabel : "—"
 
             background: Rectangle {
-                radius: Theme.lcars ? 14 : 6
-                color: Theme.lcars ? "#000000" : "#0f1726"
-                border.color: Theme.lcars ? "#FFCC66" : "#304158"
-                border.width: Theme.lcars ? 2 : 1
+                radius: dashboardConfig.lcars ? 14 : 6
+                color: dashboardConfig.lcars ? "#000000" : "#0f1726"
+                border.color: dashboardConfig.lcars ? "#FFCC66" : "#304158"
+                border.width: dashboardConfig.lcars ? 2 : 1
             }
 
             contentItem: Text {
                 leftPadding: 8
                 rightPadding: comboBox.indicator.width + comboBox.spacing
                 text: comboBox.displayText
-                color: Theme.value
+                color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                 font.pixelSize: 12
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
@@ -122,7 +122,7 @@ Rectangle {
                 x: comboBox.width - width - 8
                 y: comboBox.topPadding + (comboBox.availableHeight - height) / 2
                 text: "▾"
-                color: Theme.muted
+                color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                 font.pixelSize: 10
             }
 

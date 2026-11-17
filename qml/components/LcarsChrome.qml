@@ -145,7 +145,7 @@ Item {
         y: 42
         width: parent.width - root.contentLeft - 16
         text: "STARDATE " + root.stardate() + "   ·   " + Qt.formatDate(root.now, "dddd d MMMM yyyy")
-        color: Theme.data
+        color: (dashboardConfig.lcars ? "#99CCFF" : "#f8fafc")
         font.pixelSize: 13
         font.bold: true
         font.family: Theme.fontFamily
@@ -170,7 +170,7 @@ Item {
         height: 22
         radius: 11
         width: Math.max(80, parent.width - root.contentLeft - endCaps.width - 22)
-        color: Theme.barColor(root.pageIndex)
+        color: root.segmentColor(root.pageIndex)
 
         Text {
             anchors.left: parent.left
@@ -179,7 +179,7 @@ Item {
             anchors.leftMargin: 14
             anchors.rightMargin: 12
             text: root.section
-            color: Theme.onShape
+            color: "#000000"
             font.pixelSize: 13
             font.bold: true
             font.family: Theme.fontFamily
@@ -219,7 +219,7 @@ Item {
                     id: capLabel
                     anchors.centerIn: parent
                     text: modelData ? modelData.label : ""
-                    color: Theme.onShape
+                    color: "#000000"
                     font.pixelSize: 11
                     font.bold: true
                     font.family: Theme.fontFamily
@@ -237,7 +237,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: "LOG"
-                color: Theme.onShape
+                color: "#000000"
                 font.pixelSize: 11
                 font.bold: true
                 font.family: Theme.fontFamily

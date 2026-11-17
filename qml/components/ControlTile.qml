@@ -17,10 +17,10 @@ Rectangle {
 
     implicitWidth: 132
     implicitHeight: 76
-    radius: Theme.tileRadius
-    color: Theme.tileFill(active)
-    border.color: Theme.tileStroke(active, accentColor)
-    border.width: Theme.tileBorderWidth
+    radius: (dashboardConfig.lcars ? 18 : 12)
+    color: (dashboardConfig.lcars ? "#000000" : (active ? "#26364d" : "#172235"))
+    border.color: (dashboardConfig.lcars ? (active ? "#FFCC66" : "#FF9966") : (active ? accentColor : "#304158"))
+    border.width: (dashboardConfig.lcars ? 2 : 1)
 
     MouseArea {
         anchors.fill: parent
@@ -35,7 +35,7 @@ Rectangle {
 
         Text {
             text: root.label
-            color: Theme.subtle
+            color: (dashboardConfig.lcars ? "#FF9966" : "#8fa4bf")
             font.pixelSize: 12
             elide: Text.ElideRight
             Layout.fillWidth: true
@@ -67,7 +67,7 @@ Rectangle {
 
                 Text {
                     text: root.value
-                    color: Theme.value
+                    color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
                     font.pixelSize: 14
                     font.bold: true
                     elide: Text.ElideRight
@@ -77,7 +77,7 @@ Rectangle {
                 Text {
                     text: root.secondary
                     visible: root.secondary.length > 0
-                    color: Theme.muted
+                    color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                     font.pixelSize: 10
                     elide: Text.ElideRight
                     Layout.fillWidth: true

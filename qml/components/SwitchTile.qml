@@ -20,10 +20,10 @@ Rectangle {
 
     implicitWidth: 160
     implicitHeight: contentLayout.implicitHeight + 2 * Fmt.tileMargin
-    radius: Theme.tileRadius
-    color: Theme.tileFill(isOn)
-    border.color: Theme.tileStroke(isOn, accent)
-    border.width: Theme.tileBorderWidth
+    radius: (dashboardConfig.lcars ? 18 : 12)
+    color: (dashboardConfig.lcars ? "#000000" : (isOn ? "#26364d" : "#172235"))
+    border.color: (dashboardConfig.lcars ? (isOn ? "#FFCC66" : "#FF9966") : (isOn ? accent : "#304158"))
+    border.width: (dashboardConfig.lcars ? 2 : 1)
     clip: true
 
     ColumnLayout {
@@ -53,7 +53,7 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Control"
-                color: Theme.label
+                color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
                 font.pixelSize: 11
                 font.bold: true
                 elide: Text.ElideRight
@@ -62,7 +62,7 @@ Rectangle {
 
             Text {
                 text: Fmt.smart(root.rawValue)
-                color: Theme.muted
+                color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
                 font.pixelSize: 10
                 Layout.alignment: Qt.AlignVCenter
             }
@@ -84,19 +84,19 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: Fmt.actionButtonHeight
             visible: root.singleShot
-            radius: Theme.lcars ? 18 : 8
-            color: Theme.lcars
+            radius: dashboardConfig.lcars ? 18 : 8
+            color: dashboardConfig.lcars
                    ? (pressArea.pressed ? "#FFCC66" : "#000000")
                    : (pressArea.pressed ? root.accent : "#0f1726")
-            border.color: Theme.lcars ? "#FFCC66" : root.accent
-            border.width: Theme.lcars && pressArea.pressed ? 0 : 1
+            border.color: dashboardConfig.lcars ? "#FFCC66" : root.accent
+            border.width: dashboardConfig.lcars && pressArea.pressed ? 0 : 1
 
             Text {
                 anchors.centerIn: parent
                 text: root.control.commandLabel || root.control.label || "Senden"
-                color: Theme.lcars
+                color: dashboardConfig.lcars
                        ? (pressArea.pressed ? "#000000" : "#FFCC66")
-                       : (pressArea.pressed ? "#111827" : Theme.text)
+                       : (pressArea.pressed ? "#111827" : (dashboardConfig.lcars ? "#FFCC66" : "#e2e8f0"))
                 font.pixelSize: 12
                 font.bold: true
             }
@@ -116,7 +116,7 @@ Rectangle {
         Text {
             text: root.secondary
             visible: root.secondary.length > 0
-            color: Theme.muted
+            color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
             font.pixelSize: 10
             elide: Text.ElideRight
             Layout.fillWidth: true
