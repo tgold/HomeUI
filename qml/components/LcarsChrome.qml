@@ -19,8 +19,8 @@ Item {
     signal debugClicked()
     signal pageIndexClicked(int index)
 
-    readonly property int railWidth: 104
-    readonly property int contentLeft: 120
+    readonly property int railWidth: 118
+    readonly property int contentLeft: 136
     readonly property int contentTop: 118
     readonly property int gutter: 6
     property date now: new Date()
@@ -43,6 +43,14 @@ Item {
         return value.toFixed(1)
     }
 
+    function segmentColor(index) {
+        var colors = ["#E7B08A", "#F0D056", "#FF9966", "#8EC8EA",
+                      "#F0D056", "#E8B84A", "#D7A48A", "#CC99CC",
+                      "#99CCFF", "#FFCC99"]
+        var i = Math.abs(Math.floor(Number(index) || 0)) % colors.length
+        return colors[i]
+    }
+
     Timer {
         interval: 1000
         repeat: true
@@ -50,70 +58,56 @@ Item {
         onTriggered: root.now = new Date()
     }
 
+    Rectangle {
+        anchors.fill: parent
+        color: "#000000"
+    }
+
     Column {
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.leftMargin: 8
-        width: root.railWidth - 8
+        anchors.topMargin: 8
+        anchors.bottomMargin: 8
+        width: root.railWidth - 16
         spacing: root.gutter
 
         Repeater {
             model: root.pageCount
 
-            Item {
+            Rectangle {
                 required property int index
-                width: parent.width
-                height: root.pageCount > 0
-                        ? (root.height - (root.pageCount - 1) * root.gutter) / root.pageCount
-                        : 0
-
                 readonly property bool active: index === root.pageIndex
-                readonly property color tone: Theme.barColor(index)
+                readonly property string code: (index + 1) < 10 ? ("0" + (index + 1)) : String(index + 1)
 
-                Rectangle {
-                    id: segment
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: parent.active ? parent.width : parent.width - 14
-                    height: parent.height
-                    radius: Math.min(36, height / 2)
-                    color: parent.tone
+                width: root.railWidth - 16
+                height: root.pageCount > 0
+                        ? (root.height - 16 - (root.pageCount - 1) * root.gutter) / root.pageCount
+                        : 0
+                radius: Math.min(22, height / 2)
+                color: root.segmentColor(index)
 
-                    // Flat right edge: round cap on the outside, square where it meets the screen.
-                    Rectangle {
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-                        anchors.bottom: parent.bottom
-                        width: parent.radius
-                        color: parent.color
-                    }
+                Text {
+                    anchors.fill: parent
+                    anchors.leftMargin: 12
+                    anchors.rightMargin: parent.active ? 8 : 18
+                    anchors.bottomMargin: 8
+                    anchors.topMargin: 8
+                    text: parent.code + "\n" + root.pageTitle(parent.index)
+                    color: "#000000"
+                    font.pixelSize: parent.active ? 13 : 11
+                    font.bold: true
+                    font.family: Theme.fontFamily
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignBottom
+                    maximumLineCount: 4
+                    elide: Text.ElideRight
+                }
 
-                    Text {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.bottom: parent.bottom
-                        anchors.leftMargin: 10
-                        anchors.rightMargin: 8
-                        anchors.bottomMargin: 8
-                        text: {
-                            var n = parent.parent.index + 1
-                            var code = n < 10 ? ("0" + n) : String(n)
-                            return code + "\n" + root.pageTitle(parent.parent.index)
-                        }
-                        color: Theme.onShape
-                        font.pixelSize: parent.parent.active ? 12 : 11
-                        font.bold: true
-                        font.family: Theme.fontFamily
-                        wrapMode: Text.WordWrap
-                        maximumLineCount: 4
-                        elide: Text.ElideRight
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: root.pageIndexClicked(parent.parent.index)
-                    }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: root.pageIndexClicked(parent.index)
                 }
             }
         }

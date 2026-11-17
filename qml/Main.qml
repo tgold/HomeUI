@@ -1,4 +1,5 @@
 import QtQuick
+import QtQml
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
@@ -12,9 +13,19 @@ ApplicationWindow {
     visible: true
     visibility: Window.FullScreen
     title: "HomeUI"
-    color: Theme.ground
-    font.family: Theme.lcars ? Theme.fontFamily : Qt.application.font.family
-    font.capitalization: Theme.lcars ? Font.AllUppercase : Font.MixedCase
+    // Read the config here. The Theme singleton cannot see context properties,
+    // so the shell uses this flag directly and then copies it onto Theme.
+    readonly property bool lcars: {
+        var _ = dashboardConfig.revision
+        return String(dashboardConfig.theme || "default").toLowerCase() === "lcars"
+    }
+    readonly property string masthead: {
+        var _ = dashboardConfig.revision
+        var configured = String(dashboardConfig.title || "").trim()
+        return configured.length > 0 ? configured : "HOME OPERATIONS"
+    }
+    color: lcars ? "#000000" : "#070d18"
+    font.capitalization: lcars ? Font.AllUppercase : Font.MixedCase
     property int maxDebugEvents: 300
     property string doorbellItemName: "Doorbell_Pressed"
     property bool lastDoorbellPressed: false
@@ -181,6 +192,21 @@ ApplicationWindow {
         return openhabClient.itemIsOn("thz_warmwasserbereitung", false)
     }
 
+    Binding {
+        target: Theme
+        property: "mode"
+        value: root.lcars ? "lcars" : "default"
+    }
+
+    Binding {
+        target: Theme
+        property: "configuredTitle"
+        value: {
+            var _ = dashboardConfig.revision
+            return String(dashboardConfig.title || "")
+        }
+    }
+
     FontLoader {
         source: "qrc:/HomeUI/assets/fonts/Antonio-Bold.ttf"
         onStatusChanged: {
@@ -233,15 +259,15 @@ ApplicationWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.ground
+        color: root.lcars ? "#000000" : "#070d18"
     }
 
     LcarsChrome {
         id: lcarsChrome
         anchors.fill: parent
-        visible: Theme.lcars
-        enabled: Theme.lcars
-        title: Theme.displayTitle
+        visible: root.lcars
+        enabled: root.lcars
+        title: root.masthead
         section: root.currentPageTitle()
         openhabConnected: openhabClient.connected
         statusText: openhabClient.statusText
@@ -265,8 +291,8 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        visible: !Theme.lcars
-        height: Theme.lcars ? 0 : 72
+        visible: !root.lcars
+        height: root.lcars ? 0 : 72
         title: "OPENHAB"
         section: root.currentPageTitle()
         openhabConnected: openhabClient.connected
@@ -457,7 +483,7 @@ ApplicationWindow {
         background: Rectangle {
             radius: 14
             color: "#020617"
-            border.color: Theme.lcars ? "#FFCC66" : "#38bdf8"
+            border.color: root.lcars ? "#FFCC66" : "#38bdf8"
             border.width: 2
         }
 
@@ -517,13 +543,16 @@ ApplicationWindow {
         id: swipeView
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: Theme.lcars ? parent.top : statusBar.bottom
+        anchors.top: root.lcars ? parent.top : statusBar.bottom
         anchors.bottom: parent.bottom
-        anchors.leftMargin: Theme.lcars ? lcarsChrome.contentLeft : 0
-        anchors.rightMargin: Theme.lcars ? 12 : 0
-        anchors.topMargin: Theme.lcars ? lcarsChrome.contentTop : 0
-        anchors.bottomMargin: Theme.lcars ? 8 : 0
+        anchors.leftMargin: root.lcars ? lcarsChrome.contentLeft : 0
+        anchors.rightMargin: root.lcars ? 12 : 0
+        anchors.topMargin: root.lcars ? lcarsChrome.contentTop : 0
+        anchors.bottomMargin: root.lcars ? 8 : 0
         clip: true
+        background: Rectangle {
+            color: root.lcars ? "#000000" : "#070d18"
+        }
         interactive: dashboardConfig.valid && dashboardConfig.pages.length > 1
         visible: dashboardConfig.valid
 
@@ -546,10 +575,10 @@ ApplicationWindow {
     Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: Theme.lcars ? parent.top : statusBar.bottom
+        anchors.top: root.lcars ? parent.top : statusBar.bottom
         anchors.bottom: parent.bottom
         visible: !dashboardConfig.valid
-        color: Theme.ground
+        color: root.lcars ? "#000000" : "#070d18"
 
         Rectangle {
             anchors.centerIn: parent

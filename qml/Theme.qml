@@ -1,32 +1,28 @@
 pragma Singleton
 import QtQuick
 
-// Visual tokens for the two dashboard skins.
-// "default" keeps the existing dark panels. "lcars" is the Star Trek LCARS skin:
-// black ground, flat color blocks, elbow rail, pill controls, condensed caps.
+// Color and type tokens for the two skins.
+// This object must not read context properties such as dashboardConfig:
+// QML singletons cannot see them, and a failed binding leaves every
+// rectangle at its default white and every label at its default black.
+// Main.qml writes `mode` and `configuredTitle` from the dashboard config.
 QtObject {
     id: theme
 
-    readonly property int revision: dashboardConfig.revision
-    readonly property string name: {
-        var _ = theme.revision
-        var raw = String(dashboardConfig.theme || "default").toLowerCase()
-        return raw === "lcars" ? "lcars" : "default"
-    }
-    readonly property bool lcars: name === "lcars"
+    property string mode: "default"
+    property string configuredTitle: ""
+    property string loadedFontFamily: ""
+
+    readonly property bool lcars: mode === "lcars"
 
     readonly property string displayTitle: {
-        var _ = theme.revision
-        var configured = String(dashboardConfig.title || "").trim()
+        var configured = configuredTitle.trim()
         if (configured.length > 0) {
             return configured
         }
         return lcars ? "HOME OPERATIONS" : "OPENHAB"
     }
 
-    // Antonio (OFL) is the usual open stand-in for Swiss 911 Ultra Compressed.
-    // Main.qml assigns this when the bundled face finishes loading.
-    property string loadedFontFamily: ""
     readonly property string fontFamily: {
         if (!lcars) {
             return ""
@@ -39,7 +35,7 @@ QtObject {
     readonly property color panelBorder: lcars ? "#000000" : "#26364d"
     readonly property int panelRadius: lcars ? 0 : 18
     readonly property int panelBorderWidth: lcars ? 0 : 1
-    readonly property int tileRadius: lcars ? 20 : 12
+    readonly property int tileRadius: lcars ? 18 : 12
     readonly property int tileBorderWidth: lcars ? 2 : 1
 
     readonly property color text: lcars ? "#FFCC66" : "#e2e8f0"
@@ -50,7 +46,6 @@ QtObject {
     readonly property color data: lcars ? "#99CCFF" : "#f8fafc"
     readonly property color onShape: "#000000"
 
-    // Warm structure, cool data. Adjacent rail blocks step through this list.
     readonly property var bars: [
         "#E7B08A",
         "#F0D056",
@@ -66,7 +61,10 @@ QtObject {
 
     function barColor(index) {
         var list = bars
-        var i = Math.abs(Number(index) || 0) % list.length
+        if (!list || list.length === 0) {
+            return "#FF9966"
+        }
+        var i = Math.abs(Math.floor(Number(index) || 0)) % list.length
         return list[i]
     }
 
