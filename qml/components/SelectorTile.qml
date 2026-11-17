@@ -49,7 +49,7 @@ Rectangle {
     radius: (dashboardConfig.lcars ? 18 : 12)
     color: (dashboardConfig.lcars ? "#000000" : "#172235")
     border.color: (dashboardConfig.lcars ? "#FF9966" : "#304158")
-    border.width: (dashboardConfig.lcars ? 2 : 1)
+    border.width: (dashboardConfig.lcars ? 0 : 1)
 
     ColumnLayout {
         id: contentColumn
@@ -80,19 +80,20 @@ Rectangle {
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: root.buttonHeight
-                    radius: dashboardConfig.lcars ? 16 : 8
+                    radius: dashboardConfig.lcars ? height / 2 : 8
                     color: dashboardConfig.lcars
-                           ? (active ? "#FFCC66" : "#000000")
+                           ? (active ? "#FFCC66"
+                              : (index % 4 === 1 ? "#99CCFF"
+                                 : (index % 4 === 2 ? "#CC99CC"
+                                    : (index % 4 === 3 ? "#FFCC99" : "#FF9966"))))
                            : (active ? root.accent : "#0f1726")
                     border.color: dashboardConfig.lcars ? "#FFCC66" : (active ? root.accent : "#304158")
-                    border.width: dashboardConfig.lcars && active ? 0 : 1
+                    border.width: dashboardConfig.lcars ? 0 : 1
 
                     Text {
                         anchors.centerIn: parent
                         text: btn.opt && btn.opt.label !== undefined ? btn.opt.label : (btn.opt ? btn.opt.value : "")
-                        color: dashboardConfig.lcars
-                               ? (btn.active ? "#000000" : "#FFCC66")
-                               : (btn.active ? "#111827" : "#cbd5e1")
+                        color: dashboardConfig.lcars ? "#000000" : (btn.active ? "#111827" : "#cbd5e1")
                         font.pixelSize: 12
                         font.bold: true
                     }

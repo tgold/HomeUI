@@ -143,7 +143,7 @@ Rectangle {
     radius: (dashboardConfig.lcars ? 18 : 12)
     color: (dashboardConfig.lcars ? "#000000" : "#172235")
     border.color: (dashboardConfig.lcars ? "#FF9966" : "#304158")
-    border.width: (dashboardConfig.lcars ? 2 : 1)
+    border.width: (dashboardConfig.lcars ? 0 : 1)
 
     ColumnLayout {
         anchors.fill: parent

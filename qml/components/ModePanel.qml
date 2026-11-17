@@ -12,9 +12,14 @@ Rectangle {
     border.color: dashboardConfig.lcars ? "#000000" : "#26364d"
     border.width: dashboardConfig.lcars ? 0 : 1
 
+    LcarsElbow {
+        id: lcarsElbow
+        seed: "Betrieb"
+    }
+
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: Fmt.panelMargin
+        anchors.margins: lcarsElbow.contentMargin
         spacing: Fmt.panelSpacing
 
         PanelHeader {
@@ -56,14 +61,17 @@ Rectangle {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    radius: 10
-                    color: index === 0 ? "#f59e0b" : "#1e293b"
+                    radius: dashboardConfig.lcars ? height / 2 : 10
+                    color: dashboardConfig.lcars
+                           ? (index === 0 ? "#FFCC66" : (index === 1 ? "#99CCFF" : "#CC99CC"))
+                           : (index === 0 ? "#f59e0b" : "#1e293b")
                     border.color: "#334155"
+                    border.width: dashboardConfig.lcars ? 0 : 1
 
                     Text {
                         anchors.centerIn: parent
                         text: modelData
-                        color: index === 0 ? "#111827" : "#cbd5e1"
+                        color: dashboardConfig.lcars ? "#000000" : (index === 0 ? "#111827" : "#cbd5e1")
                         font.pixelSize: 11
                         font.bold: true
                     }
@@ -81,14 +89,17 @@ Rectangle {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    radius: 10
-                    color: index === 1 ? "#f59e0b" : "#1e293b"
+                    radius: dashboardConfig.lcars ? height / 2 : 10
+                    color: dashboardConfig.lcars
+                           ? (index === 1 ? "#FFCC66" : "#FF9966")
+                           : (index === 1 ? "#f59e0b" : "#1e293b")
                     border.color: "#334155"
+                    border.width: dashboardConfig.lcars ? 0 : 1
 
                     Text {
                         anchors.centerIn: parent
                         text: modelData
-                        color: index === 1 ? "#111827" : "#cbd5e1"
+                        color: dashboardConfig.lcars ? "#000000" : (index === 1 ? "#111827" : "#cbd5e1")
                         font.pixelSize: 11
                         font.bold: true
                     }

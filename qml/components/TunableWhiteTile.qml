@@ -81,7 +81,7 @@ Rectangle {
     radius: (dashboardConfig.lcars ? 18 : 12)
     color: (dashboardConfig.lcars ? "#000000" : (isActive ? "#26364d" : "#172235"))
     border.color: (dashboardConfig.lcars ? (isActive ? "#FFCC66" : "#FF9966") : (isActive ? accent : "#304158"))
-    border.width: (dashboardConfig.lcars ? 2 : 1)
+    border.width: (dashboardConfig.lcars ? 0 : 1)
     clip: true
 
     ColumnLayout {

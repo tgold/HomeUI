@@ -12,13 +12,22 @@ Rectangle {
     readonly property color accent: control.accentColor || "#a855f7"
     readonly property bool hasBinding: !!(control.item || control.mqttTopic)
     readonly property bool pressed: pressArea.pressed
+    readonly property color lcarsFill: {
+        var colors = ["#FF9966", "#FFCC66", "#99CCFF", "#CC99CC", "#FFCC99", "#E7B08A"]
+        var s = String(control.label || "")
+        var hash = 0
+        for (var i = 0; i < s.length; ++i) {
+            hash = (hash * 33 + s.charCodeAt(i)) >>> 0
+        }
+        return colors[hash % colors.length]
+    }
 
     implicitWidth: 140
     implicitHeight: 76
-    radius: dashboardConfig.lcars ? 28 : 12
-    color: pressed ? root.accent : (dashboardConfig.lcars ? "#000000" : "#172235")
-    border.color: dashboardConfig.lcars ? root.accent : (pressed ? "#f8fafc" : root.accent)
-    border.width: (dashboardConfig.lcars ? 2 : 1)
+    radius: dashboardConfig.lcars ? height / 2 : 12
+    color: dashboardConfig.lcars ? (pressed ? "#FFCC66" : lcarsFill) : (pressed ? root.accent : "#172235")
+    border.color: pressed ? "#f8fafc" : root.accent
+    border.width: dashboardConfig.lcars ? 0 : 1
 
     MouseArea {
         id: pressArea
@@ -52,12 +61,12 @@ Rectangle {
                 Layout.preferredWidth: 28
                 Layout.preferredHeight: 28
                 radius: 8
-                color: root.pressed ? "#111827" : root.accent
+                color: dashboardConfig.lcars ? "#000000" : (root.pressed ? "#111827" : root.accent)
 
                 Text {
                     anchors.centerIn: parent
                     text: root.control.iconText || "S"
-                    color: root.pressed ? root.accent : "#111827"
+                    color: dashboardConfig.lcars ? "#FFCC66" : (root.pressed ? root.accent : "#111827")
                     font.pixelSize: 12
                     font.bold: true
                 }
@@ -69,7 +78,7 @@ Rectangle {
 
                 Text {
                     text: root.control.label || "Szene"
-                    color: root.pressed ? "#0f172a" : "#e2e8f0"
+                    color: dashboardConfig.lcars ? "#000000" : (root.pressed ? "#0f172a" : "#e2e8f0")
                     font.pixelSize: 13
                     font.bold: true
                     elide: Text.ElideRight
@@ -79,7 +88,7 @@ Rectangle {
                 Text {
                     text: root.control.secondary || ""
                     visible: !!root.control.secondary
-                    color: root.pressed ? "#0f172a" : "#94a3b8"
+                    color: dashboardConfig.lcars ? "#000000" : (root.pressed ? "#0f172a" : "#94a3b8")
                     font.pixelSize: 10
                     elide: Text.ElideRight
                     Layout.fillWidth: true

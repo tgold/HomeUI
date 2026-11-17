@@ -312,6 +312,11 @@ Rectangle {
     border.color: dashboardConfig.lcars ? "#000000" : "#26364d"
     border.width: dashboardConfig.lcars ? 0 : 1
 
+    LcarsElbow {
+        id: lcarsElbow
+        seed: root.title
+    }
+
     Component.onCompleted: {
         if (usingDirectSonos && sonosClient) {
             sonosClient.ensureZone(host)
@@ -353,7 +358,7 @@ Rectangle {
     GridLayout {
         id: contentLayout
         anchors.fill: parent
-        anchors.margins: Fmt.panelMargin
+        anchors.margins: lcarsElbow.contentMargin
         columns: root.compactLayout ? 2 : 1
         columnSpacing: Fmt.gridSpacing
         rowSpacing: Fmt.gridSpacing
@@ -634,18 +639,31 @@ Rectangle {
         signal clicked()
 
         implicitHeight: 36
-        radius: 8
+        radius: dashboardConfig.lcars ? height / 2 : 8
         clip: true
-        color: !btn.enabled ? "#141e2c" : (btn.active ? "#223047" : "#1c2839")
+        color: dashboardConfig.lcars ? btn.lcarsColor()
+               : (!btn.enabled ? "#141e2c" : (btn.active ? "#223047" : "#1c2839"))
         border.color: btn.accent
-        border.width: btn.active ? 2 : 1
-        opacity: btn.enabled ? 1.0 : 0.4
+        border.width: dashboardConfig.lcars ? 0 : (btn.active ? 2 : 1)
+        opacity: btn.enabled ? 1.0 : (dashboardConfig.lcars ? 0.45 : 0.4)
+
+        function lcarsColor() {
+            var colors = ["#FF9966", "#FFCC66", "#99CCFF", "#CC99CC",
+                          "#FFCC99", "#E7B08A", "#8EC8EA", "#99CC99"]
+            var s = String(btn.label || "")
+            var hash = 0
+            for (var i = 0; i < s.length; ++i) {
+                hash = (hash * 33 + s.charCodeAt(i)) >>> 0
+            }
+            return colors[hash % colors.length]
+        }
 
         Text {
             anchors.fill: parent
             anchors.margins: 6
             text: btn.label
-            color: btn.enabled ? (btn.active ? btn.accent : "#f8fafc") : "#64748b"
+            color: dashboardConfig.lcars ? "#000000"
+                   : (btn.enabled ? (btn.active ? btn.accent : "#f8fafc") : "#64748b")
             font.pixelSize: 12
             font.bold: true
             horizontalAlignment: Text.AlignHCenter

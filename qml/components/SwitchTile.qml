@@ -23,7 +23,7 @@ Rectangle {
     radius: (dashboardConfig.lcars ? 18 : 12)
     color: (dashboardConfig.lcars ? "#000000" : (isOn ? "#26364d" : "#172235"))
     border.color: (dashboardConfig.lcars ? (isOn ? "#FFCC66" : "#FF9966") : (isOn ? accent : "#304158"))
-    border.width: (dashboardConfig.lcars ? 2 : 1)
+    border.width: (dashboardConfig.lcars ? 0 : 1)
     clip: true
 
     ColumnLayout {
@@ -84,19 +84,18 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: Fmt.actionButtonHeight
             visible: root.singleShot
-            radius: dashboardConfig.lcars ? 18 : 8
+            radius: dashboardConfig.lcars ? height / 2 : 8
             color: dashboardConfig.lcars
-                   ? (pressArea.pressed ? "#FFCC66" : "#000000")
+                   ? (pressArea.pressed ? "#FFCC66" : "#FF9966")
                    : (pressArea.pressed ? root.accent : "#0f1726")
-            border.color: dashboardConfig.lcars ? "#FFCC66" : root.accent
-            border.width: dashboardConfig.lcars && pressArea.pressed ? 0 : 1
+            border.color: dashboardConfig.lcars ? "#FF9966" : root.accent
+            border.width: dashboardConfig.lcars ? 0 : 1
 
             Text {
                 anchors.centerIn: parent
                 text: root.control.commandLabel || root.control.label || "Senden"
-                color: dashboardConfig.lcars
-                       ? (pressArea.pressed ? "#000000" : "#FFCC66")
-                       : (pressArea.pressed ? "#111827" : (dashboardConfig.lcars ? "#FFCC66" : "#e2e8f0"))
+                color: dashboardConfig.lcars ? "#000000"
+                       : (pressArea.pressed ? "#111827" : "#e2e8f0")
                 font.pixelSize: 12
                 font.bold: true
             }

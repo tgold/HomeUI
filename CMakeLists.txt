@@ -81,6 +81,7 @@ set(_homeui_qml_module_args
         qml/Theme.qml
         qml/components/ConfiguredPage.qml
         qml/components/LcarsChrome.qml
+        qml/components/LcarsElbow.qml
         qml/components/PanelHeader.qml
         qml/components/ConfiguredPanel.qml
         qml/components/CameraTile.qml

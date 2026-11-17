@@ -34,11 +34,16 @@ Rectangle {
     color: dashboardConfig.lcars ? "#000000" : "#0f1726"
     border.color: dashboardConfig.lcars ? "#000000" : "#26364d"
     border.width: dashboardConfig.lcars ? 0 : 1
+
+    LcarsElbow {
+        id: lcarsElbow
+        seed: root.title
+    }
     clip: true
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: Fmt.panelMargin
+        anchors.margins: lcarsElbow.contentMargin
         spacing: Fmt.panelSpacing
 
         RowLayout {

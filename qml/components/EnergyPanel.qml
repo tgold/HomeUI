@@ -26,16 +26,21 @@ Rectangle {
     }
 
     implicitWidth: 292
-    implicitHeight: contentLayout.implicitHeight + 2 * Fmt.panelMargin
+    implicitHeight: contentLayout.implicitHeight + 2 * contentLayout.anchors.margins
     radius: dashboardConfig.lcars ? 0 : 18
     color: dashboardConfig.lcars ? "#000000" : "#0f1726"
     border.color: dashboardConfig.lcars ? "#000000" : "#26364d"
     border.width: dashboardConfig.lcars ? 0 : 1
 
+    LcarsElbow {
+        id: lcarsElbow
+        seed: root.title
+    }
+
     ColumnLayout {
         id: contentLayout
         anchors.fill: parent
-        anchors.margins: Fmt.panelMargin
+        anchors.margins: lcarsElbow.contentMargin
         spacing: Fmt.panelSpacing
 
         RowLayout {
@@ -49,14 +54,15 @@ Rectangle {
             Rectangle {
                 Layout.preferredWidth: 64
                 Layout.preferredHeight: 28
-                radius: 9
-                color: "#172235"
+                radius: dashboardConfig.lcars ? height / 2 : 9
+                color: dashboardConfig.lcars ? "#99CC99" : "#172235"
                 border.color: "#334155"
+                border.width: dashboardConfig.lcars ? 0 : 1
 
                 Text {
                     anchors.centerIn: parent
                     text: "LIVE"
-                    color: "#22c55e"
+                    color: dashboardConfig.lcars ? "#000000" : "#22c55e"
                     font.pixelSize: 11
                     font.bold: true
                 }

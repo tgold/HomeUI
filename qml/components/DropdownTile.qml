@@ -76,7 +76,7 @@ Rectangle {
     radius: (dashboardConfig.lcars ? 18 : 12)
     color: (dashboardConfig.lcars ? "#000000" : "#172235")
     border.color: (dashboardConfig.lcars ? "#FF9966" : "#304158")
-    border.width: (dashboardConfig.lcars ? 2 : 1)
+    border.width: (dashboardConfig.lcars ? 0 : 1)
 
     ColumnLayout {
         anchors.fill: parent
@@ -102,17 +102,17 @@ Rectangle {
             displayText: root.currentLabel.length > 0 ? root.currentLabel : "—"
 
             background: Rectangle {
-                radius: dashboardConfig.lcars ? 14 : 6
-                color: dashboardConfig.lcars ? "#000000" : "#0f1726"
-                border.color: dashboardConfig.lcars ? "#FFCC66" : "#304158"
-                border.width: dashboardConfig.lcars ? 2 : 1
+                radius: dashboardConfig.lcars ? height / 2 : 6
+                color: dashboardConfig.lcars ? "#FFCC99" : "#0f1726"
+                border.color: "#304158"
+                border.width: dashboardConfig.lcars ? 0 : 1
             }
 
             contentItem: Text {
-                leftPadding: 8
+                leftPadding: 12
                 rightPadding: comboBox.indicator.width + comboBox.spacing
                 text: comboBox.displayText
-                color: (dashboardConfig.lcars ? "#FFFF99" : "#f8fafc")
+                color: dashboardConfig.lcars ? "#000000" : "#f8fafc"
                 font.pixelSize: 12
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
@@ -122,7 +122,7 @@ Rectangle {
                 x: comboBox.width - width - 8
                 y: comboBox.topPadding + (comboBox.availableHeight - height) / 2
                 text: "▾"
-                color: (dashboardConfig.lcars ? "#CC9966" : "#94a3b8")
+                color: dashboardConfig.lcars ? "#000000" : "#94a3b8"
                 font.pixelSize: 10
             }
 

@@ -88,7 +88,7 @@ Rectangle {
     radius: (dashboardConfig.lcars ? 18 : 12)
     color: (dashboardConfig.lcars ? "#000000" : (isClosed ? "#26364d" : "#172235"))
     border.color: (dashboardConfig.lcars ? (isClosed ? "#FFCC66" : "#FF9966") : (isClosed ? accent : "#304158"))
-    border.width: (dashboardConfig.lcars ? 2 : 1)
+    border.width: (dashboardConfig.lcars ? 0 : 1)
     clip: true
 
     ColumnLayout {
@@ -137,18 +137,17 @@ Rectangle {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: root.buttonHeight
-                    radius: dashboardConfig.lcars ? 16 : 8
+                    radius: dashboardConfig.lcars ? height / 2 : 8
                     color: dashboardConfig.lcars
-                           ? (movePress.pressed ? "#FFCC66" : "#000000")
+                           ? (movePress.pressed ? "#FFCC66" : "#99CCFF")
                            : (movePress.pressed ? root.accent : "#1f2d44")
-                    border.color: dashboardConfig.lcars ? "#FFCC66" : "#304158"
-                    border.width: dashboardConfig.lcars ? 2 : 1
+                    border.color: dashboardConfig.lcars ? "#99CCFF" : "#304158"
+                    border.width: dashboardConfig.lcars ? 0 : 1
 
                     Text {
                         anchors.centerIn: parent
                         text: modelData.icon
-                        color: dashboardConfig.lcars
-                               ? (movePress.pressed ? "#000000" : "#FFCC66")
+                        color: dashboardConfig.lcars ? "#000000"
                                : (movePress.pressed ? "#111827" : "#e2e8f0")
                         font.pixelSize: 14
                         font.bold: true
@@ -182,12 +181,14 @@ Rectangle {
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: root.buttonHeight
-                    radius: dashboardConfig.lcars ? 14 : 6
+                    radius: dashboardConfig.lcars ? height / 2 : 6
                     color: dashboardConfig.lcars
-                           ? (sceneActive ? "#99CCFF" : "#000000")
+                           ? (sceneActive ? "#FFCC66"
+                              : (index % 3 === 1 ? "#CC99CC"
+                                 : (index % 3 === 2 ? "#FFCC99" : "#99CCFF")))
                            : (sceneActive ? root.accent : "#0f1726")
                     border.color: dashboardConfig.lcars ? "#99CCFF" : (sceneActive ? root.accent : "#304158")
-                    border.width: dashboardConfig.lcars && sceneActive ? 0 : 1
+                    border.width: dashboardConfig.lcars ? 0 : 1
 
                     Text {
                         anchors.centerIn: parent
@@ -195,9 +196,8 @@ Rectangle {
                         text: parent.opt && parent.opt.label !== undefined
                               ? parent.opt.label
                               : (parent.opt ? parent.opt.value : "")
-                        color: dashboardConfig.lcars
-                               ? (parent.sceneActive ? "#000000" : "#99CCFF")
-                               : (parent.sceneActive ? "#111827" : (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1"))
+                        color: dashboardConfig.lcars ? "#000000"
+                               : (parent.sceneActive ? "#111827" : "#cbd5e1")
                         font.pixelSize: 10
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
