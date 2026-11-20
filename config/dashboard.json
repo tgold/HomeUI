@@ -1490,7 +1490,7 @@
         {
           "type": "controls",
           "title": "Ist-Temperaturen",
-          "tilesPerRow": 3,
+          "tilesPerRow": 8,
           "controls": [
             {
               "kind": "value",
