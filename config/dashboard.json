@@ -1,5 +1,5 @@
 {
-  "theme": "lcars",
+  "theme": "default",
   "title": "HOME OPERATIONS",
   "pages": [
     {
@@ -1491,6 +1491,7 @@
           "type": "controls",
           "title": "Ist-Temperaturen",
           "tilesPerRow": 8,
+          "columnSpan": 3,
           "controls": [
             {
               "kind": "value",
@@ -2179,7 +2180,7 @@
         {
           "type": "grafana",
           "title": "Temperaturen",
-          "baseUrl": "http://192.168.0.95:3000",
+          "baseUrl": "http://nas.fritz.box:3000",
           "dashboardUid": "cdnrwiq71tc74c",
           "slug": "home",
           "panelId": 1,
@@ -2191,7 +2192,7 @@
         {
           "type": "grafana",
           "title": "Wasser",
-          "baseUrl": "http://192.168.0.95:3000",
+          "baseUrl": "http://nas.fritz.box:3000",
           "dashboardUid": "cdnrwiq71tc74c",
           "slug": "home",
           "panelId": 3,
@@ -2203,7 +2204,7 @@
         {
           "type": "grafana",
           "title": "Energie",
-          "baseUrl": "http://192.168.0.95:3000",
+          "baseUrl": "http://nas.fritz.box:3000",
           "dashboardUid": "cdnrwiq71tc74c",
           "slug": "home",
           "panelId": 2,
@@ -2215,7 +2216,7 @@
         {
           "type": "grafana",
           "title": "E-Auto",
-          "baseUrl": "http://192.168.0.95:3000",
+          "baseUrl": "http://nas.fritz.box:3000",
           "dashboardUid": "cdnrwiq71tc74c",
           "slug": "home",
           "panelId": 9,
