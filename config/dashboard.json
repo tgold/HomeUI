@@ -53,6 +53,12 @@
                   "value": "FULLDOWN"
                 }
               ]
+            },
+            {
+              "label": "Sterne",
+              "iconText": "V",
+              "accentColor": "#fbbf24",
+              "item": "GF_LivingRoom_Sterne_Toggle"
             }
           ]
         },
