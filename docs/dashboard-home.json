@@ -175,20 +175,20 @@
               "accentColor": "#f59e0b",
               "options": [
                 {
-                  "label": "PV",
-                  "value": "pv"
-                },
-                {
-                  "label": "Min",
-                  "value": "minpv"
-                },
-                {
-                  "label": "Fast",
-                  "value": "now"
-                },
-                {
-                  "label": "Off",
+                  "label": "Aus",
                   "value": "off"
+                },
+                {
+                  "label": "Smart",
+                  "value": "smart",
+                  "activeValues": [
+                    "smart",
+                    "pv"
+                  ]
+                },
+                {
+                  "label": "Schnell",
+                  "value": "now"
                 }
               ]
             }

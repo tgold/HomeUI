@@ -115,12 +115,22 @@ set(_homeui_qml_module_args
         assets/irrigation-floorplan.png
         assets/heat-pump-schematic.png
         assets/fonts/Antonio-Bold.ttf
+        assets/fonts/Antonio-LCARS.ttf
 )
 if(HOMEUI_NO_QML_CACHEGEN)
     list(APPEND _homeui_qml_module_args NO_CACHEGEN)
 endif()
 set_source_files_properties(qml/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 qt_add_qml_module(homeui ${_homeui_qml_module_args})
+
+# Fixed resource path. The QML module prefix differs between Qt 6.4 and 6.5,
+# and FontLoader was missing the file, so the panel kept the system font.
+qt_add_resources(homeui "homeui_fonts"
+    PREFIX "/homeui-fonts"
+    BASE "${CMAKE_CURRENT_SOURCE_DIR}/assets/fonts"
+    FILES
+        assets/fonts/Antonio-LCARS.ttf
+)
 
 target_include_directories(homeui
     PRIVATE

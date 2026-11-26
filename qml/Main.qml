@@ -25,6 +25,11 @@ ApplicationWindow {
         return configured.length > 0 ? configured : "HOME OPERATIONS"
     }
     color: lcars ? "#000000" : "#070d18"
+    // Antonio only while LCARS is on. An empty family keeps the default theme
+    // on the system font. Bold has to be set too: the file is a bold face, and
+    // Qt will not use it for a regular-weight request.
+    font.family: lcars && lcarsFontFamily.length > 0 ? lcarsFontFamily : ""
+    font.bold: lcars && lcarsFontFamily.length > 0
     font.capitalization: lcars ? Font.AllUppercase : Font.MixedCase
     property int maxDebugEvents: 300
     property string doorbellItemName: "Doorbell_Pressed"
@@ -200,6 +205,12 @@ ApplicationWindow {
 
     Binding {
         target: Theme
+        property: "loadedFontFamily"
+        value: lcarsFontFamily
+    }
+
+    Binding {
+        target: Theme
         property: "configuredTitle"
         value: {
             var _ = dashboardConfig.revision
@@ -208,10 +219,21 @@ ApplicationWindow {
     }
 
     FontLoader {
-        source: "qrc:/HomeUI/assets/fonts/Antonio-Bold.ttf"
+        id: lcarsFont
+        property int attempt: 0
+        readonly property var sources: [
+            "qrc:/homeui-fonts/Antonio-LCARS.ttf",
+            "qrc:/HomeUI/assets/fonts/Antonio-LCARS.ttf",
+            "qrc:/qt/qml/HomeUI/assets/fonts/Antonio-LCARS.ttf",
+            "qrc:/HomeUI/assets/fonts/Antonio-Bold.ttf",
+            "qrc:/qt/qml/HomeUI/assets/fonts/Antonio-Bold.ttf"
+        ]
+        source: sources[Math.min(attempt, sources.length - 1)]
         onStatusChanged: {
             if (status === FontLoader.Ready) {
                 Theme.loadedFontFamily = name
+            } else if (status === FontLoader.Error && attempt + 1 < sources.length) {
+                attempt = attempt + 1
             }
         }
     }

@@ -268,7 +268,9 @@ Rectangle {
     }
 
     implicitWidth: 292
-    implicitHeight: contentColumn.implicitHeight + 2 * contentColumn.anchors.margins
+    implicitHeight: contentColumn.implicitHeight
+                     + contentColumn.anchors.topMargin
+                     + contentColumn.anchors.bottomMargin
     radius: dashboardConfig.lcars ? 0 : 18
     color: dashboardConfig.lcars ? "#000000" : "#0f1726"
     border.color: dashboardConfig.lcars ? "#000000" : "#26364d"
@@ -282,7 +284,10 @@ Rectangle {
     ColumnLayout {
         id: contentColumn
         anchors.fill: parent
-        anchors.margins: lcarsElbow.contentMargin
+        anchors.leftMargin: lcarsElbow.leftMargin
+        anchors.rightMargin: lcarsElbow.rightMargin
+        anchors.topMargin: lcarsElbow.topMargin
+        anchors.bottomMargin: lcarsElbow.bottomMargin
         spacing: Fmt.panelSpacing
 
         PanelHeader {

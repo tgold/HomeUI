@@ -24,10 +24,10 @@ QtObject {
     }
 
     readonly property string fontFamily: {
-        if (!lcars) {
+        if (!lcars || loadedFontFamily.length === 0) {
             return ""
         }
-        return loadedFontFamily.length > 0 ? loadedFontFamily : "Arial"
+        return loadedFontFamily
     }
 
     readonly property color ground: lcars ? "#000000" : "#070d18"

@@ -613,13 +613,16 @@ Renders a compact row of radio-style buttons for picking one of a fixed set of s
   "item": "evcc_loadpoint0_mode",
   "accentColor": "#f59e0b",
   "options": [
-    { "label": "PV",   "value": "pv" },
-    { "label": "Min",  "value": "minpv" },
-    { "label": "Fast", "value": "now" },
-    { "label": "Off",  "value": "off" }
+    { "label": "Aus", "value": "off" },
+    { "label": "Smart", "value": "smart", "activeValues": ["smart", "pv"] },
+    { "label": "Schnell", "value": "now" }
   ]
 }
 ```
+
+evcc 0.316 reports `smart` for surplus, tariff, and plan charging. The Smart button sends `smart`. `activeValues` highlights Smart when the item still reports the legacy state `pv`.
+
+The openHAB evcc binding 5.2.3 has no Always Charge channel. It only creates channels declared in its thing XML, and the mode channel's command options there are still Off, Fast, Min+PV, and Only PV. Continuous minimum charging (about 1.4 kW, evcc states `off` / `on` / `once`) needs the newer binding that defines `loadpoint-always-charge`. Until that binding is installed, the dashboard cannot show or switch that setting. Changing it in the evcc UI leaves the mode item on `smart`.
 
 `options` is required and must contain at least one `{ label, value }` pair. The currently active value is highlighted by string-comparing it against the item state (case-insensitive). Each press dispatches `command` when present, otherwise `value` (OpenHAB or MQTT, depending on which binding the control declares).
 

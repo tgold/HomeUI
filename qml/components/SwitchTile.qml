@@ -35,6 +35,7 @@ Rectangle {
         RowLayout {
             Layout.fillWidth: true
             spacing: 6
+            visible: !dashboardConfig.lcars || root.singleShot
 
             Rectangle {
                 Layout.preferredWidth: 28
@@ -74,6 +75,7 @@ Rectangle {
             panel: root.panel
             targetControl: root.control
             powerOn: root.isOn
+            label: root.control.label || "Control"
             onCommand: root.onCmd
             offCommand: root.offCmd
             accent: root.accent

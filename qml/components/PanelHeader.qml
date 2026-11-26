@@ -23,7 +23,7 @@ Item {
     }
 
     implicitWidth: 160
-    implicitHeight: dashboardConfig.lcars ? 30 : (subtitle.length > 0 ? 40 : 24)
+    implicitHeight: dashboardConfig.lcars ? 28 : (subtitle.length > 0 ? 40 : 24)
 
     RowLayout {
         anchors.fill: parent
@@ -74,11 +74,21 @@ Item {
             radius: 14
             color: root.accentFor(root.title)
 
+            // The elbow owns the left curve. A flat left end keeps a second
+            // radius from showing through the join.
+            Rectangle {
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: parent.radius
+                color: parent.color
+            }
+
             Text {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.leftMargin: 16
+                anchors.leftMargin: 22
                 anchors.rightMargin: 12
                 text: root.title
                 color: "#000000"

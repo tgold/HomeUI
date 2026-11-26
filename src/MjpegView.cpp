@@ -64,14 +64,13 @@ MjpegView::~MjpegView()
 void MjpegView::paint(QPainter *painter)
 {
     const QRectF target(0, 0, width(), height());
+    painter->fillRect(target, m_backdropColor);
     if (m_frame.isNull()) {
-        painter->fillRect(target, QColor(QStringLiteral("#1e293b")));
         return;
     }
 
     const QSizeF imageSize(m_frame.width(), m_frame.height());
     if (imageSize.width() <= 0 || imageSize.height() <= 0) {
-        painter->fillRect(target, QColor(QStringLiteral("#1e293b")));
         return;
     }
 
@@ -154,6 +153,21 @@ void MjpegView::setIgnoreSslErrors(bool ignoreSslErrors)
     }
     m_ignoreSslErrors = ignoreSslErrors;
     emit ignoreSslErrorsChanged();
+}
+
+QColor MjpegView::backdropColor() const
+{
+    return m_backdropColor;
+}
+
+void MjpegView::setBackdropColor(const QColor &backdropColor)
+{
+    if (m_backdropColor == backdropColor) {
+        return;
+    }
+    m_backdropColor = backdropColor;
+    emit backdropColorChanged();
+    update();
 }
 
 void MjpegView::start()

@@ -74,6 +74,7 @@ Rectangle {
         RowLayout {
             Layout.fillWidth: true
             spacing: 6
+            visible: !dashboardConfig.lcars || root.hidePower
 
             Rectangle {
                 Layout.preferredWidth: 28
@@ -107,20 +108,34 @@ Rectangle {
             }
         }
 
-        PowerButtons {
+        RowLayout {
             Layout.fillWidth: true
             visible: !root.hidePower
-            panel: root.panel
-            targetControl: root.hasPowerItem ? root.powerControl() : root.control
-            powerOn: root.isActive
-            onCommand: root.hasPowerItem
-                    ? (root.control.onCommand || "ON")
-                    : String(root.onLevel)
-            offCommand: root.hasPowerItem
-                    ? (root.control.offCommand || "OFF")
-                    : "0"
-            accent: root.accent
-            enabled: root.hasBinding || root.hasPowerItem
+            spacing: 8
+
+            PowerButtons {
+                Layout.fillWidth: true
+                panel: root.panel
+                targetControl: root.hasPowerItem ? root.powerControl() : root.control
+                powerOn: root.isActive
+                label: root.control.label || "Dimmer"
+                onCommand: root.hasPowerItem
+                        ? (root.control.onCommand || "ON")
+                        : String(root.onLevel)
+                offCommand: root.hasPowerItem
+                        ? (root.control.offCommand || "OFF")
+                        : "0"
+                accent: root.accent
+                enabled: root.hasBinding || root.hasPowerItem
+            }
+
+            Text {
+                text: root.formatDisplayValue(root.currentValue)
+                visible: dashboardConfig.lcars
+                color: "#FFFF99"
+                font.pixelSize: 14
+                font.bold: true
+            }
         }
 
         Slider {

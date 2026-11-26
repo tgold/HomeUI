@@ -148,7 +148,10 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: lcarsElbow.contentMargin
+        anchors.leftMargin: lcarsElbow.leftMargin
+        anchors.rightMargin: lcarsElbow.rightMargin
+        anchors.topMargin: lcarsElbow.topMargin
+        anchors.bottomMargin: lcarsElbow.bottomMargin
         spacing: Fmt.panelSpacing
 
         RowLayout {

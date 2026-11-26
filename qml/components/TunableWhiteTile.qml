@@ -97,6 +97,7 @@ Rectangle {
             Rectangle {
                 Layout.preferredWidth: 28
                 Layout.preferredHeight: 28
+                visible: !dashboardConfig.lcars
                 radius: 8
                 color: root.isActive ? root.accent : "#263449"
 
@@ -111,7 +112,8 @@ Rectangle {
 
             Text {
                 text: root.control.label || "Licht"
-                color: (dashboardConfig.lcars ? "#FFCC99" : "#cbd5e1")
+                visible: !dashboardConfig.lcars
+                color: "#cbd5e1"
                 font.pixelSize: 11
                 font.bold: true
                 elide: Text.ElideRight
@@ -225,6 +227,7 @@ Rectangle {
             panel: root.panel
             targetControl: root.hasPowerItem ? root.powerControl() : root.control
             powerOn: root.isActive
+            label: root.control.label || "Licht"
             onCommand: root.hasPowerItem
                     ? (root.control.onCommand || "ON")
                     : String(root.onLevel)

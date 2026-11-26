@@ -14,6 +14,8 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QFont>
+#include <QFontDatabase>
 #include <QGuiApplication>
 #include <QLoggingCategory>
 #include <QProcess>
@@ -30,6 +32,56 @@ namespace {
 
 Q_LOGGING_CATEGORY(lcBrightness, "homeui.brightness")
 Q_LOGGING_CATEGORY(lcMain, "homeui.main")
+
+QString lcarsFontFamily()
+{
+    static QString family;
+    static bool attempted = false;
+    if (attempted) {
+        return family;
+    }
+    attempted = true;
+
+    const QStringList paths = {
+        QStringLiteral(":/homeui-fonts/Antonio-LCARS.ttf"),
+        QStringLiteral(":/HomeUI/assets/fonts/Antonio-LCARS.ttf"),
+        QStringLiteral(":/qt/qml/HomeUI/assets/fonts/Antonio-LCARS.ttf"),
+        QStringLiteral(":/HomeUI/assets/fonts/Antonio-Bold.ttf"),
+        QStringLiteral(":/qt/qml/HomeUI/assets/fonts/Antonio-Bold.ttf"),
+    };
+    for (const QString &path : paths) {
+        if (!QFile::exists(path)) {
+            qCInfo(lcMain, "LCARS font not at %s", qPrintable(path));
+            continue;
+        }
+        const int id = QFontDatabase::addApplicationFont(path);
+        const QStringList families = QFontDatabase::applicationFontFamilies(id);
+        if (id < 0 || families.isEmpty()) {
+            qCWarning(lcMain, "LCARS font failed to load from %s", qPrintable(path));
+            continue;
+        }
+        family = families.first();
+        qCInfo(lcMain, "LCARS font %s loaded from %s", qPrintable(family), qPrintable(path));
+        break;
+    }
+    if (family.isEmpty()) {
+        qCWarning(lcMain, "LCARS font was not found in the application resources");
+    }
+    return family;
+}
+
+void applyLcarsFont(bool lcars)
+{
+    const QString family = lcarsFontFamily();
+    if (!lcars || family.isEmpty()) {
+        QGuiApplication::setFont(QFont());
+        return;
+    }
+    QFont font(family);
+    font.setBold(true);
+    font.setCapitalization(QFont::AllUppercase);
+    QGuiApplication::setFont(font);
+}
 
 QString envValue(const QProcessEnvironment &env, const QString &name, const QString &fallback = QString())
 {
@@ -485,6 +537,12 @@ int main(int argc, char *argv[])
         &app,
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
+
+    applyLcarsFont(dashboardConfig.lcars());
+    QObject::connect(&dashboardConfig, &DashboardConfig::themeChanged, &app, [&dashboardConfig]() {
+        applyLcarsFont(dashboardConfig.lcars());
+    });
+    engine.rootContext()->setContextProperty(QStringLiteral("lcarsFontFamily"), lcarsFontFamily());
 
     engine.load(QUrl(QStringLiteral("qrc:/HomeUI/qml/Main.qml")));
     openHabClient.start();

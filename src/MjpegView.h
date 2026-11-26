@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QByteArray>
+#include <QColor>
 #include <QElapsedTimer>
 #include <QImage>
 #include <QNetworkAccessManager>
@@ -24,6 +25,7 @@ class MjpegView : public QQuickPaintedItem
     Q_PROPERTY(double frameRate READ frameRate NOTIFY frameRateChanged)
     Q_PROPERTY(int reconnectInterval READ reconnectInterval WRITE setReconnectInterval NOTIFY reconnectIntervalChanged)
     Q_PROPERTY(bool ignoreSslErrors READ ignoreSslErrors WRITE setIgnoreSslErrors NOTIFY ignoreSslErrorsChanged)
+    Q_PROPERTY(QColor backdropColor READ backdropColor WRITE setBackdropColor NOTIFY backdropColorChanged)
 
 public:
     explicit MjpegView(QQuickItem *parent = nullptr);
@@ -43,6 +45,8 @@ public:
     void setReconnectInterval(int reconnectInterval);
     bool ignoreSslErrors() const;
     void setIgnoreSslErrors(bool ignoreSslErrors);
+    QColor backdropColor() const;
+    void setBackdropColor(const QColor &backdropColor);
 
 signals:
     void urlChanged();
@@ -52,6 +56,7 @@ signals:
     void frameRateChanged();
     void reconnectIntervalChanged();
     void ignoreSslErrorsChanged();
+    void backdropColorChanged();
 
 private:
     void start();
@@ -84,4 +89,5 @@ private:
     int m_reconnectInterval = 3000;
     bool m_active = false;
     bool m_ignoreSslErrors = false;
+    QColor m_backdropColor { QStringLiteral("#1e293b") };
 };
